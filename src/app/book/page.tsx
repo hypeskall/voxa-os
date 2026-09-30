@@ -1,0 +1,4 @@
+import Link from "next/link";
+import { ArrowRight, MapPin } from "lucide-react";
+import { publicClinics } from "@/features/public-booking/data";
+export default async function BookingLocations() { const clinics=await publicClinics(); return <main className="booking-locations"><p className="booking-kicker">PROGRAMARE ONLINE</p><h1>Alegeți locația</h1><p className="muted">Disponibilitatea afișată este calculată în timp real pentru fiecare clinică.</p><div className="location-list">{clinics.map((clinic)=><Link key={clinic.slug} href={`/book/${clinic.slug}`}><span><strong>{clinic.name}</strong><small><MapPin size={14}/>{clinic.address||clinic.timezone}</small></span><ArrowRight size={18}/></Link>)}</div>{clinics.length===0&&<div className="booking-empty"><strong>Programarea online nu este activă momentan.</strong><span>Contactați direct clinica pentru o programare.</span></div>}</main>; }

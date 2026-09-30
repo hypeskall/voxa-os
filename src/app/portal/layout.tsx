@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function PortalLayout({children}:{children:React.ReactNode}){return <div className="patient-portal"><header className="portal-header"><Link href="/portal"><span className="public-mark">V</span><strong>Voxa <b>Pacient</b></strong></Link><span>Acces medical securizat</span></header>{children}<footer className="portal-footer">Datele medicale sunt disponibile numai în sesiunea autentificată.</footer></div>}

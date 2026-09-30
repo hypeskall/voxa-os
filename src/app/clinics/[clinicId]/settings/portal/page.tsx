@@ -1,0 +1,6 @@
+import Link from "next/link";
+import { PageHeading, Section } from "@/components/ui/page";
+import { Button } from "@/components/ui/button";
+import { requireClinic } from "@/features/auth/access";
+export const metadata={title:"Portal și booking"};
+export default async function PortalSettings({params}:{params:Promise<{clinicId:string}>}) {const {clinicId}=await params;const {clinic}=await requireClinic(clinicId);return <><PageHeading eyebrow="SETĂRI" title="Portal și booking" description="Punctele de acces externe configurate pentru această locație."/><Section title="Booking public" description="Starea și adresa fluxului public de programare."><dl className="detail-grid"><div><dt>STARE</dt><dd>{clinic.public_booking_enabled?"Activ":"Inactiv"}</dd></div><div><dt>ADRESĂ</dt><dd>{clinic.booking_slug??"Neconfigurată"}</dd></div></dl>{clinic.public_booking_enabled&&clinic.booking_slug&&<Button asChild variant="outline"><Link href={`/book/${clinic.booking_slug}`} target="_blank">Deschide booking-ul public</Link></Button>}</Section><Section title="Portal pacient" description="Activarea identității se face individual din profilul pacientului."><p className="muted">Pacienții folosesc autentificare separată cu magic link și văd doar documentele și rezultatele publicate explicit.</p></Section></>;}

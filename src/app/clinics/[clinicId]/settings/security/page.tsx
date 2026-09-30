@@ -1,0 +1,6 @@
+import Link from "next/link";
+import { PageHeading, Section } from "@/components/ui/page";
+import { requireClinic } from "@/features/auth/access";
+import { can } from "@/lib/permissions";
+export const metadata={title:"Securitate"};
+export default async function SecuritySettings({params}:{params:Promise<{clinicId:string}>}) {const {clinicId}=await params;const {permissions}=await requireClinic(clinicId);return <><PageHeading eyebrow="SETĂRI" title="Securitate" description="Acces, trasabilitate și protecția datelor clinicii."/><Section title="Controale active"><dl className="record-details"><div><dt>Sesiuni</dt><dd>Cookie-uri HttpOnly, SameSite=Lax și Secure în producție.</dd></div><div><dt>Izolare</dt><dd>RLS și autorizare server-side pentru clinică.</dd></div><div><dt>Fișiere medicale</dt><dd>Bucket privat și linkuri semnate cu expirare scurtă.</dd></div></dl></Section><Section title="Administrare acces"><div className="settings-link-grid">{can(permissions,"members.read")&&<Link href={`/clinics/${clinicId}/team`}>Utilizatori și roluri<small>Apartenențe și acces activ</small></Link>}{can(permissions,"audit.read")&&<Link href={`/clinics/${clinicId}/audit`}>Jurnal de audit<small>Acțiuni și exporturi înregistrate</small></Link>}</div></Section></>;}

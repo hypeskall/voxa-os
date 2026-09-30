@@ -1,0 +1,19 @@
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { db } from "@/lib/supabase/server";
+import { MEDICAL_BUCKET, SIGNED_DOWNLOAD_TTL_SECONDS } from "@/lib/medical-storage";
+
+const authorizationSchema = z.object({ path: z.string(), file_name: z.string(), mime_type: z.string() });
+export async function GET(_: Request, { params }: { params: Promise<{ clinicId: string; documentId: string }> }) {
+  const parsed = z.object({ clinicId: z.uuid(), documentId: z.uuid() }).safeParse(await params);
+  if (!parsed.success) return new NextResponse("Negăsit", { status: 404 });
+  const client = await db();
+  const { data: { user } } = await client.auth.getUser();
+  if (!user) return new NextResponse("Neautorizat", { status: 401 });
+  const { data, error } = await client.rpc("authorize_document_download", { cid: parsed.data.clinicId, document_id: parsed.data.documentId });
+  const access = authorizationSchema.safeParse(data);
+  if (error || !access.success) return new NextResponse("Acces refuzat", { status: 403 });
+  const { data: signed, error: signError } = await client.storage.from(MEDICAL_BUCKET).createSignedUrl(access.data.path, SIGNED_DOWNLOAD_TTL_SECONDS, { download: access.data.file_name });
+  if (signError || !signed) return new NextResponse("Fișier indisponibil", { status: 404 });
+  return NextResponse.redirect(signed.signedUrl, { headers: { "Cache-Control": "private, no-store" } });
+}
