@@ -70,7 +70,7 @@ Migration `202609280011` adds public-booking clinic settings, calendar preferenc
 
 Confirmation links combine a random public identifier, an expiry and an HMAC signature. PostgreSQL stores only SHA-256 digests; issuing a replacement revokes the prior token. Public RPCs expose only one appointment and enforce expiry, revocation, rate limits and the clinic cancellation policy. They do not establish a patient session.
 
-Notification business logic targets a provider interface. The development provider logs masked metadata only; the production webhook adapter requires explicit credentials and sends an idempotency key. PostgreSQL owns templates, jobs, attempts, statuses and audit events. Unique idempotency keys prevent duplicate appointment events and reminder offsets. A Vercel cron invokes the server-only worker every five minutes.
+Notification business logic targets a provider interface. The development provider logs masked metadata only; the production webhook adapter requires explicit credentials and sends an idempotency key. PostgreSQL owns templates, jobs, attempts, statuses and audit events. Unique idempotency keys prevent duplicate appointment events and reminder offsets. A GitHub Actions schedule invokes the secured server-only worker endpoint every five minutes; `CRON_SECRET` must match in GitHub and Vercel.
 
 ## Medical documents, results and portal
 

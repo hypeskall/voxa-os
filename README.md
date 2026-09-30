@@ -25,7 +25,7 @@ npm run dev
 | `BOOKING_RATE_LIMIT_SALT`               | Secret server-only pentru amprenta cererilor publice  |
 | `SUPABASE_SERVICE_ROLE_KEY`             | Exclusiv server: worker și invitații portal           |
 | `CONFIRMATION_TOKEN_SECRET`             | Semnarea linkurilor de confirmare                      |
-| `CRON_SECRET`                           | Autorizarea jobului Vercel                             |
+| `CRON_SECRET`                           | Autorizarea workerului de notificări                   |
 | `APP_ORIGIN`                            | Originea canonică pentru linkuri                       |
 | `BOOKING_EMBED_ORIGINS`                 | Origini HTTPS permise pentru widget-ul iframe          |
 | `NOTIFICATION_PROVIDER`                 | `development` sau `webhook`                            |
@@ -67,8 +67,9 @@ Testele SQL rulează migrations reale în PostgreSQL WASM. Suitele verifică dis
 1. Creați un proiect Supabase separat; nu încărcați seed-ul.
 2. `npx supabase link --project-ref PROJECT_REF`, apoi `npx supabase db push` (fără `--include-seed`).
 3. Ajustați `site_url` pentru domeniul real și aplicați configurația Auth cu `supabase config push` folosind configurația mediului; păstrați signup dezactivat și rate limits restrictive.
-4. Configurați variabilele din `.env.example` în Vercel. Secretele rămân server-only. Cronul din `vercel.json` procesează reminderele la cinci minute.
-5. Folosiți HTTPS, conturi reale și verificați autentificarea/deconectarea, refresh-ul cookie-urilor, accesul multi-clinic și revocarea rolurilor pe mediul de staging.
+4. Configurați variabilele din `.env.example` în Vercel. Secretele rămân server-only. În GitHub, la **Settings → Secrets and variables → Actions**, setați variabila `VOXA_APP_ORIGIN` la originea HTTPS a proiectului Vercel de producție și secretul `CRON_SECRET` la aceeași valoare ca în Vercel. Workflow-ul `Voxa OS notification worker` apelează endpointul securizat la fiecare cinci minute și poate fi pornit manual pentru verificare.
+5. Păstrați un singur proiect Vercel de producție conectat la acest repository. Folosiți presetul Next.js, directorul rădăcină al repository-ului, `npm ci`, `npm run build`, directorul de ieșire implicit și Node.js 24.x. Nu configurați cronul de cinci minute în `vercel.json` pe planul Hobby: Vercel respinge deployment-ul înaintea logurilor de build. GitHub Actions poate întârzia sau omite execuții programate și dezactivează programările dintr-un repository public după 60 de zile fără activitate; pentru procesare cu precizie mai bună, folosiți un scheduler dedicat sau Vercel Pro.
+6. Folosiți HTTPS, conturi reale și verificați autentificarea/deconectarea, refresh-ul cookie-urilor, accesul multi-clinic și revocarea rolurilor pe mediul de staging.
 
 Nu aplicați `db reset` pe producție. Cookie-urile sunt Secure în build-ul production; testați local autentificarea cu `npm run dev` sau HTTPS. Nu cache-uiți răspunsuri autentificate la un CDN: proxy-ul trimite `private, no-store`.
 
