@@ -2,11 +2,15 @@ import { NextResponse } from "next/server";
 import { timingSafeEqual } from "node:crypto";
 import { processNotifications } from "@/features/notifications/worker";
 
+export const maxDuration = 60;
+
 function authorized(request: Request) {
   const expected = process.env.CRON_SECRET;
   const actual = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ?? "";
-  if (!expected || actual.length !== expected.length) return false;
-  return timingSafeEqual(Buffer.from(actual), Buffer.from(expected));
+  if (!expected) return false;
+  const actualBytes = Buffer.from(actual);
+  const expectedBytes = Buffer.from(expected);
+  return actualBytes.length === expectedBytes.length && timingSafeEqual(actualBytes, expectedBytes);
 }
 async function run(request: Request) {
   if (!authorized(request)) return NextResponse.json({ error: "Neautorizat." }, { status: 401 });
