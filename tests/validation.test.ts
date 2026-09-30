@@ -34,6 +34,7 @@ describe("Server validation and permission gates", () => {
         name: "  Clinic  ",
         address: "",
         timezone: "Europe/Bucharest",
+        whatsapp_reminder_template: "Bună ziua, vă reamintim programarea de mâine.",
       }).name,
     ).toBe("Clinic");
   });
