@@ -19,7 +19,7 @@ export default async function Login() {
         <div className="brand">
           <span className="brand-mark">V</span>
           <span className="brand-label">
-            VOXA <b>OS</b>
+            VOXA
           </span>
         </div>
         <div className="auth-statement">
@@ -32,7 +32,7 @@ export default async function Login() {
             Acces securizat la spațiul operațional al Clinicii Maria.
           </p>
         </div>
-        <footer>VOXA OS · Spațiu dedicat echipei clinicii</footer>
+        <footer>VOXA · Spațiu dedicat echipei clinicii</footer>
       </aside>
       <main className="auth-main">
         <div className="auth-box">

@@ -6,7 +6,7 @@ import "@fontsource/noto-sans/700.css";
 import "./globals.css";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: { default: "Voxa OS", template: "%s · Voxa OS" },
+  title: { default: "Voxa", template: "%s · Voxa" },
   description: "Spațiul de administrare al clinicii",
   robots: { index: false, follow: false },
 };

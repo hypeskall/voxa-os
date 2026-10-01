@@ -1,6 +1,8 @@
 import "server-only";
 import { z } from "zod";
 import { requireClinic } from "@/features/auth/access";
+import { calendarAppointments } from "@/features/calendar/data";
+import { calendarFiltersSchema } from "@/features/calendar/model";
 
 const dashboardSchema = z.object({
   date: z.string(),
@@ -44,5 +46,13 @@ export async function loadOperationalDashboard(clinicId: string, localDay: strin
   if (error || reminders.error) throw new Error("Tabloul operațional nu a putut fi încărcat.");
   const parsed = dashboardSchema.safeParse(data);
   if (!parsed.success) throw new Error("Răspuns invalid pentru tabloul operațional.");
-  return { ...parsed.data, tomorrow_reminders: reminderSchema.parse(reminders.data) };
+  // Use the same daily schedule as the calendar, even before migration 022 is applied.
+  const calendar = parsed.data.can_view_schedule
+    ? await calendarAppointments(clinicId, "day", localDay, calendarFiltersSchema.parse({}))
+    : null;
+  return {
+    ...parsed.data,
+    upcoming: calendar?.appointments.filter((item) => item.status !== "CANCELLED") ?? [],
+    tomorrow_reminders: reminderSchema.parse(reminders.data),
+  };
 }

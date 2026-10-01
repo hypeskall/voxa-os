@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 export default function NotFound() {
   return (
     <main className="standalone">
-      <p className="eyebrow">VOXA OS · ACCES</p>
+      <p className="eyebrow">VOXA · ACCES</p>
       <h1>Pagina nu este disponibilă</h1>
       <p className="muted mb-6">
         Locația sau pagina nu există ori contul dumneavoastră nu are acces.

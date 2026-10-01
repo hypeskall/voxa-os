@@ -3,7 +3,12 @@ import { expect, test, type Page } from "@playwright/test";
 const clinic = "30000000-0000-4000-8000-000000000001";
 // Keep the scenario ahead of the test run's local clinic day so the engine does
 // not correctly discard every slot after closing time.
-const bookingDate = "2026-10-01";
+const bookingDay = new Date();
+bookingDay.setUTCDate(bookingDay.getUTCDate() + 2);
+while ([0,6].includes(bookingDay.getUTCDay())) bookingDay.setUTCDate(bookingDay.getUTCDate() + 1);
+const bookingDate = bookingDay.toISOString().slice(0,10);
+let bookedInternalTime = "";
+const bookingDateRo = bookingDate.split("-").reverse().join(".");
 async function login(page: Page) {
   await page.goto("/login");
   await page.getByLabel("Utilizator").fill("owner@voxa.test");
@@ -15,29 +20,31 @@ async function login(page: Page) {
 test.describe.serial("internal calendar and public booking", () => {
   test("reception flow creates an appointment and renders it in the calendar", async ({ page }) => {
     await login(page);
-    await page.goto(`/clinics/${clinic}/calendar?view=week&date=2026-09-28`);
+    await page.goto(`/clinics/${clinic}/calendar?view=week&date=${bookingDate}`);
     await expect(page.getByRole("heading", { name: "Calendar", exact: true })).toBeVisible();
-    await page.getByRole("button", { name: "Programare nouă" }).click();
+    await page.getByRole("button", { name: "Programare nouă", exact: true }).click();
     const drawer = page.getByRole("dialog");
-    await drawer.getByLabel("Caută pacient").fill("Pacient demonstrativ 01");
-    await drawer.getByRole("button", { name: /Pacient demonstrativ 01/ }).click();
+    await drawer.getByLabel("Caută pacient").fill("Andrei Popescu");
+    await drawer.getByRole("button", { name: /Andrei Popescu/ }).click();
     await drawer.getByLabel("Serviciu").selectOption({ label: "Consultație inițială" });
-    await drawer.getByLabel("Data").fill(bookingDate);
+    await drawer.getByLabel("Data").fill(bookingDateRo);
+    await page.keyboard.press("Tab");
     const firstSlot = drawer.locator(".slot-picker button").first();
     await expect(firstSlot).toBeVisible();
     const internalTime = (await firstSlot.textContent())!;
+    bookedInternalTime = internalTime;
     await firstSlot.click();
     await drawer.getByRole("button", { name: "Creează programarea" }).click();
     await expect(page.getByText("Programarea a fost creată", { exact: false })).toBeVisible();
-    const card = page.getByRole("button", { name: /Pacient demonstrativ 01/ });
+    const card = page.getByRole("button", { name: /Andrei Popescu/ });
     await expect(card).toBeVisible();
     await expect(card).toContainText(internalTime);
   });
 
   test("reception resizes an appointment to 45 minutes from the calendar", async ({ page }) => {
     await login(page);
-    await page.goto(`/clinics/${clinic}/calendar?view=week&date=2026-09-28`);
-    const card = page.getByRole("button", { name: /Pacient demonstrativ 01/ });
+    await page.goto(`/clinics/${clinic}/calendar?view=week&date=${bookingDate}`);
+    const card = page.getByRole("button", { name: /Andrei Popescu/ });
     await expect(card).toBeVisible();
     await card.getByRole("slider", { name: "Durata programării" }).press("ArrowDown");
     await expect(page.getByText("Durata programării a fost actualizată", { exact: false })).toBeVisible();
@@ -54,9 +61,10 @@ test.describe.serial("internal calendar and public booking", () => {
     await page.getByRole("button", { name: /Primul medic disponibil/ }).click();
     await page.getByRole("button", { name: /Continuă/ }).click();
     await page.getByLabel("Data programării").fill(bookingDate);
+    await page.keyboard.press("Tab");
     const slots = page.locator(".public-slot-grid button");
     await expect(slots.first()).toBeVisible();
-    await expect(slots.filter({ hasText: "09:00" })).toHaveCount(0);
+    await expect(slots.filter({ hasText: bookedInternalTime })).toHaveCount(0);
     await slots.first().click();
     const publicTime = (await slots.first().textContent())!;
     await page.getByRole("button", { name: /Continuă/ }).click();
@@ -73,16 +81,16 @@ test.describe.serial("internal calendar and public booking", () => {
 
   test("website appointment appears internally and a conflicting drag rolls back", async ({ page }) => {
     await login(page);
-    await page.goto(`/clinics/${clinic}/calendar?view=week&date=2026-09-28`);
+    await page.goto(`/clinics/${clinic}/calendar?view=week&date=${bookingDate}`);
     const websiteCard = page.getByRole("button", { name: /Pacient Website/ });
-    const internalCard = page.getByRole("button", { name: /Pacient demonstrativ 01/ });
+    const internalCard = page.getByRole("button", { name: /Andrei Popescu/ });
     await expect(websiteCard).toBeVisible();
     await expect(internalCard).toBeVisible();
     const websiteTime = (await websiteCard.locator(".appointment-time").textContent())?.split("–")[0].trim();
     const originalTime = await internalCard.locator(".appointment-time").textContent();
     await page.evaluate(({ targetTime, bookingDate }) => {
       const cards = Array.from(document.querySelectorAll<HTMLButtonElement>(".appointment-card"));
-      const source = cards.find((card) => card.textContent?.includes("Pacient demonstrativ 01"));
+      const source = cards.find((card) => card.textContent?.includes("Andrei Popescu"));
       const target = document.querySelector<HTMLElement>(`.calendar-drop-slot[data-date="${bookingDate}"][data-time="${targetTime}"]`);
       if (!source || !target) throw new Error("Elementele pentru drag-and-drop nu au fost găsite.");
       const transfer = new DataTransfer();
@@ -98,7 +106,7 @@ test.describe.serial("internal calendar and public booking", () => {
 
   test("appointment drawer exposes workflow actions and history", async ({ page }) => {
     await login(page);
-    await page.goto(`/clinics/${clinic}/calendar?view=agenda&date=2026-09-28`);
+    await page.goto(`/clinics/${clinic}/calendar?view=agenda&date=${bookingDate}`);
     await page.getByRole("row", { name: /Pacient Website/ }).click();
     const drawer = page.getByRole("dialog");
     await expect(drawer.getByText("Istoric", { exact: true })).toBeVisible();

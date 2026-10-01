@@ -1,4 +1,6 @@
 "use client";
+import { LiveRefresh } from "@/components/live-refresh";
+import { addCalendarMonths } from "./model";
 import Link from "next/link";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -66,10 +68,6 @@ export function CalendarWorkspace({ clinicId, clinicName, clinicAddress, clinicP
     queueMicrotask(() => setItems(appointments));
   }, [appointments]);
   useEffect(() => {
-    const timer = setInterval(() => router.refresh(), 30_000);
-    return () => clearInterval(timer);
-  }, [router]);
-  useEffect(() => {
     if (!selectedId) return;
     startTransition(async () => {
       const response = await appointmentDetailAction(clinicId, selectedId);
@@ -86,8 +84,8 @@ export function CalendarWorkspace({ clinicId, clinicName, clinicAddress, clinicP
     });
   }
   function move(direction: number) {
-    const amount = view === "day" ? 1 : view === "month" ? 28 : view === "agenda" ? 14 : 7;
-    navigate(view, addCalendarDays(date, direction * amount));
+    const amount = view === "day" ? 1 : view === "agenda" ? 14 : 7;
+    navigate(view, view === "month" ? addCalendarMonths(date, direction) : addCalendarDays(date, direction * amount));
   }
   async function dropAppointment(appointmentId: string, targetDate: string, targetTime: string) {
     const current = items.find((item) => item.id === appointmentId);
@@ -129,7 +127,8 @@ export function CalendarWorkspace({ clinicId, clinicName, clinicAddress, clinicP
   function openAppointment(id: string) { setDetail(null); setSelectedId(id); }
 
   return <>
-    <PageHeading eyebrow={clinicName.toUpperCase()} title="Calendar" description="Programări și disponibilitate operațională în timp real." action={canManage ? <AppointmentComposer clinicId={clinicId} timeZone={timeZone} services={options.services} doctors={options.doctors} rooms={options.rooms} equipment={options.equipment} initialDate={date} incrementMinutes={incrementMinutes} visibleStart={visibleStart} visibleEnd={visibleEnd} canOverride={canOverride} prefill={createPrefill} onCreated={(message) => { setNotice(message); router.refresh(); }} onOpenAppointment={openAppointment} /> : undefined} />
+    <LiveRefresh timeZone={timeZone} selectedDate={date} />
+    <PageHeading eyebrow={clinicName.toUpperCase()} title="Calendar" description="Programări și disponibilitate operațională în timp real." action={canManage ? <AppointmentComposer key={date} clinicId={clinicId} timeZone={timeZone} services={options.services} doctors={options.doctors} rooms={options.rooms} equipment={options.equipment} initialDate={date} incrementMinutes={incrementMinutes} visibleStart={visibleStart} visibleEnd={visibleEnd} canOverride={canOverride} prefill={createPrefill} onCreated={(message) => { setNotice(message); router.refresh(); }} onOpenAppointment={openAppointment} /> : undefined} />
     <section className="calendar-shell" aria-busy={isPending}>
       <div className="calendar-toolbar">
         <div className="calendar-nav"><Button variant="outline" onClick={() => navigate(view, new Intl.DateTimeFormat("sv-SE", { timeZone }).format(new Date()))}>Astăzi</Button><Button variant="outline" size="icon" aria-label="Perioada anterioară" onClick={() => move(-1)}><ChevronLeft size={17} /></Button><Button variant="outline" size="icon" aria-label="Perioada următoare" onClick={() => move(1)}><ChevronRight size={17} /></Button><strong>{dayLabel(range.start, timeZone, true)} – {dayLabel(addCalendarDays(range.end, -1), timeZone, true)}</strong></div>
@@ -160,7 +159,7 @@ function TimeGrid({ days, items, timeZone, canManage, dragging, setDragging, onD
   for (let minute = scale.startMinute; minute <= scale.endMinute; minute += 60) labels.push(minute);
   if (labels.at(-1) !== scale.endMinute) labels.push(scale.endMinute);
   return <div className="time-grid-scroll"><div className="time-grid" style={{ minWidth: `${Math.max(900, days.length * 166 + 72)}px`, gridTemplateColumns: `72px repeat(${days.length}, minmax(166px, 1fr))`, gridTemplateRows: `58px ${scale.height}px` }}>
-    <div className="time-corner" />{days.map((day) => { const weekend=[0,6].includes(new Date(`${day}T12:00:00Z`).getUTCDay()); return <div key={day} className={`time-day-heading ${day===today?"is-today":""} ${weekend?"is-weekend":""}`}><strong>{dayLabel(day,timeZone)}</strong><small>{formatRomanianDate(day)}</small>{weekend&&<em>Închis</em>}</div>; })}
+    <div className="time-corner" />{days.map((day) => { const weekend=[0,6].includes(new Date(`${day}T12:00:00Z`).getUTCDay()); return <div key={day} className={`time-day-heading ${day===today?"is-today":""} ${weekend?"is-weekend":""}`}><strong>{dayLabel(day,timeZone)}</strong><small>{formatRomanianDate(day)}</small></div>; })}
     <div className="time-labels">{labels.map((minute) => <span key={minute} style={{ top: `${((minute-scale.startMinute)/scale.totalMinutes)*100}%` }}>{minutesToClock(minute)}</span>)}</div>
     {days.map((day) => <DayColumn key={day} day={day} items={items.filter((item) => localParts(item.start_at,timeZone).date===day)} timeZone={timeZone} canManage={canManage} dragging={dragging} setDragging={setDragging} onDrop={onDrop} onResize={onResize} onOpen={onOpen} onCreate={onCreate} nowMinute={day===today?nowMinute:null} config={config} />)}
   </div></div>;
@@ -209,7 +208,7 @@ function DayColumn({ day, items, timeZone, canManage, dragging, setDragging, onD
 function AppointmentBlock({ item,timeZone,canManage,lane,laneCount,scale,incrementMinutes,setDragging,onOpen,onResize }:{item:CalendarAppointment;timeZone:string;canManage:boolean;lane:number;laneCount:number;scale:ReturnType<typeof calendarScale>;incrementMinutes:number;setDragging:(id:string|null)=>void;onOpen:(id:string)=>void;onResize:(id:string,duration:number)=>void}) {
   const startParts=localParts(item.start_at,timeZone).time.split(":").map(Number);
   const startMinute=startParts[0]*60+startParts[1];
-  const originalDuration=Math.max(incrementMinutes,Math.round((Date.parse(item.end_at)-Date.parse(item.start_at))/60000));
+  const originalDuration=Math.max(5,Math.round((Date.parse(item.end_at)-Date.parse(item.start_at))/60000));
   const [previewDuration,setPreviewDuration]=useState<number|null>(null);
   const duration=previewDuration??originalDuration;
   const top=Math.max(0,((startMinute-scale.startMinute)/scale.totalMinutes)*scale.height);

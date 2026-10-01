@@ -16,7 +16,7 @@ export default async function Onboarding() {
   if (error) throw new Error("Accesul nu a putut fi verificat.");
   return (
     <main className="standalone">
-      <p className="eyebrow">VOXA OS</p>
+      <p className="eyebrow">VOXA</p>
       <h1>
         {count
           ? "Accesul la locație nu este activ"

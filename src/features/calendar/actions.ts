@@ -28,7 +28,7 @@ function failure(error: unknown): UiResult<never> {
   return { ok: false, error: message };
 }
 function refresh(clinicId: string) {
-  revalidatePath(`/clinics/${clinicId}/calendar`);
+  revalidatePath(`/clinics/${clinicId}`, "layout");
 }
 
 export async function calendarSlotsAction(clinicId: string, raw: unknown): Promise<UiResult> {

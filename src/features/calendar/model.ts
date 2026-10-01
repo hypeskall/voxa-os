@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { appointmentSourceSchema, appointmentStatusSchema } from "@/features/scheduling/model";
+import { appointmentSourceSchema, appointmentStatusSchema } from "../scheduling/model";
 
 export const calendarViews = ["day", "week", "month", "agenda"] as const;
 export const calendarViewSchema = z.enum(calendarViews);
@@ -79,6 +79,16 @@ export function addCalendarDays(date: string, amount: number) {
   return value.toISOString().slice(0, 10);
 }
 
+export function addCalendarMonths(date: string, amount: number) {
+  const value = new Date(`${date}T12:00:00Z`);
+  const day = value.getUTCDate();
+  value.setUTCDate(1);
+  value.setUTCMonth(value.getUTCMonth() + amount);
+  const lastDay = new Date(Date.UTC(value.getUTCFullYear(), value.getUTCMonth() + 1, 0)).getUTCDate();
+  value.setUTCDate(Math.min(day, lastDay));
+  return value.toISOString().slice(0, 10);
+}
+
 export function calendarRange(view: z.infer<typeof calendarViewSchema>, date: string) {
   const anchor = new Date(`${date}T12:00:00Z`);
   if (view === "day") return { start: date, end: addCalendarDays(date, 1) };
@@ -97,4 +107,3 @@ export function calendarRange(view: z.infer<typeof calendarViewSchema>, date: st
   const tail = 6 - ((lastDate.getUTCDay() + 6) % 7);
   return { start, end: addCalendarDays(last, tail + 1) };
 }
-

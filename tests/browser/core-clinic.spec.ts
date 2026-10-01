@@ -91,7 +91,7 @@ for (const entry of cases)
         ["Programări", "Nu există programări."],
         ["Documente", "Nu există documente încărcate."],
         ["Rezultate", "Nu există rezultate."],
-        ["Comunicări", "Nu există comunicări."],
+        ["Comunicări", "Nu există comunicări înregistrate manual."],
       ]) {
         await page.getByRole("navigation", { name: "Secțiuni profil pacient" }).getByRole("link", { name: tab, exact: true }).click();
         await expect(page.getByText(emptyState, { exact: false })).toBeVisible();

@@ -1,3 +1,4 @@
+import { localDate } from "@/lib/time";
 import { can } from "@/lib/permissions";
 import { requireClinic, workspace } from "@/features/auth/access";
 import { calendarAppointments, calendarOptions } from "@/features/calendar/data";
@@ -23,13 +24,8 @@ export default async function CalendarPage({
   const savedFilters = calendarFiltersSchema.safeParse(account.preferences?.calendar_filters);
   const requestedView = typeof query.view === "string" ? query.view : account.preferences?.calendar_view;
   const view = calendarViewSchema.catch("week").parse(requestedView);
-  const today = new Intl.DateTimeFormat("sv-SE", {
-    timeZone: context.clinic.timezone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date());
-  const date = /^\d{4}-\d{2}-\d{2}$/.test(String(query.date ?? "")) ? String(query.date) : today;
+  const today = localDate(context.clinic.timezone);
+  const date = z.iso.date().safeParse(query.date).success ? String(query.date) : today;
   const filters = calendarFiltersSchema.parse({
     ...(savedFilters.success ? savedFilters.data : {}),
     ...Object.fromEntries(

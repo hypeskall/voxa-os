@@ -40,6 +40,6 @@ export async function resultPdf(result: ResultDetail, signature?: { bytes: Array
   for (const image of [signature, stamp]) if (image) {
     try { const embedded = image.mime === "image/png" ? await pdf.embedPng(image.bytes) : await pdf.embedJpg(image.bytes); const scale = Math.min(120/embedded.width, 55/embedded.height, 1); page.drawImage(embedded, { x, y: y-embedded.height*scale, width: embedded.width*scale, height: embedded.height*scale }); x += 150; } catch { /* PDF remains valid when an unsupported scan cannot be embedded. */ }
   }
-  page.drawText(`Document generat de Voxa OS · rezultat ${result.id} · versiunea ${result.version + 1}`, { x:54, y:32, size:7, font, color:gray });
+  page.drawText(`Document generat de Voxa · rezultat ${result.id} · versiunea ${result.version + 1}`, { x:54, y:32, size:7, font, color:gray });
   return pdf.save();
 }

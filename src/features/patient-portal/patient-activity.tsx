@@ -6,7 +6,7 @@ import { Panel } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ActionForm } from "@/components/ui/action-form";
 import { Field, Select } from "@/components/ui/form";
-import { formatInTimeZone } from "@/lib/time";
+import { localDate, formatInTimeZone } from "@/lib/time";
 import { appointmentStatusLabels } from "@/lib/locale/ro";
 import { recordManualCommunication } from "./manual-communication-actions";
 
@@ -16,7 +16,7 @@ const directionLabels:Record<string,string>={OUTBOUND:"Inițiată de clinică",I
 export async function PatientAppointments({cid,pid}:{cid:string;pid:string}){
   const {client,clinic}=await requireClinic(cid,"appointments.read");
   const {data}=await client.from("appointments").select("id,start_at,status").eq("clinic_id",cid).eq("patient_id",pid).order("start_at",{ascending:false}).limit(100);
-  return <Section title="Programări"><Table><thead><tr><th>Data</th><th>Stare</th><th></th></tr></thead><tbody>{data?.map(a=><tr key={a.id}><td>{formatInTimeZone(a.start_at,clinic.timezone)}</td><td>{appointmentStatusLabels[a.status]??a.status}</td><td><Link className="text-link" href={`/clinics/${cid}/calendar?appointment=${a.id}`}>Deschide în calendar</Link></td></tr>)}{!data?.length&&<tr><td colSpan={3} className="table-empty">Nu există programări.</td></tr>}</tbody></Table></Section>;
+  return <Section title="Programări"><Table><thead><tr><th>Data</th><th>Stare</th><th></th></tr></thead><tbody>{data?.map(a=><tr key={a.id}><td>{formatInTimeZone(a.start_at,clinic.timezone)}</td><td>{appointmentStatusLabels[a.status]??a.status}</td><td><Link className="text-link" href={`/clinics/${cid}/calendar?date=${localDate(clinic.timezone, new Date(a.start_at))}&appointment=${a.id}`}>Deschide în calendar</Link></td></tr>)}{!data?.length&&<tr><td colSpan={3} className="table-empty">Nu există programări.</td></tr>}</tbody></Table></Section>;
 }
 
 export async function PatientCommunications({cid,pid}:{cid:string;pid:string}){

@@ -4,7 +4,8 @@ import { requireClinic, workspace } from "@/features/auth/access";
 import { PageHeading, Section, Table } from "@/components/ui/page";
 import { Button } from "@/components/ui/button";
 import { loadOperationalDashboard } from "@/features/dashboard/data";
-import { formatInTimeZone } from "@/lib/time";
+import { LiveRefresh } from "@/components/live-refresh";
+import { localDate, formatInTimeZone } from "@/lib/time";
 import { appointmentStatusLabels, formatRomanianDate } from "@/lib/locale/ro";
 import { WhatsappReminderButton } from "@/features/calendar/whatsapp-reminder-button";
 
@@ -15,9 +16,6 @@ const eventLabels: Record<string, string> = {
   DUPLICATE_OVERRIDE: "Avertisment confirmat",
 };
 
-function localToday(timeZone: string) {
-  return new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
-}
 export default async function Overview({
   params,
 }: {
@@ -32,10 +30,11 @@ export default async function Overview({
     .eq("id", clinic.organization_id)
     .single();
   if (error) throw new Error("Organizația nu a putut fi încărcată.");
-  const dashboard = await loadOperationalDashboard(clinicId, localToday(clinic.timezone));
+  const dashboard = await loadOperationalDashboard(clinicId, localDate(clinic.timezone));
   const enabled = new Set(preferences?.dashboard_modules ?? ["metrics", "upcoming", "alerts", "activity"]);
   return (
     <>
+      <LiveRefresh />
       <PageHeading
         eyebrow={org.name}
         title="Spațiul de lucru"
@@ -63,13 +62,13 @@ export default async function Overview({
             <div><span>Ocupare program</span><strong>{dashboard.metrics.occupancy_percent == null ? "—" : `${dashboard.metrics.occupancy_percent}%`}</strong></div>
           </div>}
           <div className="operations-grid">
-            {enabled.has("upcoming") && <Section title="Programări astăzi" description="Programările active rămase pentru astăzi.">
+            {enabled.has("upcoming") && <Section title="Programări astăzi" description="Toate programările de astăzi, sincronizate cu calendarul.">
               <Table><thead><tr><th>Ora</th><th>Pacient</th><th>Serviciu</th><th>Medic / cabinet</th><th>Status</th></tr></thead><tbody>
                 {dashboard.upcoming.map((item) => <tr key={item.id}>
                   <td><Link className="row-link" href={`/clinics/${clinicId}/calendar?date=${dashboard.date}&appointment=${item.id}`}>{new Intl.DateTimeFormat("ro-RO", { hour: "2-digit", minute: "2-digit", timeZone: clinic.timezone }).format(new Date(item.start_at))}</Link></td>
                   <td><Link className="row-link" href={`/clinics/${clinicId}/patients/${item.patient_id}`}>{item.patient_name}</Link></td><td>{item.service_name}</td><td>{[item.doctor_name,item.room_name].filter(Boolean).join(" · ") || "Nealocat"}</td><td><span className={`appointment-status status-${item.status.toLowerCase()}`}>{appointmentStatusLabels[item.status] ?? item.status}</span></td>
                 </tr>)}
-                {!dashboard.upcoming.length && <tr><td colSpan={5} className="table-empty">Nu mai sunt programări pentru astăzi.</td></tr>}
+                {!dashboard.upcoming.length && <tr><td colSpan={5} className="table-empty">Nu există programări pentru astăzi.</td></tr>}
               </tbody></Table>
             </Section>}
             {enabled.has("alerts") && <Section title="Atenție necesară" description="Situații care pot necesita intervenție.">

@@ -1,7 +1,7 @@
 export default function Setup() {
   return (
     <main className="standalone">
-      <p className="eyebrow">VOXA OS · CONFIGURARE</p>
+      <p className="eyebrow">VOXA · CONFIGURARE</p>
       <h1>Conectați spațiul de lucru</h1>
       <p className="muted">
         Aplicația are nevoie de conexiunea la Supabase înainte de autentificare.

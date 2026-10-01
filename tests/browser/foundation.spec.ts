@@ -89,7 +89,7 @@ test("global search is keyboard accessible and tenant scoped",async({page})=>{
   await page.keyboard.press("Control+K");
   const dialog=page.getByRole("dialog");
   await expect(dialog).toBeVisible();
-  await dialog.getByRole("combobox",{name:"Termen de căutare"}).fill("Pacient demonstrativ 01");
+  await dialog.getByRole("combobox",{name:"Termen de căutare"}).fill("Andrei Popescu");
   await expect(dialog.getByRole("option").first()).toBeVisible();
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(new RegExp(`/clinics/${clinic}/(?:patients/|calendar)`));

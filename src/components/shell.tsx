@@ -96,11 +96,11 @@ export function Shell({
         <Link
           href={base}
           className="brand"
-          aria-label="Voxa OS — pagina principală"
+          aria-label="Voxa — pagina principală"
         >
           <span className="brand-mark">V</span>
           <span className="brand-label">
-            VOXA <b>OS</b>
+            VOXA
           </span>
         </Link>
         {nav}
@@ -132,7 +132,7 @@ export function Shell({
           <div className="mobile-menu">
             <Panel
               key={path}
-              title="VOXA OS"
+              title="VOXA"
               description="Administrare clinică"
               drawer
               trigger={
@@ -182,7 +182,7 @@ export function Shell({
           {children}
         </main>
         <footer className="workspace-footer">
-          <span>VOXA OS</span>
+          <span>VOXA</span>
           <span>{clinic.timezone}</span>
         </footer>
       </div>

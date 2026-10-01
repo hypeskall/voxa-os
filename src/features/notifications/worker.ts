@@ -28,7 +28,7 @@ export async function processNotifications(origin: string) {
       const start = context.start_at ? new Date(context.start_at) : null;
       const confirmation = context.confirmation_public_id && context.confirmation_expires_at ? confirmationToken(context.confirmation_public_id, context.confirmation_expires_at) : "";
       const values = { clinic_name: context.clinic_name, clinic_address: context.clinic_address, clinic_phone: context.clinic_phone, patient_name: context.patient_name, service_name: context.service_name ?? "", date: start ? new Intl.DateTimeFormat("ro-RO", { dateStyle: "long", timeZone: context.timezone }).format(start) : "", time: start ? new Intl.DateTimeFormat("ro-RO", { timeStyle: "short", timeZone: context.timezone }).format(start) : "", confirmation_url: confirmation ? `${origin}/appointment/${confirmation}` : "", portal_url: `${origin}/portal` };
-      const delivery = await notificationProvider().send({ channel: job.channel, recipient: job.recipient, subject: render(context.template_subject ?? "Voxa OS", values), body: render(context.template_body ?? "Aveți o actualizare disponibilă.", values), idempotencyKey: job.idempotency_key });
+      const delivery = await notificationProvider().send({ channel: job.channel, recipient: job.recipient, subject: render(context.template_subject ?? "Voxa", values), body: render(context.template_body ?? "Aveți o actualizare disponibilă.", values), idempotencyKey: job.idempotency_key });
       providerAccepted = true;
       const { error: finishError } = await client.rpc("finish_notification_job", { job_id: job.id, final_status: delivery.status, provider_id: delivery.providerMessageId, error_text: "" });
       if (finishError) throw finishError;

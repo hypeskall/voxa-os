@@ -37,7 +37,7 @@ function csvCell(value: string | number | null) {
 
 export function reportToCsv(report: ReportData) {
   const lines: (string | number | null)[][] = [
-    ["Raport operațional Voxa OS"], ["De la", report.from], ["Până la", report.to], [],
+    ["Raport operațional Voxa"], ["De la", report.from], ["Până la", report.to], [],
     ["Indicator", "Valoare"], ["Programări", report.summary.total], ["Finalizate", report.summary.completed],
     ["Anulate", report.summary.cancelled], ["Neprezentări", report.summary.no_show], ["Ocupare program (%)", report.summary.occupancy_percent], [],
     ["Status", "Programări"], ...report.by_status.map((r) => [r.label, r.count]), [],

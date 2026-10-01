@@ -39,6 +39,8 @@ const rpcArgs = {
   list_medical_results: ["cid", "pid"],
   read_doctor_credentials: ["cid", "did"],
   operational_dashboard: ["cid", "local_day"],
+  tomorrow_whatsapp_reminders: ["cid", "local_day"],
+  open_whatsapp_reminder: ["cid", "aid"],
   reports_summary: ["cid", "date_from", "date_to", "doctor_filter", "service_filter"],
   global_search: ["cid", "search_query", "result_limit"],
   record_report_export: ["cid", "date_from", "date_to"],
@@ -61,6 +63,8 @@ const clinics = [
     organization_id: oid,
     name: "Oradea · Centru",
     address: "Str. Exemplului 10, Oradea",
+    phone: "+40 359 000 000",
+    whatsapp_reminder_template: "Bună, {patient_first_name}! Vă reamintim programarea din {date}, ora {time}, la {clinic_name}.",
     timezone: "Europe/Bucharest",
     public_booking_enabled: true,
     booking_slug: "clinica-centru",
@@ -73,6 +77,8 @@ const clinics = [
     organization_id: oid,
     name: "Oradea · Nord",
     address: "Str. Exemplului 22, Oradea",
+    phone: "+40 359 000 000",
+    whatsapp_reminder_template: "Bună, {patient_first_name}! Vă reamintim programarea din {date}, ora {time}, la {clinic_name}.",
     timezone: "Europe/Bucharest",
     public_booking_enabled: false,
     booking_slug: null,
@@ -214,6 +220,11 @@ http
     }
     if (table === "profiles")
       return rows([{ id: uid, full_name: isOwner ? "Alexandra Ionescu" : "Maria Pop" }]);
+    if (table === "doctor_services") {
+      const result = await callerQuery(database, uid,
+        "select doctor_location_id,service_id from public.doctor_services where clinic_id=$1", [eq("clinic_id")]);
+      return rows(result.rows);
+    }
     if (table === "organizations")
       return rows([{ name: "Clinica Maria · date fictive" }]);
     if (table === "user_preferences") {

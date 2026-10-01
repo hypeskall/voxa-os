@@ -110,6 +110,7 @@ export function AppointmentComposer({
   }, [prefill]);
 
   function reset() {
+    setDate(initialDate); preferredTime.current = ""; slotRequest.current++;
     setPatientQuery(""); setPatients([]); setPatient(null); setNewPatient(false);
     setServiceId(""); setDoctorId(""); setSlots([]); setSlot(null); setSlotsLoaded(false); setCustomizeResources(false); setManualRoomId(""); setManualEquipmentIds([]); setNotes(""); setError(""); setDuplicate(null);
   }

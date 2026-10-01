@@ -1,4 +1,4 @@
-# Voxa OS
+# Voxa
 
 Aplicație B2B pentru administrarea clinicilor. Implementarea include fundația multi-tenant, programările, booking-ul public, comunicările, documentele medicale private, rezultatele versionate și portalul pacientului. Documentul original este păstrat intact, iar interfața este în română.
 
@@ -49,6 +49,8 @@ npm test                   # PostgreSQL/PGlite + validare; fără Docker
 Seed-urile locale implicite sunt exclusiv pentru development: două locații fictive din Oradea și o organizație separată pentru verificarea izolării. `seed-core.sql` adaugă registre fictive pentru testele de securitate și flux. Interfața nu generează date simulate când baza este goală.
 
 Pentru instalarea demonstrativă Clinica Maria, rulați separat `supabase/seed-clinica-maria.sql` după migrations. Fișierul este idempotent și configurează identitatea clinicii, programul general, specialitățile, medicii publicați, serviciile, cabinetele, echipamentele și relațiile folosite de scheduling. Duratele, buffer-ele și identificatorii interni marcați `DEMO DEFAULT` sunt valori operaționale configurabile și trebuie confirmate înainte de producție. `supabase/seed-demo-appointments.sql` este opțional, conține exclusiv pacienți sintetici și reconstruiește zece programări pentru ziua curentă; nu se include într-un deploy de producție.
+
+Pentru capturi demo, `node scripts/populate-demo.mjs` adaugă programări fictive în următoarele trei zile lucrătoare, pornind de la programările sintetice existente. Configurați `DEMO_ENV_FILE` (implicit `.env.local`) și `DEMO_CLINIC_ID`. Scriptul păstrează programările existente, evită conflictele cu medicii și resursele și nu trimite notificări. Rulările repetate în aceeași zi nu dublează datele. Se rulează explicit numai pe clinica demonstrativă.
 
 Conturi locale: `owner@voxa.test`, `admin@voxa.test`, `reception@voxa.test`, `doctor@voxa.test`, `assistant@voxa.test`, `other@voxa.test`. Parolă locală pentru toate: `VoxaDev!2026`. Aceste date sunt publice și nu trebuie utilizate în producție.
 
