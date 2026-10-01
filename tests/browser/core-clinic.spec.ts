@@ -3,7 +3,7 @@ const clinic = "30000000-0000-4000-8000-000000000001";
 const base = `/clinics/${clinic}`;
 async function login(page: Page, email = "owner@voxa.test") {
   await page.goto("/login");
-  await page.getByLabel("Adresă de email").fill(email);
+  await page.getByLabel("Utilizator").fill(email);
   await page.getByLabel("Parolă", { exact: true }).fill("VoxaDev!2026");
   await page.getByRole("button", { name: "Conectare", exact: true }).click();
   await expect(
@@ -284,3 +284,4 @@ for (const width of [1440, 768, 390, 320])
       animations: "disabled",
     });
   });
+

@@ -6,7 +6,7 @@ const clinic = "30000000-0000-4000-8000-000000000001";
 const bookingDate = "2026-10-01";
 async function login(page: Page) {
   await page.goto("/login");
-  await page.getByLabel("Adresă de email").fill("owner@voxa.test");
+  await page.getByLabel("Utilizator").fill("owner@voxa.test");
   await page.getByLabel("Parolă", { exact: true }).fill("VoxaDev!2026");
   await page.getByRole("button", { name: "Conectare", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Spațiul de lucru" })).toBeVisible();
@@ -106,3 +106,4 @@ test.describe.serial("internal calendar and public booking", () => {
     await expect(drawer.getByRole("link", { name: "Deschide pacientul" })).toBeVisible();
   });
 });
+

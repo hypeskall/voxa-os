@@ -2,7 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 const clinic = "30000000-0000-4000-8000-000000000001";
 async function login(page: Page, email = "owner@voxa.test") {
   await page.goto("/login");
-  await page.getByLabel("Adresă de email").fill(email);
+  await page.getByLabel("Utilizator").fill(email);
   await page.getByLabel("Parolă", { exact: true }).fill("VoxaDev!2026");
   await page.getByRole("button", { name: "Conectare", exact: true }).click();
   await expect(
@@ -14,7 +14,7 @@ test("redirects anonymous users and presents invalid login feedback", async ({
 }) => {
   await page.goto(`/clinics/${clinic}`);
   await expect(page).toHaveURL(/login/);
-  await page.getByLabel("Adresă de email").fill("owner@voxa.test");
+  await page.getByLabel("Utilizator").fill("owner@voxa.test");
   await page.getByLabel("Parolă", { exact: true }).fill("wrong");
   await page.getByRole("button", { name: "Conectare", exact: true }).click();
   await expect(page.locator("form").getByRole("alert")).toContainText(
@@ -183,3 +183,4 @@ test("login fits a narrow viewport", async ({ page }) => {
   ).toBe(true);
   await page.screenshot({ path: "test-results/login-320.png", fullPage: true });
 });
+

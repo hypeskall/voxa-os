@@ -31,7 +31,11 @@ npm run dev
 | `NOTIFICATION_PROVIDER`                 | `development` sau `webhook`                            |
 | `NOTIFICATION_PROVIDER_URL/TOKEN`       | Adapter webhook de producție, opțional                 |
 
-Cheia `service_role` este importată numai din module `server-only` și este folosită strict pentru workerul de notificări și invitațiile Supabase Auth. Nu adăugați chei private cu prefixul `NEXT_PUBLIC_`.
+Cheia `service_role` este importată numai din module `server-only` sau scripturi administrative locale. Nu adăugați chei private cu prefixul `NEXT_PUBLIC_`.
+
+Autentificarea echipei acceptă utilizator + parolă și păstrează accesul conturilor existente prin email. Numele de utilizator au 3–32 caractere (litere ASCII, cifre, punct, `_`, `-`) și sunt unice global, fără diferență între majuscule și minuscule. Supabase Auth le stochează folosind identificatori interni în domeniul rezervat `users.voxa.invalid`; parolele și sesiunile sunt gestionate de Supabase, fără o bază separată de parole. Conturile fără email livrabil necesită recuperarea accesului prin administrator.
+
+Conturile demo se creează exclusiv prin scriptul administrativ `scripts/create-demo-user.mjs`, folosind `.env.production.local` și variabilele temporare `DEMO_USERNAME`, `DEMO_PASSWORD`, `DEMO_FULL_NAME`, `DEMO_CLINIC_ID`. Scriptul acordă doar rolul RECEPTION în clinica indicată, verifică autentificarea și nu resetează parolele conturilor existente. Credentialele demo nu se salvează în cod sau migrations.
 
 ## Baza de date
 

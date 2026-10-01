@@ -1,6 +1,9 @@
 import { z } from "zod";
 export const loginSchema = z.object({
-  email: z.email().max(254),
+  identifier: z.string().trim().toLowerCase().pipe(z.union([
+    z.email().max(254),
+    z.string().min(3).max(32).regex(/^[a-z][a-z0-9._-]*$/),
+  ])),
   password: z.string().min(1).max(128),
 });
 export const clinicSchema = z.object({

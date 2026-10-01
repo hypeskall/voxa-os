@@ -2,6 +2,7 @@
 import { redirect } from "next/navigation";
 import { db } from "@/lib/supabase/server";
 import { loginSchema } from "@/lib/validation";
+import { loginIdentityEmail } from "./login-identity";
 export type ActionState = { error?: string; success?: string };
 export async function login(
   _: ActionState,
@@ -9,15 +10,18 @@ export async function login(
 ): Promise<ActionState> {
   const input = loginSchema.safeParse(Object.fromEntries(form));
   if (!input.success)
-    return { error: "Introduceți o adresă de email validă și parola." };
+    return { error: "Introduceți un utilizator valid și parola." };
   const client = await db();
-  const { error } = await client.auth.signInWithPassword(input.data);
+  const { error } = await client.auth.signInWithPassword({
+    email: loginIdentityEmail(input.data.identifier),
+    password: input.data.password,
+  });
   if (error)
     return {
       error:
         error.status === 429
           ? "Prea multe încercări. Reîncercați mai târziu."
-          : "Autentificarea nu a reușit. Verificați emailul și parola.",
+          : "Autentificarea nu a reușit. Verificați utilizatorul și parola.",
     };
   const audit = await client.rpc("record_login");
   if (audit.error) {

@@ -16,7 +16,7 @@ describe("Server validation and permission gates", () => {
       clinicSchema.safeParse({ name: " ", address: "", timezone: "Invalid" })
         .success,
     ).toBe(false);
-    expect(loginSchema.safeParse({ email: "bad", password: "x" }).success).toBe(
+    expect(loginSchema.safeParse({ identifier: "bad name", password: "x" }).success).toBe(
       false,
     );
     expect(

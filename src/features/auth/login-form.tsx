@@ -18,18 +18,20 @@ export function LoginForm() {
       className="form-stack"
       onSubmit={handleSubmit((data) => {
         const form = new FormData();
-        form.set("email", data.email);
+        form.set("identifier", data.identifier);
         form.set("password", data.password);
         startTransition(() => action(form));
       })}
     >
-      <Field label="Adresă de email">
+      <Field label="Utilizator">
         <Input
-          type="email"
+          type="text"
           autoComplete="username"
           autoFocus
-          {...register("email")}
-          aria-invalid={!!errors.email}
+          autoCapitalize="none"
+          spellCheck={false}
+          {...register("identifier")}
+          aria-invalid={!!errors.identifier}
         />
       </Field>
       <Field label="Parolă">
@@ -40,9 +42,10 @@ export function LoginForm() {
           aria-invalid={!!errors.password}
         />
       </Field>
-      {(errors.email || errors.password) && (
+      <p className="muted">Puteți folosi și adresa de email a contului existent.</p>
+      {(errors.identifier || errors.password) && (
         <p role="alert" className="message error">
-          Completați un email valid și parola.
+          Completați un utilizator valid și parola.
         </p>
       )}
       {state.error && (
