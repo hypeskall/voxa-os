@@ -76,6 +76,9 @@ test("reception cannot open team, audit or another clinic by URL", async ({
     `/clinics/${clinic}/team`,
     `/clinics/${clinic}/audit`,
     `/clinics/${clinic}/reports`,
+    `/clinics/${clinic}/settings/organization`,
+    `/clinics/${clinic}/settings/privacy`,
+    "/clinics/not-a-uuid",
     "/clinics/30000000-0000-4000-8000-000000000002",
   ]) {
     await page.goto(path);
@@ -183,4 +186,3 @@ test("login fits a narrow viewport", async ({ page }) => {
   ).toBe(true);
   await page.screenshot({ path: "test-results/login-320.png", fullPage: true });
 });
-

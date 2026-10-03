@@ -6,6 +6,7 @@ import type { ActionState } from "@/features/auth/actions";
 import { requireClinic } from "@/features/auth/access";
 import { medicalResult } from "./data";
 import { resultPdf } from "./pdf";
+import { cleanupUploads } from "@/lib/storage-cleanup";
 
 export async function saveResult(cid: string, resultId: string | null, _: ActionState, form: FormData): Promise<ActionState> {
   const { client } = await requireClinic(cid, "results.manage");
@@ -33,8 +34,8 @@ export async function releaseResult(cid: string, id: string, state: ActionState,
   const bytes = await resultPdf(result, await image(credential.signature_object_path, credential.signature_mime), await image(credential.stamp_object_path, credential.stamp_mime));
   const path = `${cid}/${result.patient_id}/results/${id}/v${result.version + 1}.pdf`;
   const { error: uploadError } = await client.storage.from("voxa-medical").upload(path, bytes, { contentType: "application/pdf", upsert: false });
-  if (uploadError) return { error: "PDF-ul nu a putut fi stocat în siguranță." };
+  if (uploadError) { const cleanup = await cleanupUploads(client, "voxa-medical", [path]); return { error: "PDF-ul nu a putut fi stocat în siguranță." + cleanup }; }
   const { error } = await client.rpc("transition_medical_result", { cid, result_id: id, next_status: "RELEASED", pdf_path: path });
-  if (error) { await client.storage.from("voxa-medical").remove([path]); return { error: "Rezultatul nu a putut fi publicat." }; }
+  if (error) { const cleanup = await cleanupUploads(client, "voxa-medical", [path]); return { error: "Rezultatul nu a putut fi publicat." + cleanup }; }
   revalidatePath(`/clinics/${cid}/results/${id}`); return { success: "Rezultatul a fost publicat în portalul pacientului." };
 }

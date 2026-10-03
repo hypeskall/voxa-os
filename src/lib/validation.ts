@@ -9,6 +9,9 @@ export const loginSchema = z.object({
 export const clinicSchema = z.object({
   name: z.string().trim().min(2).max(100),
   address: z.string().trim().max(250),
+  city: z.string().trim().max(100).default(""),
+  county: z.string().trim().max(100).default(""),
+  postal_code: z.string().trim().max(20).default(""),
   phone: z.string().trim().max(40).default(""),
   phone_secondary: z.string().trim().max(40).default(""),
   email: z.union([z.email().max(254), z.literal("")]).default(""),

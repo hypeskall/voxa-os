@@ -12,7 +12,8 @@ from (values
 ) u(id,email,name);
 insert into auth.identities(id,user_id,provider_id,identity_data,provider,last_sign_in_at,created_at,updated_at)
 select gen_random_uuid(),id,id::text,jsonb_build_object('sub',id::text,'email',email,'email_verified',true),'email',now(),now(),now() from auth.users where email like '%@voxa.test';
-insert into public.organizations(id,name) values ('20000000-0000-4000-8000-000000000001','Clinica Maria · date fictive'),('20000000-0000-4000-8000-000000000002','Organizație separată · date fictive');
+insert into public.organizations(id,name,onboarding_completed) values ('20000000-0000-4000-8000-000000000001','Clinica Maria · date fictive',true),('20000000-0000-4000-8000-000000000002','Organizație separată · date fictive',true);
+insert into public.organization_settings(organization_id) values ('20000000-0000-4000-8000-000000000001'),('20000000-0000-4000-8000-000000000002');
 insert into public.clinics(id,organization_id,name,address) values
  ('30000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','Oradea · Centru','Str. Exemplului 10, Oradea'),
  ('30000000-0000-4000-8000-000000000002','20000000-0000-4000-8000-000000000001','Oradea · Nord','Str. Exemplului 22, Oradea'),

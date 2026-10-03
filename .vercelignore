@@ -1,0 +1,9 @@
+.env*
+.git/
+.vercel/
+supabase/seed*.sql
+test-results/
+playwright-report/
+coverage/
+.staging-actors.local.json
+.staging-deploy/

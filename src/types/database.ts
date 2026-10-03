@@ -1,6 +1,8 @@
 // Schema contract for the versioned migrations. Regenerate with Supabase CLI
-// after schema changes: supabase gen types typescript --local > src/types/database.ts.
+// after schema changes into a separate file for comparison:
+// supabase gen types typescript --local > supabase/database.generated.ts.
 import type { Role } from "@/lib/permissions";
+import type { Subscription } from "@/features/subscriptions/model";
 export type Json =
   | string
   | number
@@ -9,12 +11,15 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 type Timestamps = { created_at: string; updated_at: string };
-type Organization = { id: string; name: string } & Timestamps;
+type Organization = { id: string; name: string; legal_name: string; cui: string; email: string; phone: string; website: string; logo_path: string | null; specialty: string; timezone: string; currency: string; country: string; onboarding_completed: boolean; plan: string; subscription_status: string; trial_started_at: string; trial_ends_at: string } & Timestamps;
 type Clinic = {
   id: string;
   organization_id: string;
   name: string;
   address: string;
+  city: string;
+  county: string;
+  postal_code: string;
   phone: string;
   phone_secondary: string;
   email: string;
@@ -103,6 +108,15 @@ type Table<
 export type Database = {
   public: {
     Tables: {
+      organization_subscriptions: Table<Subscription, never, never>;
+      license_keys: Table<{ id: string; organization_id: string | null; code_hash: string; code_hint: string; status: "available" | "assigned" | "active" | "expired" | "revoked"; plan: string; duration_months: number; redeem_by: string; expires_at: string | null; activated_at: string | null; created_by: string | null } & Timestamps, never, never>;
+      subscription_events: Table<{ id: string; organization_id: string; subscription_id: string; event_type: string; metadata: Json; created_at: string }, never, never>;
+      organization_members: Table<{ id: string; organization_id: string; user_id: string; role: Role; status: "active" | "suspended" } & Timestamps, never, never>;
+      onboarding_drafts: Table<{ organization_id: string; step: number; payload: Json; revision: number; updated_at: string }, never, never>;
+      organization_invites: Table<{ id: string; organization_id: string; clinic_id: string; email: string; role: Role; expires_at: string; accepted_at: string | null; revoked_at: string | null; invited_by: string; created_at: string }, never, never>;
+      organization_settings: Table<{ organization_id: string; appointment_settings: Json; notification_settings: Json; branding_settings: Json; calendar_settings: Json; privacy_settings: Json; updated_at: string }>;
+      patient_notes: Table<{ id: string; organization_id: string; clinic_id: string; patient_id: string; author_id: string; content: string } & Timestamps, never, never>;
+      privacy_requests: Table<{ id: string; organization_id: string; clinic_id: string; patient_id: string; requested_by: string; request_type: "anonymization" | "erasure"; status: "pending_review" | "approved" | "rejected" | "completed"; reason: string; review_note: string; reviewed_by: string | null } & Timestamps, never, never>;
       organizations: Table<
         Organization,
         Pick<Organization, "name"> & Partial<Organization>,
@@ -111,7 +125,7 @@ export type Database = {
       clinics: Table<
         Clinic,
         Pick<Clinic, "organization_id" | "name"> & Partial<Clinic>,
-        Partial<Pick<Clinic, "name" | "address" | "phone" | "phone_secondary" | "email" | "timezone" | "public_booking_enabled" | "booking_slug" | "scheduling_increment_minutes" | "calendar_visible_start" | "calendar_visible_end" | "whatsapp_reminder_template">>
+        Partial<Pick<Clinic, "name" | "address" | "city" | "county" | "postal_code" | "phone" | "phone_secondary" | "email" | "timezone" | "public_booking_enabled" | "booking_slug" | "scheduling_increment_minutes" | "calendar_visible_start" | "calendar_visible_end" | "whatsapp_reminder_template">>
       >;
       profiles: Table<
         Profile,
@@ -154,6 +168,7 @@ export type Database = {
       permissions: Table<{ key: string; description: string }, never, never>;
       role_permissions: Table<{ role: Role; permission: string }, never, never>;
       appointments: Table<Appointment, never, never>;
+      patients: Table<{ id:string; organization_id:string; clinic_id:string; name:string; internal_id:string; cnp:string|null; birth_date:string|null; sex:"female"|"male"|"other"|"unspecified"; phone:string; email:string; address:string; city:string; postal_code:string; country:string; administrative_notes:string; active:boolean; archived_at:string|null; created_by:string|null } & Timestamps,never,never>;
       clinic_notification_settings: Table<{ clinic_id: string; organization_id: string; sms_enabled: boolean; email_enabled: boolean; reminder_offsets_minutes: number[]; confirmation_expiry_hours: number; cancellation_min_notice_hours: number; updated_at: string }, never, never>;
       communication_templates: Table<{ id: string; organization_id: string; clinic_id: string; event: NotificationEvent; channel: NotificationChannel; subject: string; body: string; active: boolean; created_at: string; updated_at: string }, never, never>;
       notification_jobs: Table<{ id: string; organization_id: string; clinic_id: string; event: NotificationEvent; channel: NotificationChannel; status: NotificationStatus; appointment_id: string | null; patient_id: string | null; confirmation_id: string | null; recipient: string; scheduled_for: string; idempotency_key: string; attempts: number; max_attempts: number; locked_at: string | null; sent_at: string | null; provider_message_id: string | null; last_error: string; created_by: string | null; created_at: string; updated_at: string }, never, never>;
@@ -177,6 +192,27 @@ export type Database = {
     };
     Views: Record<string, never>;
     Functions: {
+      organization_access: { Args: { oid: string }; Returns: boolean };
+      activate_license: { Args: { oid: string; digest: string }; Returns: boolean };
+      issue_license: { Args: { digest: string; hint: string; assigned_org?: string | null; months?: number; redeem_deadline?: string }; Returns: string };
+      revoke_license: { Args: { lid: string }; Returns: undefined };
+      expire_subscriptions: { Args: Record<string, never>; Returns: number };
+      queue_storage_cleanup: { Args: { bucket: string; path: string }; Returns: string };
+      storage_cleanup_unreferenced: { Args: { job_id: string }; Returns: boolean };
+      save_onboarding: { Args: { oid: string; draft: Json; next_step: number; expected_revision: number }; Returns: number };
+      save_organization_identity: { Args: { oid: string; payload: Json }; Returns: undefined };
+      doctor_calendar_colors: { Args: { cid: string }; Returns: Json };
+      finish_onboarding: { Args: { oid: string; expected_revision: number; invite_digests?: Json }; Returns: string };
+      set_organization_logo: { Args: { oid: string; path: string }; Returns: undefined };
+      create_staff_invite: { Args: { cid: string; target_email: string; target_role: Role; digest: string }; Returns: string };
+      accept_staff_invite: { Args: { digest: string }; Returns: string };
+      revoke_staff_invite: { Args: { iid: string }; Returns: undefined };
+      add_patient_note: { Args: { cid: string; pid: string; note_content: string }; Returns: string };
+      read_workflow_patient: { Args: { cid: string; pid: string }; Returns: Json };
+      request_patient_privacy: { Args: { cid: string; pid: string; kind: string; reason_value: string }; Returns: string };
+      review_privacy_request: { Args: { cid: string; rid: string; decision: string; review: string }; Returns: undefined };
+      export_patient: { Args: { cid: string; pid: string }; Returns: Json };
+      my_doctor_schedule: { Args: { cid: string; day_from: string; day_to: string }; Returns: Json };
       list_core: {
         Args: {
           cid: string;
@@ -257,6 +293,7 @@ export type Database = {
         };
         Returns: string;
       };
+      create_location: { Args: { oid: string; payload: Json }; Returns: string };
       set_membership: {
         Args: {
           cid: string;

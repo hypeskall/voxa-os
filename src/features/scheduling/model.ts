@@ -87,9 +87,8 @@ export const schedulingResultSchema = z.object({
 });
 export type SchedulingResult = z.infer<typeof schedulingResultSchema>;
 
-export const slotsInputSchema = z
+export const rescheduleSlotsInputSchema = z
   .object({
-    service_id: z.uuid(),
     window_start: z.iso.datetime({ offset: true }),
     window_end: z.iso.datetime({ offset: true }),
     doctor_id: optionalId,
@@ -105,6 +104,10 @@ export const slotsInputSchema = z
       31 * 24 * 60 * 60 * 1000,
     "Căutarea este limitată la 31 de zile.",
   );
+export const slotsInputSchema = rescheduleSlotsInputSchema.safeExtend({
+  service_id: z.uuid(),
+});
+export type RescheduleSlotsInput = z.input<typeof rescheduleSlotsInputSchema>;
 export type SlotsInput = z.input<typeof slotsInputSchema>;
 export const slotSchema = z.object({
   start_at: z.string(),

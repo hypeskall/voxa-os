@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   Building2,
@@ -30,15 +30,18 @@ export function Shell({
   name,
   permissions,
   preferences,
+  locations = [],
   children,
 }: {
   clinic: Clinic;
   name: string;
   permissions: string[];
   preferences: Preferences | null;
+  locations?: { id: string; name: string; organizationName: string }[];
   children: React.ReactNode;
 }) {
   const path = usePathname();
+  const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const base = `/clinics/${clinic.id}`;
   const workspaceLinks = [
@@ -46,6 +49,7 @@ export function Shell({
     ...(can(permissions, "appointments.read")
       ? [{ href: `${base}/calendar`, label: "Calendar", icon: CalendarDays }]
       : []),
+    ...(can(permissions, "results.manage") ? [{ href: `${base}/my-schedule`, label: "Programul meu", icon: CalendarDays }] : []),
     ...(can(permissions, modulePermission("patients", "read"))
       ? [{ href: `${base}/patients`, label: "Pacienți", icon: ContactRound }]
       : []),
@@ -149,8 +153,8 @@ export function Shell({
             </Panel>
           </div>
           <div className="location single-clinic">
-            <span className="topbar-label">Clinică</span>
-            <strong>{clinic.name}</strong>
+            <span className="topbar-label">Locație</span>
+            {locations.length > 1 ? <select className="input" aria-label="Schimbă locația" value={clinic.id} onChange={(e) => router.push(`/clinics/${e.target.value}`)}>{locations.map((l) => <option value={l.id} key={l.id}>{l.organizationName} · {l.name}</option>)}</select> : <strong>{clinic.name}</strong>}
           </div>
           <GlobalSearch clinicId={clinic.id} />
           <div className="topbar-user">

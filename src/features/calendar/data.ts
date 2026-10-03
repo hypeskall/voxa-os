@@ -21,15 +21,17 @@ export async function calendarAppointments(
   const range = calendarRange(view, date);
   const rangeStart = localToInstant(`${range.start}T00:00`, clinic.timezone);
   const rangeEnd = localToInstant(`${range.end}T00:00`, clinic.timezone);
-  const { data, error } = await client.rpc("list_calendar_appointments", {
+  const [appointments, colors] = await Promise.all([client.rpc("list_calendar_appointments", {
     cid: clinicId,
     range_start: rangeStart,
     range_end: rangeEnd,
     filters: calendarFiltersSchema.parse(filters),
-  });
-  if (error) throw new Error("Calendarul nu a putut fi încărcat.");
+  }),client.rpc("doctor_calendar_colors",{cid:clinicId})]);
+  const { data, error } = appointments;
+  if (error || colors.error) throw new Error("Calendarul nu a putut fi încărcat.");
+  const colorMap = z.record(z.string(),z.string().regex(/^#[a-fA-F0-9]{6}$/)).parse(colors.data);
   return {
-    appointments: z.array(calendarAppointmentSchema).parse(data),
+    appointments: z.array(calendarAppointmentSchema).parse(data).map((a)=>({...a,doctor_color:a.doctor_location_id?colorMap[a.doctor_location_id]:undefined})),
     range,
     timeZone: clinic.timezone,
   };

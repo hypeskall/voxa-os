@@ -22,6 +22,8 @@ import { PatientResults } from "@/features/results/patient-results";
 import { DoctorCredentials } from "@/features/credentials/doctor-credentials";
 import { ActivatePatientPortal } from "@/features/patient-portal/activate-portal";
 import { PatientAppointments, PatientCommunications } from "@/features/patient-portal/patient-activity";
+import { PatientNotes } from "@/features/privacy/patient-notes";
+import { PatientPrivacy } from "@/features/privacy/patient-privacy";
 export async function CoreDetail({
   cid,
   module,
@@ -42,7 +44,7 @@ export async function CoreDetail({
   const options = await editorOptions(cid, module, row);
   const spec = moduleSpecs[module];
   const patientTabs = [
-    ["overview", "Overview"],
+    ["overview", "Prezentare"],
     ["appointments", "Programări"],
     ["documents", "Documente"],
     ["results", "Rezultate"],
@@ -195,7 +197,7 @@ export async function CoreDetail({
               </div>
             </Section>
           )}
-          {module === "patients" && <ActivatePatientPortal cid={cid} pid={id} />}
+          {module === "patients" && <><PatientNotes cid={cid} pid={id}/>{can(permissions,"organization.manage")&&<PatientPrivacy cid={cid} pid={id}/>}<ActivatePatientPortal cid={cid} pid={id} /></>}
           {module === "doctors" && activeTab === "details" && (
             <DoctorCredentials cid={cid} did={id} />
           )}

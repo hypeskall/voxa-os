@@ -28,7 +28,7 @@ export function CoreCreatePanel({
     <Panel
       drawer
       title={`${spec.singular} — creare`}
-      description="Datele sunt validate și salvate în Clinica Maria."
+      description="Datele sunt validate și salvate în locația selectată."
       trigger={
         <Button variant={variant}>
           <Plus size={16} />

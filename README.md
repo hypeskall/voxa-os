@@ -1,6 +1,10 @@
 # Voxa
 
+Hosted staging: [ghid de configurare și acceptanță](docs/HOSTED_STAGING.md) · [raport de verificare și blocaje](docs/HOSTED_STAGING_REPORT.md). Mediul hosted nu este încă verificat; rezultatele locale nu reprezintă certificarea unui trial real.
+
 Aplicație B2B pentru administrarea clinicilor. Implementarea include fundația multi-tenant, programările, booking-ul public, comunicările, documentele medicale private, rezultatele versionate și portalul pacientului. Documentul original este păstrat intact, iar interfața este în română.
+
+Pagina publică Voxa-OS este la `/`, iar intrarea în aplicație este la `/dashboard`. Planul unic costă **19,99 EUR/lună**, cu **30 de zile gratuit**, fără debitare automată. Migrarea `202610030032_subscriptions_and_licenses.sql` adaugă abonamente, licențe și blocarea accesului operațional după expirare. Plata online nu este integrată. [Ghid de operare și activare](docs/SUBSCRIPTIONS.md) · [Raport de implementare](docs/SUBSCRIPTIONS_IMPLEMENTATION_REPORT.md).
 
 ## Cerințe și instalare
 
@@ -54,9 +58,29 @@ Pentru capturi demo, `node scripts/populate-demo.mjs` adaugă programări fictiv
 
 Conturi locale: `owner@voxa.test`, `admin@voxa.test`, `reception@voxa.test`, `doctor@voxa.test`, `assistant@voxa.test`, `other@voxa.test`. Parolă locală pentru toate: `VoxaDev!2026`. Aceste date sunt publice și nu trebuie utilizate în producție.
 
-Conturile reale de personal se creează prin API-ul administrativ Supabase Auth într-un proces protejat. Public signup este dezactivat. Personalul activează portalul din profilul pacientului, iar pacientul intră prin magic link Supabase fără drepturi de staff.
+Conturile noi folosesc `/register` (nume, email și parolă de minimum 12 caractere), verificare prin email și `/login`. `/forgot-password` și `/reset-password` folosesc recuperarea Supabase Auth. Configurați SMTP și redirect-ul HTTPS `APP_ORIGIN/auth/callback`. Conturile existente cu utilizator continuă să funcționeze. Portalul pacientului rămâne separat, cu magic link fără drepturi de staff.
 
-## Verificări
+## Configurarea SaaS
+
+Primul login fără membership deschide `/onboarding`: identitate, locații, program, servicii, medici, cabinete opționale, echipă opțională și verificare finală. Fiecare pas salvat rămâne în PostgreSQL cu control pentru modificări concurente. Finalizarea creează resursele și relațiile într-o tranzacție. Organizația nouă primește o probă de 30 de zile, fără integrare de plăți sau blocare automată. Migration 023 marchează organizațiile existente drept configurate.
+
+Invitațiile sunt linkuri reale pentru ADMIN/RECEPTION/DOCTOR în locația aleasă, valabile șapte zile. Baza păstrează doar hash-ul tokenului; acceptarea cere email Auth verificat identic. Linkurile se trimit manual. Contul poate avea mai multe organizații/locații prin invitații. Contul DOCTOR trebuie asociat separat resursei profesionale din profilul medicului.
+
+Upload-urile din interfață acceptă maximum **3 MB cumulat per formular**, cu verificarea conținutului și limită Server Actions de 4 MB. Limitele mai mari ale bucket-urilor păstrează compatibilitatea fișierelor existente. Logo-urile folosesc bucket-ul privat `voxa-branding`; fișierele medicale folosesc `voxa-medical`. Pentru fișiere mai mari este necesar un flux separat de upload semnat.
+
+Migrations 023–026 adaugă memberships de organizație, draft-uri, invitații, setări, note clinice, cereri privacy, program personal pentru medici și branding privat. Exportul pacientului este rezervat OWNER. Cererile de ștergere/anonymizare urmează [procedura revizuită](docs/PRIVACY_OPERATIONS.md), fără ștergere automată. Urmați [PRODUCTION_CHECKLIST.md](PRODUCTION_CHECKLIST.md) înainte de lansare.
+
+Migration 027 adaugă CNP opțional și autorul înregistrării pacientului. CNP este unic în locație și disponibil numai în profilul autorizat/exportul OWNER; listele paginate, căutarea și proiecția clinică pentru medici îl exclud. Validarea verifică formatul de 13 cifre, fără verificarea autenticității identității. Colectarea cere un scop și o procedură de confidențialitate aprobate de clinică.
+
+Contractele Supabase sunt centralizate în `src/types/database.ts` și verificate de TypeScript. Pentru compararea lor cu schema locală, fără suprascrierea contractelor existente:
+
+```sh
+npx supabase gen types typescript --local > supabase/database.generated.ts
+```
+
+`NEXT_PUBLIC_SUPABASE_ANON_KEY` este alternativa pentru cheia publică dacă nu setați `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Setați `APP_ORIGIN=http://localhost:3000` local și originea HTTPS canonică în producție.
+
+## Verificări automate
 
 ```sh
 npm run typecheck
@@ -72,7 +96,7 @@ Testele SQL rulează migrations reale în PostgreSQL WASM. Suitele verifică dis
 
 1. Creați un proiect Supabase separat; nu încărcați seed-ul.
 2. `npx supabase link --project-ref PROJECT_REF`, apoi `npx supabase db push` (fără `--include-seed`).
-3. Ajustați `site_url` pentru domeniul real și aplicați configurația Auth cu `supabase config push` folosind configurația mediului; păstrați signup dezactivat și rate limits restrictive.
+3. Ajustați `site_url` pentru domeniul real și aplicați configurația Auth cu `supabase config push` folosind configurația mediului; activați signup prin email, confirmarea emailului, SMTP și rate limits restrictive. Nu folosiți redirect-uri localhost în producție.
 4. Configurați variabilele din `.env.example` în Vercel. Secretele rămân server-only. Aplicați migrations 020–021 și activați Supabase Cron folosind [setup-ul schedulerului](docs/NOTIFICATION_SCHEDULER.md). Jobul rulează la fiecare cinci minute, cu secret în Vault. Workflow-ul GitHub este disponibil doar pentru pornire manuală.
 5. Păstrați un singur proiect Vercel de producție conectat la acest repository. Folosiți presetul Next.js, directorul rădăcină al repository-ului, `npm ci`, `npm run build`, directorul de ieșire implicit și Node.js 24.x. `vercel.json` nu conține cron jobs, fiind compatibil cu Hobby.
 6. Folosiți HTTPS, conturi reale și verificați autentificarea/deconectarea, refresh-ul cookie-urilor, accesul multi-clinic și revocarea rolurilor pe mediul de staging.

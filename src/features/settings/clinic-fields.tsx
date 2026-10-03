@@ -16,6 +16,9 @@ export function ClinicFields({ clinic }: { clinic?: Clinic }) {
       <Field label="Adresă">
         <Input name="address" maxLength={250} defaultValue={clinic?.address} />
       </Field>
+      <Field label="Oraș"><Input name="city" maxLength={100} defaultValue={clinic?.city}/></Field>
+      <Field label="Județ"><Input name="county" maxLength={100} defaultValue={clinic?.county}/></Field>
+      <Field label="Cod poștal"><Input name="postal_code" maxLength={20} defaultValue={clinic?.postal_code}/></Field>
       <Field label="Telefon public">
         <Input name="phone" type="tel" maxLength={40} defaultValue={clinic?.phone} />
       </Field>
@@ -57,7 +60,7 @@ export function ClinicFields({ clinic }: { clinic?: Clinic }) {
           <option value="true">Activ</option>
         </Select>
       </Field>
-      <WhatsappTemplateField defaultValue={clinic?.whatsapp_reminder_template} />
+      <WhatsappTemplateField defaultValue={clinic?.whatsapp_reminder_template} clinic={clinic}/>
       <Field
         label="Adresă publică"
         hint="Litere mici, cifre și cratimă. Exemplu: clinica-centru."

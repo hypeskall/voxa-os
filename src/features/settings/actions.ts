@@ -10,23 +10,20 @@ import {
   preferencesSchema,
 } from "@/lib/validation";
 import { roles } from "@/lib/permissions";
+import { draftSchema, validateStep, defaultHours } from "@/features/onboarding/model";
 export async function saveOrganization(
   id: string,
   _: ActionState,
   form: FormData,
 ): Promise<ActionState> {
   const { client, clinic } = await requireClinic(id, "organization.manage");
-  const input = organizationSchema
-    .pick({ name: true })
-    .safeParse(Object.fromEntries(form));
+  const input = draftSchema.shape.clinic.safeParse({ name: form.get("name"), legal_name: form.get("legal_name") ?? "", cui: form.get("cui") ?? "", phone: form.get("phone") ?? "", email: form.get("email") ?? "", website: form.get("website") ?? "", specialty: form.get("specialty") ?? "" });
   if (!input.success)
     return { error: "Denumirea trebuie să conțină 2–100 caractere." };
-  const { data, error } = await client
-    .from("organizations")
-    .update(input.data)
-    .eq("id", clinic.organization_id)
-    .select("id");
-  if (error || !data?.length)
+  const validation = validateStep({ clinic: input.data, locations: [{ id: clinic.id, name: clinic.name, address: "", city: "", county: "", phone: "", email: "", hours: defaultHours() }], doctors: [], services: [], rooms: [], team: [] },1);
+  if(validation) return {error:validation};
+  const { error } = await client.rpc("save_organization_identity",{oid:clinic.organization_id,payload:input.data});
+  if (error)
     return { error: "Organizația nu a putut fi actualizată." };
   revalidatePath("/", "layout");
   return { success: "Datele organizației au fost salvate." };
@@ -39,7 +36,7 @@ export async function createOrganization(
   const input = organizationSchema.safeParse(Object.fromEntries(form));
   if (!input.success)
     return { error: "Completați denumirile (2–100 caractere)." };
-  const { data, error } = await client.rpc("create_organization", {
+  const { error } = await client.rpc("create_organization", {
     org_name: input.data.name,
     clinic_name: input.data.clinicName,
   });
@@ -49,7 +46,7 @@ export async function createOrganization(
         "Organizația nu a putut fi creată. Verificați dacă aveți deja acces atribuit.",
     };
   revalidatePath("/", "layout");
-  redirect(`/clinics/${data}`);
+  redirect("/onboarding");
 }
 export async function saveClinic(
   id: string,
@@ -81,12 +78,9 @@ export async function addClinic(
   const { client, clinic } = await requireClinic(id, "organization.manage");
   const input = clinicSchema.safeParse(Object.fromEntries(form));
   if (!input.success) return { error: "Verificați datele locației." };
-  const { name, address, timezone } = input.data;
-  const { data, error } = await client.rpc("create_clinic", {
+  const { data, error } = await client.rpc("create_location", {
     oid: clinic.organization_id,
-    clinic_name: name,
-    clinic_address: address,
-    clinic_timezone: timezone,
+    payload: input.data,
   });
   if (error)
     return {

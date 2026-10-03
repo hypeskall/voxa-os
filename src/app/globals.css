@@ -14,7 +14,7 @@
   --font-sans: Arial, Helvetica, sans-serif;
 }
 
-/* Demo readiness: module-specific operational surfaces. */
+/* Module-specific operational surfaces. */
 .nav-section-label {
   display: block;
   margin: 18px 14px 7px;
@@ -1599,3 +1599,36 @@ tbody tr:hover {
   transition: box-shadow var(--motion-fast) var(--ease-standard), transform var(--motion-fast) var(--ease-standard), opacity var(--motion-fast) var(--ease-standard), height var(--motion-fast) var(--ease-standard);
 }
 .appointment-card:hover { transform: translateY(-1px); box-shadow: 0 7px 18px #1833271c; }
+
+/* The setup flow reuses the existing medical workspace palette and controls. */
+.setup-page { max-width: 1180px; margin: auto; padding: 28px; }
+.setup-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:32px; }
+.setup-workspace { display:grid; grid-template-columns:220px minmax(0,1fr); gap:36px; align-items:start; }
+.setup-progress { min-width:0; }
+.setup-progress ol { list-style:none; padding:0; margin:24px 0; }
+.setup-progress li button { display:flex; align-items:center; gap:12px; padding:10px 0; width:100%; text-align:left; border:0; background:transparent; color:var(--secondary); }
+.setup-progress li button span { width:28px; height:28px; display:grid; place-items:center; border:1px solid var(--border); border-radius:4px; }
+.setup-progress li button[aria-current] { color:var(--primary); font-weight:700; }
+.setup-progress li button[aria-current] span { color:white; background:var(--primary); border-color:var(--primary); }
+.setup-content { padding:28px; min-width:0; }
+.setup-content h1 { font-size:28px; margin:4px 0 24px; }
+.setup-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+.setup-fields .field { min-width:0; }
+.setup-record { border-bottom:1px solid var(--border); padding:18px 0; margin-bottom:12px; }
+.setup-record:first-child { padding-top:0; }
+.setup-record h3 { margin:0 0 16px; }
+.setup-choices { margin:18px 0; padding:0; display:flex; gap:12px; flex-wrap:wrap; }
+.setup-choices legend { margin-bottom:8px; font-weight:600; }
+.setup-choices label { display:flex; gap:6px; align-items:center; }
+.setup-actions { display:flex; justify-content:flex-end; gap:8px; border-top:1px solid var(--border); padding-top:20px; flex-wrap:wrap; }
+.setup-logo { max-width:600px; margin:24px 0 0 auto; padding:18px; border:1px solid var(--border); }
+.setup-logo summary { cursor:pointer; margin-bottom:14px; }
+@media(max-width:768px) {
+ .setup-page { padding:18px; }
+ .setup-workspace { grid-template-columns:1fr; gap:20px; }
+ .setup-progress ol { display:flex; gap:12px; overflow-x:auto; margin:12px 0; }
+ .setup-progress li button { white-space:nowrap; }
+ .setup-progress > .muted:last-child { display:none; }
+ .setup-content { padding:20px; }
+}
+@media(max-width:480px) { .setup-fields { grid-template-columns:1fr; } .setup-actions .button { flex:1 1 auto; } }

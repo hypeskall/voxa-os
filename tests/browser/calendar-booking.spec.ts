@@ -46,10 +46,16 @@ test.describe.serial("internal calendar and public booking", () => {
     await page.goto(`/clinics/${clinic}/calendar?view=week&date=${bookingDate}`);
     const card = page.getByRole("button", { name: /Andrei Popescu/ });
     await expect(card).toBeVisible();
+    const refreshed = page.waitForResponse(response => response.request().method() === "GET" && new URL(response.url()).pathname === `/clinics/${clinic}/calendar` && (response.headers()["content-type"] ?? "").includes("text/x-component"));
     await card.getByRole("slider", { name: "Durata programării" }).press("ArrowDown");
     await expect(page.getByText("Durata programării a fost actualizată", { exact: false })).toBeVisible();
     await expect(card.locator(".appointment-time")).toContainText("–");
     await expect(card.getByRole("slider", { name: "Durata programării" })).toHaveAttribute("aria-valuenow", "45");
+    // Wait for the committed server refresh before the browser context closes;
+    // then prove the resize survives a new document request.
+    expect(await (await refreshed).finished()).toBeNull();
+    await page.reload();
+    await expect(page.getByRole("button", { name: /Andrei Popescu/ }).getByRole("slider", { name: "Durata programării" })).toHaveAttribute("aria-valuenow", "45");
   });
 
   test("mobile website hides the occupied slot and creates a booking", async ({ page }) => {
@@ -113,5 +119,36 @@ test.describe.serial("internal calendar and public booking", () => {
     await expect(drawer.getByRole("button", { name: "Confirmă" })).toBeVisible();
     await expect(drawer.getByRole("link", { name: "Deschide pacientul" })).toBeVisible();
   });
-});
 
+  test("cancellation can be abandoned, then persists its reason and releases the slot", async ({ page }) => {
+    await login(page);
+    await page.goto(`/clinics/${clinic}/calendar?view=agenda&date=${bookingDate}`);
+    const row = page.getByRole("row", { name: /Pacient Website/ });
+    const releasedTime = (await row.locator("td").nth(1).innerText()).trim();
+    await row.click();
+    const drawer = page.getByRole("dialog");
+    await drawer.getByRole("button", { name: "Anulează", exact: true }).click();
+    await expect(drawer.getByRole("button", { name: "Confirmă anularea" })).toBeVisible();
+    await drawer.getByLabel("Motivul anulării").fill("Cerere sintetică de anulare");
+    await drawer.getByRole("button", { name: "Renunță", exact: true }).click();
+    await expect(drawer.getByText("În așteptare", { exact: true })).toBeVisible();
+    await drawer.getByRole("button", { name: "Anulează", exact: true }).click();
+    await expect(drawer.getByLabel("Motivul anulării")).toHaveValue("");
+    await drawer.getByLabel("Motivul anulării").fill("Cerere sintetică de anulare");
+    await drawer.getByRole("button", { name: "Confirmă anularea" }).click();
+    await expect(drawer).toBeHidden();
+    await expect(row).toContainText("Anulată");
+    await page.reload();
+    await row.click();
+    await expect(drawer.getByText("Cerere sintetică de anulare", { exact: true })).toBeVisible();
+    await expect(drawer.getByRole("button", { name: "Anulează", exact: true })).toHaveCount(0);
+    await page.goto("/book/clinica-centru");
+    await page.getByRole("button", { name: /Consultație inițială/ }).click();
+    await page.getByRole("button", { name: /Continuă/ }).click();
+    await page.getByRole("button", { name: /Primul medic disponibil/ }).click();
+    await page.getByRole("button", { name: /Continuă/ }).click();
+    await page.getByLabel("Data programării").fill(bookingDate);
+    await page.keyboard.press("Tab");
+    await expect(page.locator(".public-slot-grid button").filter({ hasText: releasedTime })).toBeVisible();
+  });
+});

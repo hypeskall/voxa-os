@@ -142,6 +142,7 @@ export function CoreEditor({
                       : undefined
                 }
                 maxLength={field.max}
+                pattern={field.pattern}
                 step={field.step}
                 defaultValue={field.kind === "time" ? value.slice(0, 5) : value}
               />

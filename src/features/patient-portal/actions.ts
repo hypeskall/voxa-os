@@ -1,5 +1,4 @@
 "use server";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -7,13 +6,14 @@ import type { ActionState } from "@/features/auth/actions";
 import { db } from "@/lib/supabase/server";
 import { requireClinic } from "@/features/auth/access";
 import { adminDb, hasAdminConfig } from "@/lib/supabase/admin";
+import { appOrigin } from "@/lib/app-origin";
 
 export async function requestPortalLink(state:ActionState, form:FormData):Promise<ActionState> {
   void state;
   const email=z.email().safeParse(form.get("email"));
   if(!email.success)return{error:"Introduceți o adresă de email validă."};
-  const client=await db(); const h=await headers();
-  const origin=process.env.APP_ORIGIN??`http${process.env.NODE_ENV==="production"?"s":""}://${h.get("host")}`;
+  const client=await db();
+  const origin=appOrigin();
   const {error}=await client.auth.signInWithOtp({email:email.data,options:{shouldCreateUser:false,emailRedirectTo:`${origin}/auth/callback?next=/portal`}});
   if(error)return{error:"Linkul nu a putut fi trimis. Verificați dacă portalul a fost activat de clinică."};
   return{success:"Dacă există un cont activ, veți primi în câteva minute un link securizat de autentificare."};
@@ -33,7 +33,7 @@ export async function activatePatientPortal(cid:string,pid:string,state:ActionSt
   const parsed=z.object({email:z.email()}).safeParse(raw);
   if(patientError||!parsed.success)return{error:"Pacientul are nevoie de o adresă de email validă."};
   const email=parsed.data.email; let {data:userId}=await client.rpc("lookup_patient_auth_user",{cid,pid});
-  if(!userId){const origin=process.env.APP_ORIGIN;const {data,error}=await adminDb().auth.admin.inviteUserByEmail(email,{redirectTo:origin?`${origin}/auth/callback?next=/portal`:undefined});if(error||!data.user)return{error:"Invitația nu a putut fi trimisă."};userId=data.user.id;}
+  if(!userId){const origin=appOrigin();const {data,error}=await adminDb().auth.admin.inviteUserByEmail(email,{redirectTo:`${origin}/auth/callback?next=/portal`});if(error||!data.user)return{error:"Invitația nu a putut fi trimisă."};userId=data.user.id;}
   const {error}=await client.rpc("link_patient_identity",{cid,pid,uid:userId});
   if(error)return{error:"Identitatea pacientului nu a putut fi asociată."};
   revalidatePath(`/clinics/${cid}/patients/${pid}`);return{success:"Portalul a fost activat. Pacientul poate folosi autentificarea prin link securizat."};

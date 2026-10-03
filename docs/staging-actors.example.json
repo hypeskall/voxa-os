@@ -1,0 +1,20 @@
+{
+  "a": {
+    "email": "replace-with-controlled-clinic-a-inbox",
+    "password": "replace-locally-after-real-email-confirmation",
+    "organizationId": "replace-with-clinic-a-organization-uuid",
+    "clinicId": "replace-with-clinic-a-location-uuid",
+    "patientId": "replace-with-ion-popescu-patient-uuid",
+    "appointmentId": "replace-with-clinic-a-appointment-uuid",
+    "documentPath": "replace-with-clinic-a-private-document-path"
+  },
+  "b": {
+    "email": "replace-with-controlled-clinic-b-inbox",
+    "password": "replace-locally-after-real-email-confirmation",
+    "organizationId": "replace-with-clinic-b-organization-uuid",
+    "clinicId": "replace-with-clinic-b-location-uuid",
+    "patientId": "replace-with-clinic-b-patient-uuid",
+    "appointmentId": "replace-with-clinic-b-appointment-uuid",
+    "documentPath": "replace-with-clinic-b-private-document-path"
+  }
+}

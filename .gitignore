@@ -2,9 +2,14 @@ node_modules/
 .next/
 .env*
 !.env.example
+!.env.staging.example
 coverage/
 test-results/
 playwright-report/
 *.tsbuildinfo
 next-env.d.ts
 .supabase/
+.vercel/
+supabase/.temp/
+.staging-actors.local.json
+.staging-deploy/

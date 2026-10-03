@@ -1,0 +1,248 @@
+.billing-shell {
+  min-height: 100dvh;
+  background: #f7f8f4;
+}
+.billing-topbar {
+  height: 76px;
+  padding: 0 max(24px, calc((100vw - 1080px) / 2));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #dde4d8;
+  background: white;
+}
+.billing-topbar .brand {
+  gap: 11px;
+  font-size: 22px;
+}
+.billing-topbar .marketing-os {
+  font-weight: 400;
+  opacity: 0.6;
+}
+.billing-main {
+  max-width: 1080px;
+  margin: auto;
+  padding: 48px 24px 80px;
+}
+.billing-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 30px;
+}
+.billing-heading .muted {
+  margin-top: 10px;
+}
+.billing-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 22px;
+}
+.billing-card {
+  background: white;
+  border: 1px solid #dde4d8;
+  border-radius: 8px;
+  padding: 30px;
+}
+.billing-card-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
+  color: #244b3c;
+}
+.billing-card-title h2 {
+  font-size: 16px;
+}
+.billing-status {
+  font-size: 10px;
+  padding: 4px 9px;
+  border-radius: 4px;
+  margin-left: auto;
+  background: #f5e8de;
+  color: #856344;
+}
+.billing-status.is-active {
+  background: #eaf2e5;
+  color: #416a49;
+}
+.billing-price {
+  font-size: 37px;
+  letter-spacing: -1.5px;
+  margin-bottom: 8px;
+  color: #244b3c;
+}
+.billing-price small {
+  letter-spacing: 0;
+}
+.billing-facts {
+  margin: 25px 0;
+  border-top: 1px solid #e3e8df;
+}
+.billing-facts div {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid #e3e8df;
+  padding: 14px 0;
+  font-size: 12px;
+}
+.billing-facts dt {
+  color: #758071;
+}
+.billing-facts dd {
+  margin: 0;
+  text-align: right;
+  max-width: 65%;
+  font-weight: 500;
+}
+.billing-card .form-stack {
+  margin-top: 24px;
+}
+.billing-help {
+  margin-top: 30px;
+  border-top: 1px solid #e3e8df;
+  padding-top: 22px;
+}
+.billing-help p {
+  font-size: 12px;
+  color: #758071;
+  line-height: 1.8;
+  margin: 10px 0;
+}
+.billing-help .text-link {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 12px;
+}
+.billing-alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #e5d9bf;
+  color: #725c37;
+  background: #f8f3e7;
+  padding: 17px 20px;
+  border-radius: 6px;
+  font-size: 12px;
+  margin-bottom: 24px;
+}
+.billing-alert p {
+  margin-top: 4px;
+}
+.billing-history {
+  margin-top: 24px;
+}
+.billing-history ul {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0;
+}
+.billing-history li {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 12px 0;
+  border-bottom: 1px solid #e3e8df;
+  font-size: 12px;
+}
+.billing-history li:last-child {
+  border: 0;
+}
+.billing-history time {
+  color: #7a8774;
+  white-space: nowrap;
+}
+.subscription-lock {
+  max-width: 650px;
+  margin: 35px auto;
+  text-align: center;
+  padding: 44px;
+  background: white;
+  border: 1px solid #dde4d8;
+  border-radius: 10px;
+}
+.lock-icon {
+  display: inline-flex;
+  background: #edf2e7;
+  border-radius: 8px;
+  padding: 17px;
+  color: #355e41;
+  margin-bottom: 27px;
+}
+.subscription-lock h1 {
+  font-size: 34px;
+  letter-spacing: -1.3px;
+  color: #244b3c;
+  margin: 18px 0;
+}
+.subscription-lock > p:not(.eyebrow) {
+  color: #758071;
+  line-height: 1.85;
+  font-size: 13px;
+}
+.lock-price {
+  border-top: 1px solid #e3e8df;
+  padding-top: 26px;
+  margin-top: 25px;
+}
+.lock-price strong {
+  font-size: 29px;
+  color: #244b3c;
+}
+.lock-price span {
+  font-size: 11px;
+  color: #758071;
+}
+.lock-data {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 20px 0;
+}
+.subscription-lock .marketing-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 26px 0;
+}
+.subscription-lock > .text-link {
+  font-size: 12px;
+}
+.billing-contact {
+  margin: 25px 0;
+}
+@media (max-width: 760px) {
+  .billing-grid {
+    grid-template-columns: 1fr;
+  }
+  .billing-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .billing-main {
+    padding-top: 30px;
+  }
+  .billing-card {
+    padding: 22px;
+  }
+  .subscription-lock {
+    padding: 29px 20px;
+    margin: 10px auto;
+  }
+  .subscription-lock h1 {
+    font-size: 27px;
+  }
+  .billing-history li {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .billing-price {
+    font-size: 32px;
+  }
+}

@@ -5,11 +5,13 @@ import {
   appointmentDraftSchema,
   appointmentStatusSchema,
   rescheduleDraftSchema,
+  rescheduleSlotsInputSchema,
   schedulingResultSchema,
   slotSchema,
   slotsInputSchema,
   type AppointmentDraft,
   type RescheduleDraft,
+  type RescheduleSlotsInput,
   type SlotsInput,
 } from "./model";
 
@@ -175,10 +177,10 @@ export async function getAvailableSlots(clinicId: string, options: SlotsInput) {
 export async function getRescheduleSlots(
   clinicId: string,
   appointmentId: string,
-  options: Omit<SlotsInput, "service_id">,
+  options: RescheduleSlotsInput,
 ) {
   const { client } = await requireClinic(clinicId, "appointments.read");
-  const input = slotsInputSchema.omit({ service_id: true }).parse(options);
+  const input = rescheduleSlotsInputSchema.parse(options);
   const { data, error } = await client.rpc("get_reschedule_slots", {
     cid: clinicId,
     aid: z.uuid().parse(appointmentId),

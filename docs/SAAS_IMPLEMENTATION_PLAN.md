@@ -1,0 +1,19 @@
+# SaaS audit and implementation plan — 2026-10-02
+
+## Repository audit
+
+Next.js 16.3 App Router, React 19, TypeScript, Tailwind/Radix. Read the bundled Next.js authentication, Server Actions and proxy guides before edits. Existing Supabase SSR clients use authenticated HttpOnly cookies. PostgreSQL migrations 001–022 already implement tenant keys, composite foreign keys, RLS, permission tables, immutable audit, resource scheduling with locks, private storage, notifications, medical results and a patient portal. Existing pages use validated server repositories/RPCs, pagination and scoped data; they are not a localStorage demo. Baseline: 121 tests pass in 13 suites.
+
+Reuse the current shell, form controls, registries, appointment composer, availability engine, reports, document workflows and permission model. Preserve the additional ASSISTANT role and the existing RECEPTION identifier (Romanian label: Recepție). `clinics` are locations, not separate organizations. `doctor_locations` are local affiliations; `availability_rules` support multiple work intervals and overrides. `appointment_history`, `manual_patient_communications`, `communication_logs`, and `patient_documents` already cover the requested history/communications/documents entities. Avoid duplicate tables with different names for the same records.
+
+Gaps: public signup disabled; no password recovery; callback only supports portal; onboarding creates two names and redirects immediately; no resumable setup or organization completion state/trial; no organization membership registry or secure staff invitations; clinic-specific text in shared UI; no self-service patient export/privacy request workflow; doctors cannot view their own appointments. Storage path authorization checks permission but insufficiently verifies the patient/resource identity on upload. No production checklist. Hosted credentials/infrastructure are external, so live Auth/email/storage/deployment tests require separate staging configuration.
+
+## Execution order
+
+1. Add forward-only migrations: organization identity/subscription fields, membership projection, resumable onboarding draft, settings, invitation digests, privacy requests, patient notes, own-doctor schedule and hardened storage checks. Backfill existing organizations as configured; new organizations require setup. Never rewrite applied migrations or delete clinical data.
+2. Add email registration/recovery with safe PKCE callback routing, canonical application origin and protected entry points. Preserve existing username login compatibility.
+3. Resolve verified organization context independently of location context. Persist wizard drafts with optimistic version checks. Finalization validates all references and atomically materializes locations, schedules, services, doctors, rooms and invitations; no browser storage as source of truth.
+4. Add optional team invitations using cryptographically random bearer tokens stored only as SHA-256 digests. Bind acceptance to verified Auth email, location and role, and support expiry/revocation. Show actual copyable invitation links; document optional email provider integration accurately.
+5. Add own-doctor schedule and privacy export/request workflows; retain existing operational modules and remove hardcoded installation text. Add organization/location switching without granting extra access.
+6. Add migrated PostgreSQL isolation/permission/onboarding/invitation tests and browser coverage for the new flow. Run lint, typecheck, tests, production build and responsive browser checks. Record the distinction between protocol fixtures and live Supabase tests.
+7. Update setup, deployment/privacy documentation and exact verification results. Do not claim production deployment, legal compliance or the full hosted acceptance scenario without running them.

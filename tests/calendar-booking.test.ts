@@ -106,6 +106,32 @@ describe("Calendar and public booking share the scheduling engine", () => {
     expect(appointment.rows[0].duration_minutes).toBe(45);
     expect(appointment.rows[0].end_at.getTime()-appointment.rows[0].start_at.getTime()).toBe(45*60_000);
   });
+  it("reception edits appointment notes and rejects a stale revision", async () => {
+    const previous = fixture.internalVersion;
+    const edited = await callerQuery<{ result: { ok: boolean; updated_at: string } }>(db, ids.reception,
+      "select public.update_appointment_notes($1,$2,$3,$4) result",
+      [ids.a, fixture.internalAppointment, "Synthetic appointment note", previous]);
+    expect(edited.rows[0].result.ok).toBe(true);
+    fixture.internalVersion = edited.rows[0].result.updated_at;
+    const saved = await callerQuery<{ notes: string }>(db, ids.reception,
+      "select notes from public.appointments where id=$1", [fixture.internalAppointment]);
+    expect(saved.rows[0].notes).toBe("Synthetic appointment note");
+    await expect(callerQuery(db, ids.reception,
+      "select public.update_appointment_notes($1,$2,$3,$4)",
+      [ids.a, fixture.internalAppointment, "Stale overwrite", previous])).rejects.toThrow("Stale version");
+  });
+  it("logs a WhatsApp opening in patient communications without claiming delivery and rejects foreign IDs", async () => {
+    await db.query("update public.patients set phone='0700000001' where id=$1", [fixture.patient1]);
+    await callerQuery(db, ids.reception, "select public.open_whatsapp_reminder($1,$2)", [ids.a,fixture.internalAppointment]);
+    const communications = await callerQuery<{channel:string;direction:string;summary:string}>(db, ids.reception,
+      "select channel,direction,summary from public.manual_patient_communications where patient_id=$1", [fixture.patient1]);
+    expect(communications.rows).toEqual([{channel:"WHATSAPP",direction:"OUTBOUND",summary:"Memento WhatsApp deschis. Trimiterea mesajului nu este confirmată."}]);
+    await expect(callerQuery(db, ids.outsider, "select public.open_whatsapp_reminder($1,$2)", [ids.a,fixture.internalAppointment])).rejects.toThrow("Access denied");
+    await expect(callerQuery(db, ids.owner, "select public.open_whatsapp_reminder($1,$2)", [ids.b,fixture.internalAppointment])).rejects.toThrow("Appointment unavailable");
+    const denied = await callerQuery(db, ids.outsider, "select id from public.manual_patient_communications where patient_id=$1", [fixture.patient1]);
+    expect(denied.rows).toHaveLength(0);
+    expect((await db.query("select id from public.manual_patient_communications where patient_id=$1", [fixture.patient1])).rows).toHaveLength(1);
+  });
   it("cancellation frees the public slot", async () => {
     const appointment = await db.query<{ updated_at: Date }>("select updated_at from public.appointments where id=$1", [fixture.publicAppointment]);
     await callerQuery(db, ids.reception, "select public.cancel_appointment($1,$2,'Cancelled',$3)", [ids.a, fixture.publicAppointment, appointment.rows[0].updated_at]);

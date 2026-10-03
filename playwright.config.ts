@@ -23,6 +23,7 @@ export default defineConfig({
       env: {
         NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54329",
         NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "test-only-public-key",
+        APP_ORIGIN: "http://localhost:3100",
       },
     },
   ],

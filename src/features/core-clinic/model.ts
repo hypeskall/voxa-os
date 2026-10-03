@@ -33,6 +33,7 @@ export type FieldSpec = {
   min?: number;
   max?: number;
   step?: string;
+  pattern?: string;
   options?: readonly (readonly [string, string])[];
   source?: CoreModule;
   hint?: string;
@@ -114,6 +115,7 @@ export const moduleSpecs: Record<CoreModule, ModuleSpec> = {
         hint: "Unic în această clinică.",
       },
       { key: "birth_date", label: "Data nașterii", kind: "date" },
+      { key: "cnp", label: "CNP (opțional)", max: 13, pattern: "[0-9]{13}", hint: "13 cifre. Este afișat numai în profilul autorizat al pacientului." },
       {
         key: "sex",
         label: "Sex",

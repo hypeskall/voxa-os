@@ -4,11 +4,10 @@ import { redirect, notFound } from "next/navigation";
 import { db } from "@/lib/supabase/server";
 import { can, type Permission } from "@/lib/permissions";
 import { z } from "zod";
+import { hasSupabaseConfig } from "@/lib/supabase/config";
+import { requireSubscription } from "@/features/subscriptions/access";
 export const requireUser = cache(async () => {
-  if (
-    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-  )
+  if (!hasSupabaseConfig())
     redirect("/setup");
   const client = await db();
   const {
@@ -23,7 +22,7 @@ export const workspace = cache(async () => {
   const [clinics, profile, preferences] = await Promise.all([
     client
       .from("clinics")
-      .select("id,organization_id,name,address,phone,phone_secondary,email,timezone,public_booking_enabled,booking_slug,scheduling_increment_minutes,calendar_visible_start,calendar_visible_end,whatsapp_reminder_template")
+      .select("id,organization_id,name,address,city,county,postal_code,phone,phone_secondary,email,timezone,public_booking_enabled,booking_slug,scheduling_increment_minutes,calendar_visible_start,calendar_visible_end,whatsapp_reminder_template")
       .order("name"),
     client.from("profiles").select("full_name").eq("id", user.id).single(),
     client
@@ -46,6 +45,9 @@ export type Clinic = {
   organization_id: string;
   name: string;
   address: string;
+  city: string;
+  county: string;
+  postal_code: string;
   phone: string;
   phone_secondary: string;
   email: string;
@@ -72,7 +74,7 @@ export const requireClinic = cache(
     const [clinic, grants, membership] = await Promise.all([
       client
         .from("clinics")
-        .select("id,organization_id,name,address,phone,phone_secondary,email,timezone,public_booking_enabled,booking_slug,scheduling_increment_minutes,calendar_visible_start,calendar_visible_end,whatsapp_reminder_template")
+        .select("id,organization_id,name,address,city,county,postal_code,phone,phone_secondary,email,timezone,public_booking_enabled,booking_slug,scheduling_increment_minutes,calendar_visible_start,calendar_visible_end,whatsapp_reminder_template")
         .eq("id", id)
         .single(),
       client.rpc("my_permissions", { cid: id }),
@@ -87,10 +89,14 @@ export const requireClinic = cache(
     if (
       clinic.error ||
       membership.error ||
-      grants.error ||
-      !can(grants.data ?? [], permission)
+      grants.error
     )
       notFound();
+    await requireSubscription(clinic.data.organization_id);
+    if (!can(grants.data ?? [], permission)) notFound();
+    const organization = await client.from("organizations").select("onboarding_completed").eq("id", clinic.data.organization_id).single();
+    if (organization.error) throw new Error("Starea organizației nu a putut fi verificată.");
+    if (!organization.data.onboarding_completed) redirect(`/onboarding?organization=${clinic.data.organization_id}`);
     return {
       client,
       user,

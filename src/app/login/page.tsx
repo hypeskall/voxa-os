@@ -1,18 +1,20 @@
 import { redirect } from "next/navigation";
 import { db } from "@/lib/supabase/server";
 import { LoginForm } from "@/features/auth/login-form";
+import Link from "next/link";
+import { safeAuthDestination } from "@/features/auth/account-model";
+import { hasSupabaseConfig } from "@/lib/supabase/config";
 export const metadata = { title: "Conectare" };
-export default async function Login() {
-  if (
-    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-  )
+export default async function Login({ searchParams }: { searchParams: Promise<{ next?: string; error?: string; password?: string }> }) {
+  const search = await searchParams;
+  const next = safeAuthDestination(search.next ?? "/");
+  if (!hasSupabaseConfig())
     redirect("/setup");
   const client = await db();
   const {
     data: { user },
   } = await client.auth.getUser();
-  if (user) redirect("/");
+  if (user) redirect(next === "/" ? "/dashboard" : next);
   return (
     <div className="auth-page">
       <aside className="auth-aside">
@@ -29,7 +31,7 @@ export default async function Login() {
             <br />O echipă conectată.
           </h2>
           <p>
-            Acces securizat la spațiul operațional al Clinicii Maria.
+            Acces securizat la spațiul operațional al clinicii dumneavoastră.
           </p>
         </div>
         <footer>VOXA · Spațiu dedicat echipei clinicii</footer>
@@ -39,11 +41,11 @@ export default async function Login() {
           <p className="eyebrow">BINE AȚI REVENIT</p>
           <h1>Conectare</h1>
           <p className="muted">Introduceți datele contului dumneavoastră.</p>
-          <LoginForm />
-          <p className="auth-note muted">
-            Accesul este acordat de administratorul clinicii. Pentru ajutor cu
-            datele contului, contactați administratorul.
-          </p>
+          {search.error === "link" && <p className="message error" role="alert">Linkul nu mai este valid. Solicitați un link nou în același browser.</p>}
+          {search.password === "updated" && <p className="message success" role="status">Parola a fost actualizată. Conectați-vă din nou.</p>}
+          <LoginForm next={next}/>
+          <p className="auth-note"><Link className="text-link" href="/forgot-password">Ai uitat parola?</Link></p>
+          <p className="auth-note">O clinică nouă? <Link className="text-link" href={`/register?next=${encodeURIComponent(next)}`}>Creează un cont</Link></p>
         </div>
       </main>
     </div>

@@ -1,13 +1,17 @@
 "use client";
-import { useActionState, startTransition } from "react";
+import { useActionState, startTransition, useSyncExternalStore } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@/lib/validation";
 import { login } from "./actions";
 import { Field, Input } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-export function LoginForm() {
+const subscribeToHydration = () => () => {};
+const clientReady = () => true;
+const serverReady = () => false;
+export function LoginForm({ next = "/" }: { next?: string }) {
   const [state, action, pending] = useActionState(login, {});
+  const ready = useSyncExternalStore(subscribeToHydration, clientReady, serverReady);
   const {
     register,
     handleSubmit,
@@ -15,11 +19,13 @@ export function LoginForm() {
   } = useForm({ resolver: zodResolver(loginSchema) });
   return (
     <form
+      method="post"
       className="form-stack"
       onSubmit={handleSubmit((data) => {
         const form = new FormData();
         form.set("identifier", data.identifier);
         form.set("password", data.password);
+        form.set("next", next);
         startTransition(() => action(form));
       })}
     >
@@ -30,6 +36,7 @@ export function LoginForm() {
           autoFocus
           autoCapitalize="none"
           spellCheck={false}
+          disabled={!ready || pending}
           {...register("identifier")}
           aria-invalid={!!errors.identifier}
         />
@@ -38,6 +45,7 @@ export function LoginForm() {
         <Input
           type="password"
           autoComplete="current-password"
+          disabled={!ready || pending}
           {...register("password")}
           aria-invalid={!!errors.password}
         />
@@ -53,7 +61,7 @@ export function LoginForm() {
           {state.error}
         </p>
       )}
-      <Button disabled={pending}>
+      <Button disabled={!ready || pending}>
         {pending ? "Se verifică…" : "Conectare"}
       </Button>
     </form>

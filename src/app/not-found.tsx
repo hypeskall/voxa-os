@@ -9,7 +9,7 @@ export default function NotFound() {
         Locația sau pagina nu există ori contul dumneavoastră nu are acces.
       </p>
       <Button asChild>
-        <Link href="/">Înapoi la spațiul de lucru</Link>
+        <Link href="/dashboard">Înapoi la spațiul de lucru</Link>
       </Button>
     </main>
   );

@@ -31,6 +31,7 @@ export const calendarAppointmentSchema = z.object({
   patient_email: z.string(),
   service_name: z.string(),
   doctor_name: z.string().nullable(),
+  doctor_color: z.string().regex(/^#[a-fA-F0-9]{6}$/).optional(),
   room_id: z.uuid().nullable(),
   room_name: z.string().nullable(),
   equipment: z.array(equipmentSchema),

@@ -27,12 +27,12 @@ export default async function Settings({
       <PageHeading
         eyebrow="ADMINISTRARE"
         title="Setări"
-        description="Datele Clinicii Maria și preferințele spațiului de lucru."
+        description="Datele clinicii și preferințele spațiului de lucru."
       />
       <div className="split-layout">
         <Section
           title="Datele clinicii"
-          description="Informațiile publice și operaționale ale Clinicii Maria."
+          description="Informațiile publice și operaționale ale clinicii."
         >
           {can(permissions, "clinic.manage") ? (
             <>

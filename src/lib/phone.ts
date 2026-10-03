@@ -9,7 +9,7 @@ export function normalizePhoneE164(raw: string) {
   return normalized;
 }
 
-export const defaultWhatsappReminderTemplate = "Bună ziua, {{patient_first_name}}. Vă reamintim că mâine, {{date}}, la ora {{time}}, aveți o programare la {{clinic_name}}, {{clinic_address}}. Dacă nu mai puteți ajunge, vă rugăm să ne anunțați. Vă mulțumim.";
+export const defaultWhatsappReminderTemplate = "Bună ziua, {{patient_name}}. Vă reamintim programarea din {{date}}, la ora {{time}}, la {{clinic_name}}, {{clinic_address}}. Serviciu: {{service_name}}. Medic: {{doctor_name}}. Dacă nu mai puteți ajunge, vă rugăm să ne anunțați. Vă mulțumim.";
 
 export type ReminderVariables = Record<"patient_first_name" | "patient_name" | "date" | "time" | "service_name" | "doctor_name" | "clinic_name" | "clinic_address" | "clinic_phone", string>;
 

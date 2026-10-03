@@ -34,6 +34,7 @@ const schemas = {
   patients: z.object({
     name,
     internal_id: text(50).min(1),
+    cnp: z.union([z.string().trim().regex(/^[0-9]{13}$/), z.literal("")]).default("").transform((value) => value || null),
     birth_date: date.refine(
       (v) =>
         !v || (v >= "1900-01-01" && v <= new Date().toISOString().slice(0, 10)),

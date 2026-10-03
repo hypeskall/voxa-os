@@ -100,7 +100,7 @@ for (const entry of cases)
       await expect(
         page.getByRole("cell", { name: "Creare", exact: true }),
       ).toBeVisible();
-      await page.getByRole("link", { name: "Overview", exact: true }).click();
+      await page.getByRole("link", { name: "Prezentare", exact: true }).click();
     }
     await page.getByRole("button", { name: "Editează", exact: true }).click();
     dialog = page.getByRole("dialog");
@@ -117,7 +117,7 @@ for (const entry of cases)
       .getByRole("dialog")
       .getByRole("button", { name: "Confirmă arhivarea" })
       .click();
-    await expect(page).toHaveURL(`${base}/${entry.mod}`);
+    await expect(page).toHaveURL(entry.mod === "rooms" || entry.mod === "equipment" ? `${base}/resources?tab=${entry.mod}` : `${base}/${entry.mod}`);
     const isCatalog = entry.mod === "doctors" || entry.mod === "services";
     await page.getByLabel(isCatalog ? "Status" : "Filtrează după stare").selectOption("archived");
     await page.getByLabel(isCatalog ? entry.mod === "doctors" ? "Caută medic" : "Caută serviciu" : "Caută în listă").fill(name);
@@ -284,4 +284,3 @@ for (const width of [1440, 768, 390, 320])
       animations: "disabled",
     });
   });
-

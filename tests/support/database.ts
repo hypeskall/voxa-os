@@ -12,14 +12,20 @@ export const ids = {
   b: "30000000-0000-4000-8000-000000000002",
   c: "30000000-0000-4000-8000-000000000003",
 };
-export async function migratedDatabase() {
+export async function migratedDatabase(withStorage = false, throughMigration?: string) {
   const db = new PGlite();
   await db.exec(`create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls; create schema auth;
-    create table auth.users(id uuid primary key,email text,raw_user_meta_data jsonb default '{}');
+    create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz default now(),raw_user_meta_data jsonb default '{}');
     create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
     grant usage on schema auth to authenticated,anon; grant execute on function auth.uid() to authenticated,anon;`);
+  if(withStorage) await db.exec(`create schema storage;
+    create table storage.buckets(id text primary key,name text not null,public boolean not null default false,file_size_limit bigint,allowed_mime_types text[]);
+    create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text references storage.buckets(id),name text not null,unique(bucket_id,name));
+    alter table storage.objects enable row level security;
+    grant usage on schema storage to authenticated;
+    grant select,insert,update,delete on storage.objects to authenticated;`);
   for (const file of readdirSync("supabase/migrations")
-    .filter((f) => f.endsWith(".sql"))
+    .filter((f) => f.endsWith(".sql") && (!throughMigration || f <= throughMigration))
     .sort())
     await db.exec(readFileSync(`supabase/migrations/${file}`, "utf8"));
   for (const name of [
@@ -34,7 +40,7 @@ export async function migratedDatabase() {
       `${name}@voxa.test`,
     ]);
   await db.query(
-    "insert into public.organizations(id,name) values($1,'Test organization'),($2,'Other organization')",
+    "insert into public.organizations(id,name,onboarding_completed) values($1,'Test organization',true),($2,'Other organization',true)",
     [ids.org, ids.otherOrg],
   );
   await db.query(

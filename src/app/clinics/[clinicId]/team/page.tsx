@@ -7,6 +7,7 @@ import { ActionForm } from "@/components/ui/action-form";
 import { Panel } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { can, roles } from "@/lib/permissions";
+import { TeamInvitations } from "@/features/organizations/team-invitations";
 export const metadata = { title: "Echipă și acces" };
 export default async function Team({
   params,
@@ -99,6 +100,7 @@ export default async function Team({
           <Button variant="outline">Caută</Button>
         </form>
       </div>
+      {can(permissions, "members.manage") && <TeamInvitations cid={clinicId}/>}
       <Table>
         <thead>
           <tr>

@@ -14,6 +14,7 @@ import {
 import {
   appointmentDraftSchema,
   appointmentStatusSchema,
+  rescheduleSlotsInputSchema,
   slotsInputSchema,
 } from "@/features/scheduling/model";
 import { calendarFiltersSchema, calendarViewSchema } from "./model";
@@ -46,7 +47,7 @@ export async function calendarRescheduleSlotsAction(
   raw: unknown,
 ): Promise<UiResult> {
   try {
-    const input = slotsInputSchema.omit({ service_id: true }).parse(raw);
+    const input = rescheduleSlotsInputSchema.parse(raw);
     return { ok: true, data: await getRescheduleSlots(clinicId, appointmentId, input) };
   } catch (error) {
     return failure(error);
@@ -139,7 +140,11 @@ export async function updateAppointmentNotesAction(clinicId: string, appointment
       new_notes: z.string().trim().max(5000).parse(notes),
       expected_updated_at: z.iso.datetime({ offset: true }).parse(expectedUpdatedAt),
     });
-    if (error) throw error;
+    if (error) {
+      if (error.code === "40001") throw new Error("Stale version");
+      if (error.code === "42501") throw new Error("Access denied");
+      throw new Error("Notele programării nu au putut fi salvate.");
+    }
     refresh(clinicId);
     return { ok: true, data };
   } catch (error) {

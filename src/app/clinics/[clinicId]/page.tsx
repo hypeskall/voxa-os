@@ -11,7 +11,7 @@ import { WhatsappReminderButton } from "@/features/calendar/whatsapp-reminder-bu
 
 const eventLabels: Record<string, string> = {
   CREATED: "Programare creată", UPDATED: "Programare actualizată",
-  RESCHEDULED: "Programare reprogramată", CANCELLED: "Programare anulată",
+  RESCHEDULED: "Programare reprogramată", RESIZED: "Durată ajustată", CANCELLED: "Programare anulată",
   STATUS_CHANGED: "Status actualizat", RESOURCES_ASSIGNED: "Resurse alocate",
   DUPLICATE_OVERRIDE: "Avertisment confirmat",
 };

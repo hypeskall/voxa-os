@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/supabase/server";
 import { loginSchema } from "@/lib/validation";
 import { loginIdentityEmail } from "./login-identity";
-export type ActionState = { error?: string; success?: string };
+import { safeAuthDestination } from "./account-model";
+export type ActionState = { error?: string; success?: string; invitationUrl?: string };
 export async function login(
   _: ActionState,
   form: FormData,
@@ -28,7 +29,8 @@ export async function login(
     await client.auth.signOut();
     return { error: "Conectarea nu a putut fi înregistrată. Reîncercați." };
   }
-  redirect("/");
+  const destination = safeAuthDestination(String(form.get("next") ?? "/"));
+  redirect(destination === "/" ? "/dashboard" : destination);
 }
 export async function logout() {
   const client = await db();
