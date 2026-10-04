@@ -13,6 +13,8 @@ export function AccountPage({ mode, next = "/" }: { mode: "register" | "forgot" 
       {mode === "register" && <Field label="Nume complet"><Input name="full_name" autoComplete="name" required minLength={2} maxLength={100}/></Field>}
       {mode !== "reset" && <Field label="Email"><Input name="email" type="email" autoComplete="email" required maxLength={254}/></Field>}
       <Field label="Parolă"><Input name="password" type="password" aria-describedby="password-guidance" autoComplete="new-password" required minLength={12} maxLength={128}/></Field><p className="muted" id="password-guidance">Cel puțin 12 caractere.</p><Field label="Confirmă parola"><Input name="password_confirmation" type="password" autoComplete="new-password" required minLength={12} maxLength={128}/></Field>
-    </ActionForm>}<p className="auth-note"><Link className="text-link" href={`/login?next=${encodeURIComponent(next)}`}>Înapoi la conectare</Link></p>
+    </ActionForm>}
+    {mode === "register" && <div className="auth-legal-note"><p>Consultă <Link className="text-link" href="/legal/terms">termenii</Link>, <Link className="text-link" href="/legal/privacy">confidențialitatea</Link> și <Link className="text-link" href="/legal/cookies">politica de cookies</Link>.</p><p>Documentele sunt în curs de finalizare. Folosește date fictive pentru testare până la finalizarea condițiilor pentru date reale. Crearea contului nu semnează DPA-ul clinicii.</p></div>}
+    <p className="auth-note"><Link className="text-link" href={`/login?next=${encodeURIComponent(next)}`}>Înapoi la conectare</Link></p>
   </div></div></main>;
 }

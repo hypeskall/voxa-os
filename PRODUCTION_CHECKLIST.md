@@ -24,13 +24,14 @@ Current release supports controlled product testing. Commercial and real medical
 ## Open owner/clinic gates
 
 - [x] Replaced ordinary Zoho Mail for production transactional email with Brevo Free. Subdomain DNS/authentication, verified sender, dedicated SMTP key and explicitly approved Supabase/Vercel settings are configured and deployed. The owner confirmed recovery, staff-invitation and deliberate operator-alert Inbox delivery. Auth pilot quota is 10/hour; provider capacity still needs review before growth. Procedure: docs/TRANSACTIONAL_EMAIL_SETUP.md.
-- [ ] Select commercial hosting. Current Vercel team is Hobby; its [fair-use policy](https://vercel.com/docs/limits/fair-use-guidelines) requires Pro/Enterprise for commercial usage. No paid upgrade was made.
+- [ ] Activate the owner's selected commercial Vercel plan. The owner chose Vercel and will purchase the plan personally. Activation has not been verified; no paid upgrade was made by the agent.
 - [x] Private EU R2 destination, approved encrypted staging/production uploads, separate private daily GitHub runner and successful manual cloud backup with download integrity verification. Owner confirmed controlled failure-alert receipt and separate recovery-key custody. Details: docs/PRIVATE_BACKUP_RUNNER.md.
 - [ ] Complete first actual scheduled-trigger acceptance and agree recovery objectives/retention. Full isolated Auth/private/Storage restore is verified. Production has no native backups/PITR configured; logical snapshots do not replace physical/PITR backups. Current evidence: docs/ACCEPTANCE_1_4_2026-10-04.md.
 - [ ] Assign an incident responder and provision dedicated uptime monitoring if guaranteed intervals are required. The owner already confirmed the deliberate GitHub failure email and Brevo operator-alert Inbox delivery. GitHub readiness checks are best effort; they can be delayed and public-repository inactivity can disable them.
-- [ ] Fill firm/CUI/address and approve terms, privacy notice, DPA, processor list and retention. Drafts: docs/LEGAL_DRAFTS_RO.md. Footer dialogs are product summaries, not approved agreements.
+- [ ] Fill firm/CUI/address and finalize terms, privacy notice, DPA, processor/transfer evidence, retention and appropriate legal review. Public draft pages are linked from footer/register; the same source exports docs/LEGAL_DRAFTS_RO.md. Procedures: docs/LEGAL_OPERATIONS_RO.md and docs/PROCESSORS_RO.md. Drafts are not signed agreements or certification.
 - [ ] Agree medical-original retention/deletion and identity checks. Archiving and privacy review attestations do not physically erase data/files.
-- [ ] Enroll the owner's personal MFA, finalize clinic ownership/operations and review optional leaked-password controls. Enforced app MFA, staff/doctor permissions and the synthetic clinic pilot are already verified.
+- [x] Owner reported personal MFA activation. Enforced app MFA and independent synthetic enrollment/challenge/removal are verified.
+- [ ] Finalize clinic ownership/operations and review optional leaked-password controls before the real-data pilot. Staff/doctor permissions and synthetic pilot are verified.
 - [ ] Verify provider/inbox, consent/content and scheduler before patient delivery. SMTP supports email only; SMS needs another provider. Delivery flag stays false.
 - [ ] Decide business costs, support commitments and billing/tax treatment; integrate Stripe at the requested final stage.
 

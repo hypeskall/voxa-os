@@ -18,6 +18,7 @@ export default function Help() {
       <p><Link className="text-link" href="/dashboard">Deschide platforma</Link> · <Link className="text-link" href="/login?switch=1">Schimbă contul</Link> · <Link className="text-link" href="/forgot-password">Recuperează parola</Link></p></section>
     <section style={{marginTop:32}}><h2>Contactează suportul</h2><p>Descrie pașii care au dus la problemă și referința afișată pe pagina de eroare, dacă există. Nu include parole, linkuri de invitație, CNP sau documente medicale în email.</p>
       {email?<a className="text-link" href={`mailto:${email}?subject=Suport%20Voxa-OS`}>{email}</a>:<p className="muted">Contactează reprezentantul Voxa pentru asistență.</p>}</section>
+    <section style={{marginTop:32}}><h2>Documente și confidențialitate</h2><p><Link className="text-link" href="/legal">Termeni, confidențialitate, cookies, DPA și reclamații</Link>. Documentele actuale sunt proiecte pentru revizuire, cu datele firmei încă în curs de finalizare.</p></section>
     <p style={{marginTop:32}}><Link className="text-link" href="/">Înapoi la pagina principală</Link></p>
   </main>;
 }

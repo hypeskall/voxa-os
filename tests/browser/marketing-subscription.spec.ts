@@ -124,13 +124,10 @@ test("mobile navigation, keyboard product controls, dialogs and reduced motion",
     "alt",
     /Servicii/,
   );
-  await page
-    .getByRole("button", { name: "Confidențialitate", exact: true })
-    .click();
-  await expect(
-    page.getByRole("dialog", { name: "Confidențialitate" }),
-  ).toBeVisible();
-  await page.keyboard.press("Escape");
+  await page.getByRole("link", { name: "Confidențialitate", exact: true }).click();
+  await expect(page).toHaveURL(/\/legal\/privacy$/);
+  await expect(page.getByRole("heading", { name: "Politica de confidențialitate", exact: true })).toBeVisible();
+  await expect(page.getByLabel("Statutul documentelor")).toContainText("Proiect pentru revizuire");
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   await expect(page.locator("h1")).toHaveCSS("animation-name", "none");

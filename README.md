@@ -107,6 +107,8 @@ Nu aplicați `db reset` pe producție. Cookie-urile sunt Secure în build-ul pro
 
 ## Arhitectură
 
+Documentele publice sunt la `/legal`: termeni, confidențialitate, cookies, DPA și reclamații/ANPC. Rămân proiecte până la completarea firmei și revizuirea operațiunilor reale. `npm run legal:export` generează [documentele pentru revizuire](docs/LEGAL_DRAFTS_RO.md) din aceeași sursă ca paginile. [Procedurile](docs/LEGAL_OPERATIONS_RO.md) și [registrul furnizorilor](docs/PROCESSORS_RO.md) disting propunerile de retenție de ștergerile efectiv implementate.
+
 `src/app`: rute și compoziție server. `src/features/auth`: autentificare și autorizare. `src/features/core-clinic`: registre. `src/features/dashboard` și `reports`: operațiuni și agregări server-side. `src/features/scheduling` și `calendar`: motorul și interfața programărilor. `src/features/confirmations`: tokenuri publice semnate. `src/features/notifications`: contract provider, adaptere și worker. `src/features/documents`: storage privat. `src/features/results`: workflow și PDF A4. `src/features/patient-portal`: identitate separată și experiența pacientului. `supabase`: schema, RLS, RPC-uri, audit și seed. Detalii: [ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 Fișierele sunt păstrate în bucket-ul privat `voxa-medical`; descărcările trec prin autorizare server-side și URL-uri semnate pentru 60 de secunde. Rezultatele parcurg `DRAFT → VALIDATED → RELEASED`, păstrează versiuni și devin vizibile pacientului numai după publicare. Adapterul `development` înregistrează doar metadate mascate; livrarea reală cere configurarea adapterului webhook cu acreditările furnizorului ales.

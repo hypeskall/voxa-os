@@ -1260,7 +1260,10 @@ body:has(.marketing-page dialog[open]) {
 }
 .marketing-page .marketing-footer-bottom nav {
   display: flex;
-  gap: 24px;
+  flex-wrap: wrap;
+  min-width: 0;
+  justify-content: center;
+  gap: 10px 24px;
 }
 .marketing-page .marketing-footer-bottom button {
   border: 0;

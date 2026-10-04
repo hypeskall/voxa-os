@@ -1,38 +1,326 @@
-# Documente pentru lansare — DRAFT, 4 octombrie 2026
+# Documente pentru lansare — PROIECT, 4 octombrie 2026
 
-Schițe neaprobate, care nu trebuie prezentate clienților ca acorduri definitive. Firma, CUI-ul și sediul nu sunt furnizate. Produs: https://voxa-os.vercel.app; contact operațional: contact@voxatech.ro.
+Versiune: 2026-10-04.draft.1. Sursa unică pentru paginile publice și acest export: src/features/legal/documents.json.
 
-## Fișa furnizorului
+Firma furnizoare nu este încă înființată, iar identitatea juridică, condițiile comerciale și anexele trebuie completate și aprobate. Aceste documente nu sunt acorduri definitive și nu atestă conformitatea. Testarea se face cu date fictive până la finalizarea condițiilor pentru folosirea datelor reale.
 
-| Câmp | De completat |
+Contact operațional: contact@voxatech.ro. Paginile: https://voxa-os.vercel.app/legal.
+
+Fișa furnizorului, anexele și aprobările: [LEGAL_OPERATIONS_RO.md](LEGAL_OPERATIONS_RO.md). Registrul furnizorilor și transferurilor: [PROCESSORS_RO.md](PROCESSORS_RO.md).
+
+Acest export nu introduce acceptare contractuală sau consent GDPR în aplicație.
+
+## Termeni de utilizare
+
+Pagina: https://voxa-os.vercel.app/legal/terms
+
+Proiect de condiții pentru serviciul Voxa-OS destinat clinicilor și cabinetelor, utilizat în scop profesional.
+
+### 1. Furnizorul și clientul
+
+Voxa-OS este denumirea produsului. Denumirea juridică, CUI-ul, numărul de înregistrare, sediul, reprezentantul și contactul contractual al viitoarei firme se vor înscrie înaintea încheierii contractelor comerciale. Adresa contact@voxatech.ro este contactul operațional actual; nu înlocuiește identificarea furnizorului.
+
+Clientul este clinica, cabinetul sau profesionistul care folosește serviciul în activitatea sa. Persoana care încheie contractul trebuie să aibă autoritatea de a reprezenta clientul. Personalul invitat utilizează conturi individuale. Pacienții nu devin cumpărători ai abonamentului Voxa prin simpla utilizare a unui portal al clinicii.
+
+### 2. Serviciul și dreptul de utilizare
+
+Voxa-OS oferă configurarea organizației și locațiilor, programări, resurse, acces pe roluri, evidențe administrative, note, documente și rezultate. Funcțiile și limitele agreate se descriu în oferta acceptată. Furnizorul acordă, pe durata contractului, un drept neexclusiv de utilizare internă, în limitele conturilor și organizațiilor autorizate.
+
+Produsul nu furnizează consultații, diagnostic sau decizii medicale. Clinica și profesioniștii săi verifică informațiile, documentele și utilizarea lor în activitatea medicală. Nu se promite certificarea ca dispozitiv medical sau sistem de dosar medical certificat.
+
+### 3. Testarea, prețul și activarea
+
+Versiunea actuală oferă un trial de 30 de zile și afișează un preț de referință de 19,99 EUR/lună/organizație. Trialul nu inițiază debitări automate, iar activarea actuală folosește o licență. Stripe nu este încă integrat.
+
+Înaintea oricărei comenzi plătite, oferta finală trebuie să precizeze prețul total, regimul TVA, moneda și conversia, perioada facturată, modalitatea de plată, reînnoirea, încetarea și eventualele costuri suplimentare. Prețul afișat în versiunea de test nu substituie această ofertă. Nu se solicită acceptarea unor condiții de debitare care nu există în produs.
+
+La expirarea trialului sau a licenței, accesul operațional poate fi suspendat conform stării afișate în aplicație. Expirarea nu șterge automat datele. Procedura de restituire a datelor se agrează înaintea lansării comerciale.
+
+### 4. Conturile și accesul
+
+Clientul desemnează proprietarii și persoanele autorizate, acordă numai permisiunile necesare și revocă accesul când atribuțiile încetează. Conturile și parolele nu se partajează. Adresa de email trebuie să fie controlată de titular. Invitațiile sunt destinate exclusiv adresei indicate.
+
+Sunt disponibile verificarea emailului, recuperarea parolei și autentificarea în doi pași cu aplicație TOTP. După activarea și verificarea unui factor MFA, accesul privat necesită al doilea factor. Clientul păstrează separat secretul de recuperare/configurare și anunță suportul când suspectează compromiterea unui cont.
+
+### 5. Datele clientului și confidențialitatea
+
+Clientul păstrează controlul asupra datelor și documentelor introduse. Furnizorul le prelucrează numai pentru executarea serviciului și instrucțiunile documentate, în limitele acordului de prelucrare. Licența software nu transferă furnizorului dreptul de a comercializa datele medicale sau de a le folosi pentru antrenarea unor modele AI.
+
+Clinica stabilește scopurile, temeiurile legale, informarea pacienților, necesitatea fiecărui câmp și perioadele de păstrare. CNP-ul este opțional în produs; includerea sa trebuie justificată de clinică. Furnizorul și clientul limitează accesul persoanelor autorizate și asigură confidențialitatea acestora.
+
+### 6. Utilizarea permisă
+
+Clientul folosește serviciul în scopuri licite, cu date pe care este autorizat să le prelucreze. În etapa actuală se folosesc date fictive până la identificarea furnizorului, aprobarea documentelor, evaluarea furnizorilor și finalizarea condițiilor pilotului cu date reale.
+
+- Sunt interzise accesul la organizațiile altor clienți, ocolirea permisiunilor, distribuirea parolelor sau linkurilor private și extragerea neautorizată a datelor.
+- Nu se încarcă programe malițioase și nu se efectuează teste distructive sau de încărcare asupra producției fără un acord distinct.
+- Nu se trimit mesaje nesolicitate și nu se utilizează datele pacienților pentru marketing fără evaluarea temeiului și a regulilor aplicabile.
+
+### 7. Disponibilitatea, suportul și recuperarea
+
+Suportul operațional poate fi contactat la contact@voxatech.ro. Programul de suport, clasificarea incidentelor, timpii de răspuns și eventualul SLA se stabilesc în oferta finală. Versiunea actuală nu garantează suport permanent, disponibilitate de 100% sau recuperare într-un interval certificat.
+
+Există copii de siguranță criptate, verificări de integritate și un test izolat de restaurare. Programarea zilnică este configurată; dovezile operaționale se păstrează separat. Aceste controale nu reprezintă o promisiune de recuperare fără nicio pierdere. Clientul și furnizorul agrează obiectivele de recuperare și mențin o procedură de continuitate pentru activitatea clinicii.
+
+### 8. Suspendarea și încetarea
+
+Condițiile finale trebuie să permită măsuri proporționale pentru acces neautorizat, risc de securitate, utilizare nelegală sau neexecutarea obligațiilor contractuale. Clientul este informat și poate remedia situația atunci când natura incidentului permite. Măsurile urgente nu autorizează folosirea datelor în alte scopuri.
+
+La încetare, clientul alege restituirea sau ștergerea datelor prelucrate în numele său, cu excepția păstrării cerute de lege. Formatul exportului, perioada de acces asistat, ștergerea copiilor și excepțiile documentate se completează în DPA și anexa de retenție. Propunerea de revizuire este o fereastră de 30 de zile pentru restituire; aceasta nu este încă o funcție de ștergere automată implementată.
+
+### 9. Responsabilități și răspundere
+
+Fiecare parte răspunde pentru obligațiile care îi revin și pentru propriile instrucțiuni și acțiuni. Clientul verifică datele, deciziile medicale și împuternicirile utilizatorilor. Furnizorul răspunde pentru obligațiile de serviciu, securitate și prelucrare asumate în acordul final.
+
+Eventualele limite de răspundere se negociază în contract și se verifică juridic; proiectul nu introduce o exonerare totală. Nu sunt înlăturate obligațiile sau drepturile care nu pot fi limitate prin contract, inclusiv drepturile persoanelor vizate și răspunderea prevăzută de GDPR.
+
+### 10. Modificări, proprietate intelectuală și litigii
+
+Drepturile asupra software-ului, identității vizuale și documentației aparțin titularilor lor. Datele clinicii rămân distincte de aceste drepturi. Modificările materiale ale condițiilor se comunică înainte de aplicare, cu versiunea și data intrării în vigoare; mecanismul și preavizul se stabilesc în contractul final.
+
+Proiectul propune legea română pentru relația profesională. Părțile încearcă soluționarea amiabilă, fără a împiedica sesizarea instanțelor competente sau a autorităților. Dacă o relație intră în domeniul protecției consumatorilor, drepturile imperative aplicabile se păstrează; simpla etichetă B2B nu le poate elimina.
+
+### Surse oficiale
+
+- [Legea nr. 365/2002 — informarea și contractele electronice](https://legislatie.just.ro/Public/DetaliiDocumentAfis/37075)
+- [GDPR — Regulamentul (UE) 2016/679](https://eur-lex.europa.eu/legal-content/RO/TXT/?uri=CELEX:32016R0679)
+
+## Politica de confidențialitate
+
+Pagina: https://voxa-os.vercel.app/legal/privacy
+
+Datele conturilor și ale vizitatorilor, rolurile clinicii și furnizorului, destinatarii și exercitarea drepturilor.
+
+### 1. Cine răspunde pentru date
+
+Identitatea juridică și datele de contact complete ale operatorului datelor de cont și ale furnizorului trebuie finalizate înainte de lansare. Contactul operațional actual este contact@voxatech.ro. Nu este desemnat prin acest proiect un responsabil cu protecția datelor (DPO); necesitatea desemnării și contactul se evaluează separat.
+
+Pentru evidențele medicale și administrative ale pacienților, clinica stabilește scopurile și regulile prelucrării, iar Voxa acționează ca persoană împuternicită în baza unui DPA. Pentru administrarea propriilor relații de cont, suport și securitate, furnizorul are scopuri proprii descrise separat. Rolurile se confirmă pentru fiecare operațiune; nu se presupune că toate datele au același operator.
+
+### 2. Ce date sunt prelucrate și de unde provin
+
+Conturile includ numele, emailul, identificatorii de autentificare, parola în forma gestionată de serviciul Auth, factorii MFA dacă sunt activați, apartenența la organizații, rolurile și evenimentele de acces. Parolele și codurile MFA nu se solicită în emailuri de suport.
+
+Datele clinicii pot include organizația, locațiile, personalul, serviciile, programul, pacienții, datele lor de contact, data nașterii, CNP dacă este introdus, programări, note, rezultate și fișiere medicale. Acestea pot conține categorii speciale de date privind sănătatea. Sunt furnizate de clinică, de personalul autorizat sau, când o clinică activează portalul, de persoana care folosește fluxul respectiv.
+
+Serviciile de hosting, autentificare și securitate pot prelucra IP-ul, date tehnice despre solicitări și dispozitiv, momentele evenimentelor și jurnale. Suportul prelucrează informațiile trimise în corespondență. Nu trimiteți CNP, documente medicale, parole sau linkuri private în solicitările obișnuite de suport.
+
+### 3. Scopurile și temeiurile — proiect de inventar
+
+Temeiurile de mai jos sunt propuse pentru aprobarea operatorului după stabilirea entității și a contractelor. Acceptarea unor termeni și citirea acestei politici nu constituie un consimțământ general pentru orice prelucrare.
+
+| Operațiune | Scop și temei de evaluat |
 | --- | --- |
-| Denumire juridică și reprezentant | [firma / reprezentant] |
-| CUI și identificatori de înregistrare | [identificatori] |
-| Sediu | [adresă] |
-| Contact contractual/confidențialitate | [de aprobat] |
-| Contact responsabil clinică | [pentru fiecare client] |
-| Data/versiunea documentelor | [după aprobare] |
+| Cont și serviciu solicitat | Executarea contractului, art. 6 alin. (1) lit. b, când persoana este parte; pentru personalul clientului, interes legitim documentat pentru administrarea relației profesionale, art. 6 alin. (1) lit. f. |
+| Securitate, roluri și audit | Interes legitim documentat pentru prevenirea accesului neautorizat și investigarea incidentelor; obligație legală numai dacă este identificată concret. |
+| Suport și solicitări | Gestionarea relației solicitate și protejarea drepturilor; contract, interes legitim sau obligația legală aplicabilă, în funcție de solicitare. |
+| Facturare viitoare | Executarea relației contractuale și obligațiile legale financiar-contabile aplicabile după identificarea firmei; plățile Stripe nu sunt încă active. |
+| Date ale pacienților | Instrucțiunile clinicii în baza DPA. Clinica identifică un temei art. 6 și, pentru sănătate, o condiție art. 9, plus normele aplicabile activității sale. Nu se presupune că un checkbox GDPR rezolvă această analiză. |
+| Marketing | Nu există în versiunea verificată un program de marketing către pacienți. Orice activare viitoare se evaluează distinct și nu condiționează accesul de un consimțământ de marketing. |
 
-## Termeni — schiță
+### 4. Cine poate primi datele
 
-Furnizor: [firma]. Client: [clinica]. Serviciul oferă organizarea clinicii, programări, acces pe roluri și gestionarea înregistrărilor/documentelor. Descrierea agreată, limitele și responsabilitățile părților se anexează contractului.
+Accesul este limitat la utilizatorii autorizați ai clinicii, personalul de operare autorizat și furnizorii necesari serviciului, în limitele atribuțiilor. Solicitările autorităților se evaluează potrivit legii. Datele nu sunt publicate în repository-ul cu codul aplicației.
 
-Produsul afișează trial de 30 de zile și 19,99 EUR/lună/organizație, cu activare prin licență. Trialul nu inițiază debitări automate. [De stabilit: taxe/TVA, facturare, activare, prețuri, încetare, export/acces după încetare.] Stripe nu este încă integrat.
+| Furnizor / serviciu | Rolul actual |
+| --- | --- |
+| Supabase | Bază de date, Auth, fișiere private; regiunea de proiect configurată este Frankfurt. Subcontractanții, suportul și transferurile se verifică separat. |
+| Vercel | Hosting, execuția aplicației și infrastructură de acces/securitate. Nu se afirmă că toate operațiunile sunt exclusiv în UE. |
+| Brevo | Emailuri tranzacționale de confirmare, recuperare, invitație și alerte; adrese, conținut și metadate de livrare. Mesajele automate către pacienți sunt dezactivate. |
+| Cloudflare R2 | Arhive de backup criptate în bucket privat cu jurisdicție UE. Cheia de decriptare este păstrată separat de R2. |
+| GitHub Actions — runner privat | Execută backupurile: datele și fișierele sunt citite temporar pentru captură și criptare, apoi arhiva criptată este transferată în R2. Nu se publică arhive sau secrete ca artefacte. GitHub nu reprezintă o garanție de procesare exclusiv în UE. |
+| Zoho | Corespondența operațională pentru contact@voxatech.ro; nu este expeditorul automat al mesajelor tranzacționale. |
+| Stripe | Nu este activ în fluxul actual; politica, DPA și oferta vor fi actualizate înaintea integrării. |
 
-Clientul desemnează utilizatori/proprietari autorizați, configurează programul și verifică informațiile introduse. [De stabilit: utilizări permise, suport, disponibilitate/recuperare, răspundere, suspendare, notificări și soluționarea disputelor.] Nu introduceți garanții care nu au fost testate și contractate.
+### 5. Localizare și transferuri internaționale
 
-## Confidențialitate — schiță
+Regiunea unei baze de date sau jurisdicția bucketului nu înseamnă că suportul, hostingul, emailurile și toți subcontractanții procesează exclusiv în acea regiune. DPA-urile, listele de subcontractanți, țările, accesul de suport și mecanismele de transfer trebuie documentate în registrul de furnizori.
 
-Identificați responsabilul datelor de cont și rolurile clinicii/furnizorului pentru fiecare scop. Informarea se revizuiește față de [articolele 13–14 GDPR](https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng/).
+Înainte de date reale, operatorul verifică mecanismul aplicabil fiecărui transfer: decizie de adecvare când acoperă destinatarul și operațiunea, ori garanții precum clauzele contractuale standard, cu evaluarea și măsurile suplimentare necesare. Nu se prezumă că o certificare a unui furnizor sau criptarea arhivei rezolvă toate transferurile. Informațiile și o copie a garanțiilor relevante pot fi cerute contactului de confidențialitate, cu protejarea informațiilor confidențiale.
 
-Inventar actual: email/profil utilizator, apartenență/roluri, configurare clinică, date administrative ale pacienților, programări, note, documente/rezultate și audit. [Pentru fiecare scop: temei, destinatari, păstrare, transferuri, drepturi și verificarea solicitantului.] CNP este opțional; clinica decide necesitatea sa.
+### 6. Cât sunt păstrate datele
 
-Furnizori de evaluat: Supabase (date/Auth/Storage, proiectele actuale în Frankfurt), Vercel (aplicație/hosting; nu afirmați procesare exclusiv UE), Zoho (email). Stripe se adaugă ulterior. Mesajele automate către pacienți sunt dezactivate. Nu afirmați „certificat GDPR” și nu numiți datele arhivate „anonimizate”.
+Păstrarea se raportează la scop, instrucțiunile clinicii, obligațiile aplicabile și existența unui litigiu ori a unei măsuri de conservare. Nu există o perioadă medicală universală stabilită de Voxa. Clinica aprobă termene pe categorii și le comunică persoanelor vizate.
 
-## DPA și anexe — schiță
+În versiunea actuală, expirarea abonamentului și arhivarea nu șterg datele; ștergerea medicală și rotația backupurilor nu sunt automatizate. Anexa operațională propune termene pentru conturile de test, suport, jurnale și copii de siguranță; acestea necesită aprobare și implementare și nu sunt prezentate ca ștergeri deja efectuate.
 
-Acordul pentru prelucrare în numele clinicii se revizuiește conform [articolului 28 GDPR](https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng/): obiect/durată, scop/natură, date/persoane, instrucțiuni, confidențialitate, securitate, subcontractanți, asistență, restituire/ștergere și verificare. Părțile și consilierul aprobă forma finală.
+La o ștergere aprobată se verifică baza de date, originalele și fișierele derivate, evidențele de comunicare, furnizorii și copiile de siguranță. Copiile conservate legal sunt izolate de utilizarea curentă. O restaurare trebuie să reaplice ștergerile și restricțiile aprobate înainte de redeschiderea accesului.
 
-Anexe: inventar operațiuni, furnizori/transferuri, controale tehnice, personal autorizat, retenție medicală, solicitări/identitate, incidente și recuperare. Produsul oferă roluri, izolare, fișiere private, audit și înregistrarea solicitărilor. Ștergerea fizică și deciziile de retenție necesită procedură separată; marcarea unei solicitări ca rezolvată nu șterge automat datele.
+### 7. Drepturile și solicitările
 
-Publicați versiunile finale după completarea și aprobarea lor. Sumarul actual din footer descrie produsul; nu înlocuiește aceste acorduri. Până la aprobarea folosirii datelor medicale, utilizați date sintetice.
+În condițiile GDPR, persoana vizată poate solicita acces, rectificare, ștergere, restricționare și portabilitate; poate formula opoziție atunci când temeiul o permite și poate retrage un consimțământ pentru viitor. Drepturile nu sunt absolute, iar păstrarea medicală legală poate împiedica ștergerea anumitor înregistrări. Retragerea consimțământului nu afectează legalitatea prelucrărilor anterioare.
+
+Pentru datele medicale contactați clinica care le administrează. Furnizorul transmite clinicii solicitările primite ca împuternicit și o asistă; nu decide independent ștergerea dosarului. Pentru cont și relația cu Voxa, contactul operațional actual este contact@voxatech.ro. Verificarea identității este proporțională cu riscul; nu se cere automat o copie integrală a actului de identitate.
+
+Operatorul răspunde fără întârzieri nejustificate, în mod normal în cel mult o lună de la primirea cererii. În condițiile art. 12, termenul se poate prelungi cu cel mult două luni, cu informare motivată în prima lună. Sunt păstrate drepturile de a depune plângere la ANSPDCP și de a sesiza instanțele; nu este obligatorie epuizarea suportului Voxa pentru aceste drepturi.
+
+### 8. Securitate și decizii automate
+
+Controalele implementate includ HTTPS, conturi individuale, permisiuni pe roluri și organizații, politici de acces în baza de date, fișiere private, MFA după activare, audit și backupuri criptate. Accesul de operare trebuie limitat, înregistrat și revizuit. Aceste măsuri reduc riscul, fără a reprezenta o garanție absolută sau o certificare GDPR.
+
+Versiunea verificată nu folosește profilare pentru publicitate sau decizii medicale exclusiv automatizate cu efect juridic ori similar semnificativ. Gestionarea automată a intervalelor disponibile și a permisiunilor este distinctă de un diagnostic medical automat. Orice schimbare a acestui model necesită reevaluare și informare.
+
+### 9. Cookies și actualizări
+
+Cookies de autentificare și stocarea tehnică sunt descrise separat în politica de cookies. Codul verificat nu integrează tracking publicitar sau măsurarea audienței. Fonturile sunt servite local.
+
+La finalizarea firmei, a scopurilor, termenelor și contractelor cu furnizorii se publică o versiune revizuită cu identitatea operatorului, data aplicării și mecanismul de informare. Schimbările de scop sau introducerea unor tehnologii opționale nu se justifică retroactiv prin acest proiect.
+
+### Surse oficiale
+
+- [GDPR — articolele 6, 9, 12–22, 28 și 44–49](https://eur-lex.europa.eu/legal-content/RO/TXT/?uri=CELEX:32016R0679)
+- [ANSPDCP — procedura plângerilor](https://www.dataprotection.ro/index.jsp?lang=ro&page=procedura_plangerilor)
+- [Vercel — Data Processing Addendum și transferuri](https://vercel.com/legal/dpa)
+
+## Politica de cookies
+
+Pagina: https://voxa-os.vercel.app/legal/cookies
+
+Tehnologiile de autentificare folosite în versiunea verificată și condițiile pentru adăugarea unor tehnologii opționale.
+
+### 1. Ce folosește aplicația acum
+
+Codul verificat folosește cookies proprii pentru autentificarea Supabase și continuitatea sesiunii. Nu sunt integrate Google Analytics, pixeli de publicitate, instrumente de înregistrare a sesiunilor sau un sistem de marketing comportamental. Fonturile sunt găzduite local. Această constatare privește configurația și codul verificate; funcțiile de infrastructură se reevaluează când sunt activate sau schimbate.
+
+| Tehnologie | Scop / durată actuală |
+| --- | --- |
+| sb-<referință-proiect>-auth-token și fragmentele .0, .1 etc. | Autentificare și reînnoirea sesiunii. Biblioteca SSR stabilește în prezent o durată de cookie de până la 400 de zile, reînnoibilă; aceasta nu reprezintă durata de valabilitate a tokenului de acces și nu împiedică revocarea sesiunii. Numele depinde de proiect și de fragmentare. |
+| Cookie temporar pentru verificarea fluxului Auth, dacă este creat | Schimbul codului de confirmare/recuperare și finalizarea autentificării. Se verifică în inventarul de browser pentru fluxul activ; nu este folosit pentru publicitate. |
+| Cookies de protecție ale hostingului, dacă o funcție le activează | Securitate sau protecția unui preview. Se inventariază numele și expirarea efectivă înainte de activare; accesul temporar de test la staging a fost revocat. |
+
+### 2. Informare și opțiuni
+
+Stocarea strict necesară serviciului solicitat este analizată separat de tehnologiile opționale, potrivit art. 4 din Legea nr. 506/2004. În configurația verificată nu există categorii opționale pentru care să se afișeze un buton fictiv de consimțământ.
+
+Dacă se introduce analytics, publicitate sau o altă tehnologie neesențială, ea trebuie blocată înaintea alegerii utilizatorului. Acceptarea și refuzul trebuie să fie accesibile, pe categorii și fără opțiuni preselectate, cu posibilitatea retragerii și evidența versiunii și a alegerii. Introducerea lor nu este autorizată de această pagină.
+
+### 3. Cum gestionezi cookies
+
+Te poți deconecta din aplicație și poți șterge datele site-ului din setările browserului. Blocarea cookie-urilor de autentificare poate împiedica loginul și accesul la datele private. Nu păstra un cont conectat pe un dispozitiv partajat.
+
+Cookies Auth sunt configurate HttpOnly, SameSite=Lax și Secure în producție. Aceste atribute nu elimină riscul unui dispozitiv compromis. Setările browserului pentru cookies nu înlocuiesc revocarea unui cont sau a unei sesiuni suspecte.
+
+### 4. Verificare și contact
+
+Inventarul se revizuiește la schimbarea bibliotecilor Auth, a hostingului sau a scripturilor. Se verifică atât vizita anonimă, cât și loginul, confirmarea și recuperarea. Contactul actual pentru întrebări este contact@voxatech.ro. Identitatea operatorului este în curs de finalizare, conform statutului acestui proiect.
+
+### Surse oficiale
+
+- [Legea nr. 506/2004 — articolul 4](https://legislatie.just.ro/Public/DetaliiDocumentAfis/214211)
+- [GDPR — transparență și consimțământ](https://eur-lex.europa.eu/legal-content/RO/TXT/?uri=CELEX:32016R0679)
+
+## Acord de prelucrare a datelor · DPA
+
+Pagina: https://voxa-os.vercel.app/legal/data-processing
+
+Proiect de acord între clinică, în calitate de operator, și furnizorul Voxa, în calitate de împuternicit. Necesită părți identificate și anexe semnate.
+
+### 1. Părți, obiect și durată
+
+Operator: [denumirea clinicii/cabinetului, identificatori, sediu, reprezentant, contact de confidențialitate]. Împuternicit: [denumirea firmei Voxa, identificatori, sediu, reprezentant, contact]. Acest proiect devine acord numai după completarea și acceptarea de către părțile autorizate.
+
+Obiectul este furnizarea serviciului de administrare a clinicii. Prelucrarea durează pe perioada serviciului și a restituirii/ștergerii documentate, cu excepțiile legale precizate. Operațiunile includ colectare la instrucțiunea clinicii, stocare, organizare, consultare autorizată, actualizare, export, backup, recuperare și ștergere conform instrucțiunilor aprobate.
+
+### 2. Persoane, date și instrucțiuni
+
+Persoane vizate: pacienți și, după caz, reprezentanți ai acestora, medici, personal, colaboratori și utilizatori autorizați. Date: identificare și contact, date administrative, programări, note, documente, rezultate, informații de sănătate, identificatori de cont și evenimente de acces necesare serviciului. Clinica limitează câmpurile și fișierele la cele necesare scopurilor sale.
+
+Împuternicitul acționează numai pe instrucțiuni documentate ale operatorului, inclusiv pentru transferuri internaționale, în afara cazului în care legea îi impune prelucrarea. În acel caz informează operatorul înainte, dacă legea permite. Dacă o instrucțiune pare contrară normelor de protecție a datelor, o semnalează și o clarifică înainte de executare. Nu utilizează datele medicale pentru scopuri comerciale proprii sau antrenare AI.
+
+### 3. Confidențialitate și persoane autorizate
+
+Accesul este acordat numai personalului autorizat cu obligații de confidențialitate, pe baza necesității. Împuternicitul menține lista de acces de operare, instruirea, revocarea și evidența intervențiilor. Operatorul răspunde de autorizarea utilizatorilor propriei clinici. Se interzice utilizarea conturilor partajate sau transmiterea secretelor în tichete.
+
+### 4. Măsuri tehnice și organizatorice
+
+Anexa de securitate consemnează măsurile implementate, limitele lor și responsabilitățile părților. Include izolarea organizațiilor, RLS și verificările RPC, roluri, fișiere private, HTTPS, MFA după activare, audit, restricționarea cheilor administrative, backup criptat și teste de restaurare. Nu atribuie produsului certificările infrastructurii furnizorilor.
+
+Părțile evaluează periodic riscurile și adaptează măsurile la natura datelor, context și stadiul tehnologiei. Furnizorul nu reduce material protecția convenită fără informare și evaluare. Obiectivele de recuperare și frecvența testelor se aprobă explicit; programarea unui backup nu este un SLA.
+
+### 5. Subcontractanți și transferuri
+
+Operatorul acordă numai autorizarea scrisă descrisă în anexa de subcontractanți. Pentru autorizare generală, furnizorul informează operatorul despre modificările propuse și oferă o posibilitate reală de obiecție înainte de folosirea noului subcontractant. Preavizul, canalul și remediul contractual se completează în acord și se aliniază notificărilor reale ale furnizorilor; un termen de 30 de zile este propus pentru negociere, nu este declarat deja implementat.
+
+Furnizorul impune subcontractanților obligații corespunzătoare de protecție a datelor și rămâne responsabil față de operator pentru îndeplinirea obligațiilor lor relevante. Inventarul inițial include Supabase, Vercel, Brevo, Cloudflare R2 și GitHub Actions pentru operațiunile descrise în politica de confidențialitate. Zoho este evaluat când corespondența de suport conține date prelucrate în numele clinicii. Entitățile contractante exacte, locațiile, DPA-urile și garanțiile de transfer se completează în registrul privat.
+
+Se documentează separat transferurile și accesul din afara SEE, mecanismul legal, evaluarea transferului și măsurile suplimentare. Nicio afirmație de procesare exclusiv UE nu este dedusă numai din regiunea Frankfurt sau bucketul R2 UE.
+
+### 6. Asistență pentru drepturi
+
+Furnizorul transmite operatorului fără întârzieri nejustificate cererile privind datele clinicii și îl asistă prin mijloacele disponibile, ținând seama de natura prelucrării. Nu răspunde în nume propriu asupra fondului unei cereri medicale și nu șterge evidențe fără instrucțiunea operatorului, dacă legea nu cere altfel.
+
+Clientul verifică identitatea și stabilește răspunsul. Furnizorul ajută la localizare, export și punerea în aplicare a restricțiilor ori a ștergerilor autorizate. Exportul pacientului este disponibil numai persoanelor cu permisiunea necesară; fișierele brute se livrează separat în mod controlat. Marcarea unei cereri ca finalizată nu execută ștergerea.
+
+### 7. Incidente de securitate
+
+Împuternicitul notifică operatorul fără întârzieri nejustificate după ce ia cunoștință de o încălcare a securității datelor personale. Propunerea operațională este o primă informare în cel mult 24 de ore, cu actualizări succesive; termenul nu autorizează amânarea unei notificări care poate fi făcută mai devreme și trebuie contractat înainte de lansare.
+
+Informarea descrie natura incidentului, datele și persoanele probabil afectate, contactul responsabil, consecințele cunoscute, măsurile de limitare și informațiile încă neconfirmate. Furnizorul conservă dovezile în mod controlat și cooperează cu operatorul.
+
+Operatorul decide notificarea autorității și a persoanelor potrivit art. 33–34 GDPR. Termenul de 72 de ore privește notificarea autorității de către operator în condițiile art. 33; nu reprezintă termenul implicit al împuternicitului. Se documentează inclusiv decizia motivată de a nu notifica. Responsabilitatea legală nu este delegată unui simplu email automat de eroare.
+
+### 8. Evaluări, evidențe și audit
+
+Furnizorul asistă operatorul la securitate, evaluarea impactului și consultarea prealabilă, ținând seama de informațiile de care dispune. Părțile evaluează necesitatea DPIA și a unui DPO pentru activitatea concretă, inclusiv prelucrarea datelor de sănătate; nu presupun că dimensiunea redusă elimină automat obligațiile.
+
+Împuternicitul menține evidențele aplicabile art. 30 și pune la dispoziție informațiile necesare demonstrării obligațiilor sale. Permite și contribuie la audituri și inspecții ale operatorului sau auditorului mandatat, în condiții care protejează datele altor clienți. Procedura și costurile rezonabile se agrează fără a împiedica drepturile legale sau controlul autorităților.
+
+### 9. Restituire și ștergere
+
+La încetarea serviciului, după alegerea operatorului, furnizorul restituie sau șterge datele și copiile existente, cu excepția obligațiilor legale de păstrare documentate. Anexa stabilește formatul, termenul, fișierele incluse, fereastra asistată de export și confirmarea operațiunii.
+
+Propunerea este o fereastră asistată de 30 de zile, urmată de procesul de ștergere autorizat și de rotația copiilor într-o perioadă convenită. Nu se activează o ștergere medicală ori de backup automată prin aprobarea acestui proiect. Copiile rămase se izolează, se folosesc numai pentru recuperare autorizată și se elimină conform termenului aprobat. Restaurările reaplică registrul ștergerilor și restricțiilor înainte de acces.
+
+### 10. Anexe de completat și semnare
+
+Acordul final trebuie să includă: părțile și persoanele autorizate; descrierea prelucrărilor; măsurile de securitate și dovezile; subcontractanții și transferurile; retenția pe categorii; solicitările și verificarea identității; incidentele și contactele; restituirea, ștergerea și recuperarea.
+
+Data, versiunea, aprobarea reprezentanților și legătura cu oferta comercială se păstrează în evidența contractuală privată. Publicarea acestei pagini și crearea unui cont nu semnează DPA-ul în numele clinicii.
+
+### Surse oficiale
+
+- [GDPR — articolele 28–37 și 44–49](https://eur-lex.europa.eu/legal-content/RO/TXT/?uri=CELEX:32016R0679)
+- [ANSPDCP — Decizia nr. 174/2018 privind evaluarea impactului](https://legislatie.just.ro/public/detaliidocument/206331)
+- [Supabase — Data Processing Addendum](https://supabase.com/legal/customer-resources/data-processing-addendum)
+- [Cloudflare — Data Processing Addendum](https://www.cloudflare.com/cloudflare-customer-dpa/)
+- [Brevo — localizarea DPA în condițiile serviciului](https://help.brevo.com/hc/en-us/articles/15403782599570-Where-can-I-find-the-Data-Processing-Agreement-DPA)
+
+## Reclamații și autorități
+
+Pagina: https://voxa-os.vercel.app/legal/complaints
+
+Contactul de suport, solicitările de confidențialitate și informații despre ANPC/SAL, în funcție de natura relației.
+
+### 1. Sesizări despre serviciul Voxa
+
+Trimite la contact@voxatech.ro organizația, categoria problemei, pașii de reproducere și referința afișată, dacă există. Nu include parole, coduri MFA, linkuri de invitație, CNP sau fișiere medicale. Dacă sunt necesare informații sensibile, se stabilește separat un canal autorizat.
+
+Sesizarea este înregistrată, direcționată către persoana responsabilă și soluționată potrivit procedurii și condițiilor contractuale. Contactul de suport nu înlocuiește autoritățile competente și nu condiționează dreptul de a le sesiza. Programul de suport și termenele comerciale sunt în curs de finalizare.
+
+### 2. Date personale și ANSPDCP
+
+Pentru evidențele medicale, adresează solicitarea clinicii care administrează datele. Voxa transmite clinicii cererile primite ca împuternicit și o asistă. Pentru datele de cont și relația cu furnizorul, folosește contactul operațional actual; identitatea și contactul final ale operatorului se completează după înființarea firmei.
+
+Ai dreptul să depui plângere la Autoritatea Națională de Supraveghere a Prelucrării Datelor cu Caracter Personal și să folosești căile de atac prevăzute de lege. Procedura oficială este indicată mai jos. Nu este necesar să accepți renunțarea la aceste drepturi pentru a folosi produsul.
+
+### 3. ANPC și soluționarea alternativă a litigiilor
+
+Abonamentul Voxa este conceput pentru clinici și cabinete în scop profesional. Aplicarea normelor pentru consumatori se stabilește după natura reală a persoanei și a contractului, nu doar după numele planului. Nu declarăm toate relațiile exceptate și nu solicităm renunțarea la drepturi imperative.
+
+Pentru litigii care intră în domeniul protecției consumatorilor, informațiile ANPC și portalul SAL sunt disponibile prin linkurile oficiale de mai jos. Pictograma și informarea obligatorie aplicabile unui model comercial se verifică înainte de lansare, față de forma în vigoare a normelor românești. Această pagină nu reprezintă certificare sau autorizare ANPC.
+
+Platforma europeană SOL/ODR a fost desființată, iar Regulamentul (UE) nr. 524/2013 a fost abrogat cu efect de la 20 iulie 2025. Nu indicăm vechiul portal european ca mecanism funcțional de depunere a litigiilor. SAL din România este un mecanism distinct.
+
+### 4. Serviciile medicale și documentele finale
+
+Reclamațiile privind consultația, actul medical sau furnizarea serviciului medical se adresează clinicii și autorităților competente pentru situația respectivă. Voxa este furnizorul software-ului și nu stabilește diagnosticul, tratamentul sau soluția unei dispute medicale.
+
+Firma, identificatorii, sediul, condițiile comerciale și documentele finale trebuie completate înaintea lansării. Nu sunt înlocuite printr-un logo ANPC sau prin mențiunea GDPR. Versiunea actuală este un proiect transparent pentru revizuire.
+
+### Surse oficiale
+
+- [ANPC — site oficial](https://anpc.ro/)
+- [ANPC — portalul SAL](https://reclamatiisal.anpc.ro/)
+- [ANSPDCP — procedura plângerilor](https://www.dataprotection.ro/index.jsp?lang=ro&page=procedura_plangerilor)
+- [OG nr. 38/2015 — domeniul SAL](https://legislatie.just.ro/Public/DetaliiDocumentAfis/234807)
+- [Regulamentul (UE) 2024/3228 — desființarea SOL/ODR](https://eur-lex.europa.eu/legal-content/RO/TXT/?uri=CELEX:32024R3228)

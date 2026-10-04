@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "licenses": "node scripts/licenses.mjs",
+    "legal:export": "node scripts/export-legal-drafts.mjs",
     "monitor:check": "node scripts/uptime-check.mjs",
     "backup:check": "node scripts/backup-r2.mjs check",
     "backup:upload": "node scripts/backup-r2.mjs upload",
