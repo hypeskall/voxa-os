@@ -5,6 +5,11 @@ on:
   schedule:
     - cron: '17 0 * * *'
   workflow_dispatch:
+    inputs:
+      test_failure:
+        description: Deliberate failure-alert test without reading production data
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -16,6 +21,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
+      - name: Controlled failure-alert test
+        if: inputs.test_failure == true
+        run: |
+          echo 'Deliberate notification test; production data and secrets are not accessed.'
+          exit 1
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: hypeskall/voxa-os
@@ -40,7 +50,7 @@ jobs:
           node scripts/backup-ci-env.mjs
           npm run backup:run
       - name: Remove temporary credential files
-        if: always()
+        if: always() && inputs.test_failure != true
         run: node scripts/backup-ci-env.mjs cleanup
 # No archives, receipts, private values or dependency caches are uploaded as GitHub artifacts.
 # Failure alerts require verified owner Actions notification settings. No SMTP key is exported.

@@ -1,6 +1,6 @@
 # Private off-device backup setup
 
-The owner activated R2 and `voxa-private-backups` was created with EU jurisdiction, Standard storage, no custom domains and its public development URL disabled. Bucket-scoped object credentials and separate read-only privacy verification access are configured. After explicit approval, fresh staging and production archives were encrypted locally, uploaded, downloaded and verified by size/SHA-256 on 4 October 2026. No recurring backup runner is active; separate key custody and full hosted recovery remain open.
+The owner activated R2 and `voxa-private-backups` was created with EU jurisdiction, Standard storage, no custom domains and its public development URL disabled. Bucket-scoped object credentials and separate read-only privacy verification access are configured. After explicit approval, fresh staging and production archives were encrypted locally, uploaded, downloaded and verified by size/SHA-256 on 4 October 2026. The owner-approved private GitHub runner is installed and its first manual cloud run also passed. The owner confirmed failure-alert receipt and separate key custody. The first actual scheduled trigger and full hosted recovery remain open.
 
 ## Owner account step
 
@@ -26,6 +26,6 @@ Choose an approved always-on private runner and agree backup interval, retention
 
 `npm run backup:run` is the prepared one-run entry point for that future runner: it validates the named source and approved destination, checks privacy, captures a fresh encrypted archive, rejects stale/replaced capture receipts, transfers/downloads/verifies the bytes, and writes evidence only after success. It suppresses child/provider diagnostics and creates no schedule. The same command can rehearse synthetic staging with the named environment and its separate destination-project approval.
 
-The concrete private GitHub pilot-runner proposal, exact credential list and inactive workflow template are in [PRIVATE_BACKUP_RUNNER.md](PRIVATE_BACKUP_RUNNER.md). The owner approved the named credential destination; installation and hosted verification remain pending.
+The installed private GitHub pilot runner, exact credential list, source workflow template and execution evidence are in [PRIVATE_BACKUP_RUNNER.md](PRIVATE_BACKUP_RUNNER.md). The owner approved the named credential destination and the first hosted manual backup passed. The public repository contains only the inactive template, never the private Actions secrets or backup artifacts.
 
 Enable the recurring job only after an initial external transfer is verified and its failure alert is tested. Full hosted Auth/private-table/Storage restoration to an isolated target must still be rehearsed. A downloaded logical archive is not PITR or proof of complete recovery. Patient notification delivery stays disabled through restoration.
