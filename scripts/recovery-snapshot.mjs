@@ -1,43 +1,23 @@
 import fs from "node:fs";
 import path from "node:path";
-import { randomBytes, createCipheriv, createDecipheriv, createHash } from "node:crypto";
-import { gzipSync, gunzipSync } from "node:zlib";
 import { createClient } from "@supabase/supabase-js";
 import { PGlite } from "@electric-sql/pglite";
 import { readEnv, stagingEnv } from "./staging-env.mjs";
 import { managementQuery } from "./staging-schema.mjs";
+import { snapshotCodec, snapshotHash as hash } from "./snapshot-codec.mjs";
 
 const envFile = process.env.RECOVERY_ENV_FILE || ".env.production.local";
 if (![".env.production.local", ".env.staging.local"].includes(envFile)) throw new Error("Use a named Voxa environment.");
 const env = envFile === ".env.staging.local" ? stagingEnv().env : readEnv(envFile);
 const ref = new URL(env.NEXT_PUBLIC_SUPABASE_URL).hostname.split(".")[0];
+if (envFile === ".env.production.local" && (ref !== "fibcbsdattoqiyizzeda" || env.APP_ORIGIN !== "https://voxa-os.vercel.app"))
+  throw new Error("Production snapshot target mismatch.");
 if (!/^[a-z]{20}$/.test(ref) || !env.SUPABASE_ACCESS_TOKEN || !/^[a-f0-9]{64}$/.test(env.BACKUP_ENCRYPTION_KEY || ""))
   throw new Error("Operator token and a server-only 256-bit backup key are required.");
 const key = Buffer.from(env.BACKUP_ENCRYPTION_KEY, "hex");
 const query = sql => managementQuery(ref, env.SUPABASE_ACCESS_TOKEN, sql);
-const hash = bytes => createHash("sha256").update(bytes).digest("hex");
-const prefix = Buffer.from("VOXA-SNAPSHOT-1\n");
+const { seal, open, verify } = snapshotCodec(key, ref);
 let phase = "initialization";
-function seal(snapshot) {
-  const iv = randomBytes(12), cipher = createCipheriv("aes-256-gcm", key, iv);
-  const ciphertext = Buffer.concat([cipher.update(gzipSync(Buffer.from(JSON.stringify(snapshot)))), cipher.final()]);
-  return Buffer.concat([prefix, iv, cipher.getAuthTag(), ciphertext]);
-}
-function open(bytes) {
-  if (!bytes.subarray(0, prefix.length).equals(prefix)) throw new Error("Unknown snapshot format.");
-  const offset = prefix.length, decipher = createDecipheriv("aes-256-gcm", key, bytes.subarray(offset, offset + 12));
-  decipher.setAuthTag(bytes.subarray(offset + 12, offset + 28));
-  return JSON.parse(gunzipSync(Buffer.concat([decipher.update(bytes.subarray(offset + 28)), decipher.final()])).toString());
-}
-function verify(snapshot) {
-  if (snapshot.ref !== ref || snapshot.format !== 1 || !Array.isArray(snapshot.tables) || !Array.isArray(snapshot.objects))
-    throw new Error("Snapshot target or format mismatch.");
-  for (const object of snapshot.objects) {
-    const bytes = Buffer.from(object.content, "base64");
-    if (bytes.length !== object.size || hash(bytes) !== object.sha256) throw new Error("Stored file integrity failed.");
-  }
-  if(snapshot.tables.some(t=>! /^(public|private|auth)\.[a-z0-9_]+$/.test(t.name))) throw new Error("Invalid table inventory.");
-}
 async function capture() {
   const names = await query("select schemaname,tablename from pg_tables where schemaname in ('public','private','auth') order by schemaname,tablename");
   for (const row of names) if (!/^[a-z_]+$/.test(row.schemaname) || !/^[a-z0-9_]+$/.test(row.tablename)) throw new Error("Unexpected table name.");

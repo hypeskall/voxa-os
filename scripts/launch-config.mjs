@@ -37,7 +37,7 @@ try {
   } else if(mode==="auth") {
     const client=transport();try{await client.verify();}finally{client.close();}
     const config={site_url:origin,uri_allow_list:`${origin}/auth/callback,${origin}/auth/callback?next=**`,
-      mailer_autoconfirm:false,external_email_enabled:true,external_anonymous_users_enabled:false,password_min_length:12,
+      disable_signup:false,mailer_autoconfirm:false,external_email_enabled:true,external_anonymous_users_enabled:false,password_min_length:12,
       smtp_host:mail.host,smtp_port:String(mail.port),smtp_user:mail.user,smtp_pass:mail.pass,smtp_admin_email:mail.from,smtp_sender_name:"Voxa-OS",
       mailer_templates_confirmation_content:fs.readFileSync("supabase/templates/staging-confirm-signup.html","utf8"),
       mailer_templates_recovery_content:fs.readFileSync("supabase/templates/staging-recovery.html","utf8"),

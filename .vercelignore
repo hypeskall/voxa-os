@@ -6,5 +6,6 @@ test-results/
 playwright-report/
 coverage/
 .staging-actors.local.json
+.production-acceptance.local.json
 .staging-deploy/
 .backups/

@@ -19,6 +19,8 @@ Verify with `node scripts/recovery-snapshot.mjs verify .backups/FILE.voxa`. Rehe
 
 Current archives are local, encrypted and Git/deploy-ignored, not off-device scheduled backups. Before medical-data launch, choose approved external storage, separate key custody, retention, RPO/RTO and schedule; test full hosted recovery into an isolated target. Supabase [database backups do not contain actual Storage files](https://supabase.com/docs/guides/platform/backups). Reconcile approved erasures after restore, including outboxes/provider state. Never automatically enable notification processing after recovery.
 
+An EU/private R2 transfer tool is now prepared: see [BACKUP_SETUP.md](BACKUP_SETUP.md). It authenticates snapshots locally, refuses enabled public domains, uploads ciphertext conditionally, and downloads/verifies it before writing an external receipt. The account, upload authorization, real remote transfer and private recurring runner remain unconfigured. Keys and provider credentials are not uploaded to Vercel or the public code repository.
+
 ## Monitoring and incidents
 
 The `Voxa production readiness` GitHub workflow runs public checks at minutes 7, 22, 37 and 52 each hour and supports manual dispatch. It checks database readiness, rendered login/register/recovery forms, anonymous dashboard redirection (including Next.js streamed redirects) and the absence of staging status in production. Failed checks are retried once after ten seconds. It uses no private credentials, submits no forms and logs only check paths/status; it does not process notifications or upload artifacts. Run locally with `npm run monitor:check`. Change the repository variable `VOXA_APP_ORIGIN` after a hosting migration; the default is the current production origin.

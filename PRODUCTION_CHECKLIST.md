@@ -8,6 +8,7 @@ Current release supports controlled product testing. Commercial and real medical
 - [x] Production baseline matched migration 021 (1,059 catalog checks); forward migrations 022–033 applied without reset, seed or historical migration-ID rewrite. Both environments match 1,379 current catalog checks.
 - [x] Public login/register work; an existing session can continue or switch accounts using POST. Signup preserves invitation context. Dashboard requires a valid session.
 - [x] Authorized production Zoho SMTP, verified STARTTLS, mandatory email confirmation, 12-character new-password policy and bounded callback URLs. Staff invitation SMTP configured; patient delivery disabled.
+- [x] Legacy production signup prohibition found and removed with explicit authorization; normal controlled signup succeeds with email confirmation still required.
 - [x] Durable email acknowledgement ledger prevents automatic resend after accepted/uncertain delivery. SMTP acceptance does not prove inbox delivery.
 - [x] Database readiness at /api/health, scrubbed request-error references and optional operator SMTP alerts.
 - [x] Credential-free GitHub production readiness workflow active for approximately 15-minute checks of health, Auth forms, anonymous dashboard redirection and staging-route isolation. All six checks pass locally and the first hosted dispatch passed; evidence is in docs/SETUP_REPORT_2026-10-04.md.
@@ -19,7 +20,7 @@ Current release supports controlled product testing. Commercial and real medical
 
 ## Open owner/clinic gates
 
-- [ ] Confirm actual production signup and recovery inbox delivery with a controlled owner account. Staging has prior inbox verification; production has SMTP/configuration verification only.
+- [ ] Confirm actual production signup and recovery inbox delivery with the controlled owner account. Production signup request succeeds; actual receipt/confirmation and recovery remain pending. Review the current global Auth email quota of 2/hour against Zoho's plan before public pilot.
 - [ ] Select commercial hosting. Current Vercel team is Hobby; its [fair-use policy](https://vercel.com/docs/limits/fair-use-guidelines) requires Pro/Enterprise for commercial usage. No paid upgrade was made.
 - [ ] Approve recurring off-device backups, separate key custody, recovery objectives and full hosted Auth/Storage restore. Production API currently lists no backups and PITR is disabled; logical snapshots are not physical/PITR backups.
 - [ ] Confirm failed-workflow notification preferences/inbox delivery, assign a responder and provision dedicated uptime monitoring if guaranteed intervals are required. GitHub readiness checks are best effort; they can be delayed and public-repository inactivity can disable them.
