@@ -10,7 +10,7 @@ Current release supports controlled product testing. Commercial and real medical
 - [x] Authorized production Zoho SMTP, verified STARTTLS, mandatory email confirmation, 12-character new-password policy and bounded callback URLs. Staff invitation SMTP configured; patient delivery disabled.
 - [x] Durable email acknowledgement ledger prevents automatic resend after accepted/uncertain delivery. SMTP acceptance does not prove inbox delivery.
 - [x] Database readiness at /api/health, scrubbed request-error references and optional operator SMTP alerts.
-- [x] Credential-free GitHub production readiness workflow prepared for approximately 15-minute checks of health, Auth forms, anonymous dashboard redirection and staging-route isolation; all six public checks pass locally. Schedule activation/hosted-run evidence is recorded in the operations report.
+- [x] Credential-free GitHub production readiness workflow active for approximately 15-minute checks of health, Auth forms, anonymous dashboard redirection and staging-route isolation. All six checks pass locally and the first hosted dispatch passed; evidence is in docs/SETUP_REPORT_2026-10-04.md.
 - [x] Encrypted production pre-upgrade snapshot captured/decrypt-verified. Synthetic local restore matches 48 application tables exactly; two Storage files pass integrity checks.
 - [x] Hosted A/B tenant/Storage and role/invitation checks pass. Hosted browsers: 17 pass, one expiry fixture skipped this round. Prior genuine expiry evidence is in docs/HOSTED_STAGING_REPORT.md.
 - [x] Twelve independent appointment clients: one success, eleven explicit conflicts; winner cancelled normally. This is a race test, not capacity certification.
