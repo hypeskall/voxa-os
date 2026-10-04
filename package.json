@@ -14,6 +14,7 @@
     "monitor:check": "node scripts/uptime-check.mjs",
     "backup:check": "node scripts/backup-r2.mjs check",
     "backup:upload": "node scripts/backup-r2.mjs upload",
+    "backup:run": "node scripts/backup-run.mjs",
     "staging:check": "node scripts/staging.mjs check",
     "staging:migrate": "node scripts/staging-cli.mjs migrate",
     "staging:vercel-env": "node scripts/staging-cli.mjs vercel-env",

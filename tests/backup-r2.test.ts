@@ -66,7 +66,8 @@ describe("encrypted backup custody", () => {
   });
 
   it("rejects untrusted endpoint inputs and non-EU jurisdictions", () => {
-    for (const patch of [{ R2_ACCOUNT_ID: "other.example/token" }, { R2_BUCKET: "../public" }, { R2_JURISDICTION: "default" }, { R2_SECRET_ACCESS_KEY: "missing" }])
+    for (const patch of [{ R2_ACCOUNT_ID: "other.example/token" }, { R2_BUCKET: "../public" }, { R2_JURISDICTION: "default" }, { R2_SECRET_ACCESS_KEY: "missing" },
+      { CLOUDFLARE_API_TOKEN: "replace-with-r2-bucket-read-management-token" }, { CLOUDFLARE_API_TOKEN: "placeholder_".repeat(4) }])
       expect(() => r2Settings({ ...env, ...patch })).toThrow();
     expect(settings.endpoint).toBe(`https://${env.R2_ACCOUNT_ID}.eu.r2.cloudflarestorage.com`);
   });

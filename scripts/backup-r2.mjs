@@ -12,7 +12,8 @@ export function r2Settings(env) {
     || env.R2_JURISDICTION !== "eu"
     || !/^[a-f0-9]{32}$/.test(env.R2_ACCESS_KEY_ID || "")
     || !/^[a-f0-9]{64}$/.test(env.R2_SECRET_ACCESS_KEY || "")
-    || !/^[A-Za-z0-9_-]{32,256}$/.test(env.CLOUDFLARE_API_TOKEN || ""))
+    || !/^[A-Za-z0-9_-]{32,256}$/.test(env.CLOUDFLARE_API_TOKEN || "")
+    || /replace|placeholder/i.test(env.CLOUDFLARE_API_TOKEN || ""))
     throw new Error("Complete the private EU R2 configuration.");
   return {
     account: env.R2_ACCOUNT_ID, bucket: env.R2_BUCKET, token: env.CLOUDFLARE_API_TOKEN,
