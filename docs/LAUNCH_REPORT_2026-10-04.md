@@ -1,5 +1,7 @@
 # Release evidence — 4 October 2026
 
+This report's earlier release evidence is preserved below. The later [technical acceptance report](ACCEPTANCE_1_4_2026-10-04.md) records migration 034, enforced app MFA, full private-runner restoration, the new synthetic clinic pilot and current backup/email acceptance.
+
 The broken authenticated dashboard entry originated from schema drift: production matched migration 021 while the application needed later organization/onboarding/subscription schema. After an encrypted snapshot, forward migrations 022–033 were applied, preserving old migration IDs and existing records. Both backends match 1,379 catalog checks. Existing sessions now have a safe POST account-switch escape at public Auth entry.
 
 Authorized production Zoho configuration was saved/read back in Supabase Auth and private Vercel configuration; TLS authentication passes. Application invitations use durable SMTP acknowledgement guards. Patient notification delivery is disabled. Production inbox acceptance is still an owner gate; SMTP handshake is not inbox evidence.

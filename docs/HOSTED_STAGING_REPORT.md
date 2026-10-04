@@ -1,5 +1,7 @@
 # Hosted staging verification — 3 October 2026
 
+Historical evidence from the earlier pass. The later [acceptance report](ACCEPTANCE_1_4_2026-10-04.md) documents current MFA, full recovery, the new clinic pilot and updated configuration.
+
 **Hosted functional and security checks pass for the implemented staging scope.** Both real accounts are confirmed and their saved passwords authenticate successfully. The owner verified a fresh recovery email; its explicit confirmation reached the real new-password form. The latest protected Preview includes recovery safeguards and the login hydration fix. After an earlier test exposed account A's password in a native GET login URL, the owner completed the final password rotation; the application displayed its password-updated confirmation and both saved credentials were independently rechecked through normal Supabase Auth. Production deployment, database and data were untouched. A real clinic trial still requires the retention/privacy and operational decisions below.
 
 | Requested result | Verified state |

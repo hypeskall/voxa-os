@@ -18,6 +18,8 @@ describe("optional enrolled MFA protects every private entry point", () => {
     await expect(callerQuery(db, ids.owner, "update public.profiles set full_name='Forbidden' returning id")).resolves.toHaveProperty("rows", []);
     await expect(callerQuery(db, ids.owner, "select public.record_login()")).rejects.toThrow("MFA verification required");
     await expect(callerQuery(db, ids.owner, "select public.create_organization('Forbidden','Forbidden')")).rejects.toThrow("MFA verification required");
+    await expect(callerQuery(db, ids.owner, "select public.find_conflicts($1,'{}'::jsonb)", [ids.a])).rejects.toThrow("MFA verification required");
+    await expect(callerQuery(db, ids.owner, "select public.can_delete_unregistered_medical_object('synthetic-test.pdf')")).rejects.toThrow("MFA verification required");
     expect((await callerQuery(db, ids.owner, "select public.my_permissions($1)", [ids.a])).rows).toHaveLength(0);
     // Prove the restrictive Storage policy blocks even an otherwise permissive policy.
     await db.exec("create policy mfa_test_permissive on storage.objects for select to authenticated using(true)");
@@ -42,6 +44,8 @@ describe("optional enrolled MFA protects every private entry point", () => {
     expect(missing.rows).toEqual([]);
     const unguarded = await db.query(`select p.proname from pg_proc p join pg_namespace n on n.oid=p.pronamespace join pg_language l on l.oid=p.prolang where n.nspname='public' and l.lanname='plpgsql' and has_function_privilege('authenticated',p.oid,'execute') and position('perform private.require_mfa();' in p.prosrc)=0`);
     expect(unguarded.rows).toEqual([]);
+    const unguardedSql = await db.query(`select p.proname from pg_proc p join pg_namespace n on n.oid=p.pronamespace join pg_language l on l.oid=p.prolang where n.nspname='public' and l.lanname='sql' and p.prosecdef and has_function_privilege('authenticated',p.oid,'execute') and not has_function_privilege('anon',p.oid,'execute') and position('private.mfa_satisfied()' in p.prosrc)=0`);
+    expect(unguardedSql.rows).toEqual([]);
     await expect(callerQuery(db, ids.owner, "select * from auth.mfa_factors")).rejects.toThrow(/permission denied/);
   });
   it("rejects MFA redirect loops, external destinations and malformed codes", () => {

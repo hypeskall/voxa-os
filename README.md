@@ -1,6 +1,6 @@
 # Voxa
 
-Hosted staging: [ghid de configurare și acceptanță](docs/HOSTED_STAGING.md) · [raport de verificare și blocaje](docs/HOSTED_STAGING_REPORT.md). Mediul hosted nu este încă verificat; rezultatele locale nu reprezintă certificarea unui trial real.
+Hosted staging: [ghid de configurare](docs/HOSTED_STAGING.md) · [acceptanța curentă: restaurare, MFA și pilot](docs/ACCEPTANCE_1_4_2026-10-04.md). Pilotul cu date fictive a trecut verificările reale; lansarea comercială și datele medicale cer deciziile rămase din [checklist](PRODUCTION_CHECKLIST.md).
 
 Aplicație B2B pentru administrarea clinicilor. Implementarea include fundația multi-tenant, programările, booking-ul public, comunicările, documentele medicale private, rezultatele versionate și portalul pacientului. Documentul original este păstrat intact, iar interfața este în română.
 
@@ -64,7 +64,9 @@ Conturile noi folosesc `/register` (nume, email și parolă de minimum 12 caract
 
 Primul login fără membership deschide `/onboarding`: identitate, locații, program, servicii, medici, cabinete opționale, echipă opțională și verificare finală. Fiecare pas salvat rămâne în PostgreSQL cu control pentru modificări concurente. Finalizarea creează resursele și relațiile într-o tranzacție. Organizația nouă primește o probă de 30 de zile, fără integrare de plăți sau blocare automată. Migration 023 marchează organizațiile existente drept configurate.
 
-Invitațiile sunt linkuri reale pentru ADMIN/RECEPTION/DOCTOR în locația aleasă, valabile șapte zile. Baza păstrează doar hash-ul tokenului; acceptarea cere email Auth verificat identic. Linkurile se trimit manual. Contul poate avea mai multe organizații/locații prin invitații. Contul DOCTOR trebuie asociat separat resursei profesionale din profilul medicului.
+Invitațiile sunt linkuri reale pentru ADMIN/RECEPTION/DOCTOR în locația aleasă, valabile șapte zile. Baza păstrează doar hash-ul tokenului; acceptarea cere email Auth verificat identic. Producția folosește Brevo cu confirmare durabilă de acceptare SMTP; staging folosește implicit livrare manuală. Contul poate avea mai multe organizații/locații prin invitații. Contul DOCTOR trebuie asociat separat resursei profesionale din profilul medicului.
+
+Verificarea opțională în doi pași se configurează din `/account/security`. După activare, datele și fișierele private cer codul aplicației de autentificare, inclusiv la cereri directe către API. [Ghid MFA și recuperare](docs/ACCOUNT_MFA.md).
 
 Upload-urile din interfață acceptă maximum **3 MB cumulat per formular**, cu verificarea conținutului și limită Server Actions de 4 MB. Limitele mai mari ale bucket-urilor păstrează compatibilitatea fișierelor existente. Logo-urile folosesc bucket-ul privat `voxa-branding`; fișierele medicale folosesc `voxa-medical`. Pentru fișiere mai mari este necesar un flux separat de upload semnat.
 

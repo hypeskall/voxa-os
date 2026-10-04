@@ -6,6 +6,7 @@ export default defineConfig({
   workers: 1,
   fullyParallel: false,
   timeout: 60000,
+  expect: { timeout: 15000 },
   outputDir: "test-results/hosted",
   use: {
     baseURL: config.origin,
