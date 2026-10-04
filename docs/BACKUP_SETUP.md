@@ -1,6 +1,6 @@
 # Private off-device backup setup
 
-The R2 transport is implemented and tested with synthetic responses. No external account is connected, no production snapshot has been uploaded, and no recurring backup runner is active.
+The R2 transport is implemented and tested with synthetic responses. The owner created a Cloudflare account, but subscription activation was not verified and R2 setup is deferred at the owner's request. No bucket credentials are connected, no production snapshot has been uploaded, and no recurring backup runner is active.
 
 ## Owner account step
 
