@@ -29,6 +29,7 @@ export const statusLabels: Record<SubscriptionStatus, string> = {
   inactive: "Inactiv",
 };
 export const eventLabels: Record<string, string> = {
+  stripe_subscription_updated: "Abonament Stripe actualizat",
   trial_started: "Testarea gratuită a început",
   trial_expired: "Testarea gratuită s-a încheiat",
   license_assigned: "Licență atribuită",

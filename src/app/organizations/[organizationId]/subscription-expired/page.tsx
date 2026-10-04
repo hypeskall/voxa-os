@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { LockKeyhole, ShieldCheck } from "lucide-react";
 import { requireOrganization } from "@/features/organizations/access";
 import { organizationEntitled } from "@/features/subscriptions/access";
+import { stripeConfigured } from "@/features/subscriptions/stripe-client";
 export const metadata = { title: "Abonament necesar" };
 export default async function Expired({
   params,
@@ -37,7 +38,7 @@ export default async function Expired({
         <div className="marketing-actions">
           <Link
             className="button button-primary"
-            href={`/organizations/${organizationId}/billing/contact`}
+            href={`/organizations/${organizationId}/billing${stripeConfigured() ? "" : "/contact"}`}
           >
             Activează abonamentul
           </Link>

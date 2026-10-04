@@ -3,6 +3,7 @@
 // supabase gen types typescript --local > supabase/database.generated.ts.
 import type { Role } from "@/lib/permissions";
 import type { Subscription } from "@/features/subscriptions/model";
+import type { StripeBilling } from "@/features/subscriptions/stripe-model";
 export type Json =
   | string
   | number
@@ -109,6 +110,7 @@ export type Database = {
   public: {
     Tables: {
       organization_subscriptions: Table<Subscription, never, never>;
+      organization_stripe_billing: Table<StripeBilling, never, never>;
       license_keys: Table<{ id: string; organization_id: string | null; code_hash: string; code_hint: string; status: "available" | "assigned" | "active" | "expired" | "revoked"; plan: string; duration_months: number; redeem_by: string; expires_at: string | null; activated_at: string | null; created_by: string | null } & Timestamps, never, never>;
       subscription_events: Table<{ id: string; organization_id: string; subscription_id: string; event_type: string; metadata: Json; created_at: string }, never, never>;
       organization_members: Table<{ id: string; organization_id: string; user_id: string; role: Role; status: "active" | "suspended" } & Timestamps, never, never>;
@@ -192,6 +194,9 @@ export type Database = {
     };
     Views: Record<string, never>;
     Functions: {
+      stripe_billing_lock: { Args: { oid: string }; Returns: Json };
+      stripe_billing_save: { Args: { oid: string; token: string; payload: Json }; Returns: undefined };
+      stripe_billing_apply: { Args: { oid: string; token: string; eid: string; kind: string; snapshot: Json }; Returns: boolean };
       claim_transactional_email: { Args: { digest: string }; Returns: string };
       finish_transactional_email: { Args: { digest: string; outcome: "accepted" | "uncertain" }; Returns: undefined };
       organization_access: { Args: { oid: string }; Returns: boolean };

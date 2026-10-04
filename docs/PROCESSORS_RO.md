@@ -10,7 +10,7 @@ Proiect 4 octombrie 2026. Descrie configurația actuală, fără a certifica sem
 | Cloudflare R2 | Arhive criptate; cheia separat | Obiecte în jurisdicție UE; metadate/control-plane și suport separat | DPA, listă, garanții, acces, retenție |
 | GitHub Actions privat | Date citite temporar înaintea criptării; chei limitate și criptare în secrete private | Runnerul nu este declarat UE; accesul în clar este relevant | Termeni/DPA ai contului, subcontractanți, locație, log/runner lifetime, garanții |
 | Zoho | Mailbox contact@voxatech.ro, suport/admin | Nu SMTP automat; regiunea contului de verificat | Contract/DPA, acces, termen, transferuri, reguli atașamente |
-| Stripe | Neintegrat | Evaluare la etapa finală | Roluri/entități, informare, contract, transferuri, facturare |
+| Stripe | Integrat numai sandbox pe staging protejat; date sintetice | Checkout abonamente, portal și facturi de test; fără date medicale/pacient, plăți live sau colectare taxe | Roluri/entități, informare, contract, transferuri, ofertă fiscală și retenție de aprobat înainte de live |
 
 Fișă privată: `serviciu | entitate | rol/scop | persoane/date | clar/criptat | țări/suport | subcontractanți | DPA efectiv + dată/versiune | mecanism/domeniu transfer | evaluare/măsuri | retenție reală | eliminare/restituire | incident/contact | schimbări | proprietar | revizuire | decizie/dovadă`.
 

@@ -1,6 +1,6 @@
 # Operare, retenție și pregătire juridică — PROIECT
 
-Versiune 2026-10-04.draft.1. Firma nu este încă înființată. Acest document nu atestă conformitatea și nu autorizează ștergeri, transferuri noi sau folosirea datelor medicale reale. Publicarea unui text nu înlocuiește procedurile, contractele și evaluarea activității reale.
+Versiune 2026-10-04.draft.2. Firma nu este încă înființată. Acest document nu atestă conformitatea și nu autorizează ștergeri, transferuri noi sau folosirea datelor medicale reale. Publicarea unui text nu înlocuiește procedurile, contractele și evaluarea activității reale.
 
 Textele publice sunt în [LEGAL_DRAFTS_RO.md](LEGAL_DRAFTS_RO.md), generate din aceeași sursă ca `/legal`. Furnizori: [PROCESSORS_RO.md](PROCESSORS_RO.md). Dovezi tehnice: [ACCEPTANCE_1_4_2026-10-04.md](ACCEPTANCE_1_4_2026-10-04.md).
 
@@ -13,7 +13,7 @@ Textele publice sunt în [LEGAL_DRAFTS_RO.md](LEGAL_DRAFTS_RO.md), generate din 
 | Clinica și reprezentarea | Identificare și autoritate de semnare de verificat |
 | Contact incident și înlocuitor | De desemnat pentru fiecare parte, cu program/escaladare |
 | DPO | Evaluare motivată art. 37; nu este desemnat prin acest proiect |
-| Preț total, TVA, conversie și suport | De aprobat înainte de comenzi plătite; Stripe rămâne ultima etapă |
+| Preț total, TVA, conversie și suport | De aprobat înainte de comenzi plătite; Stripe este integrat în sandbox; live și colectarea taxelor rămân dezactivate |
 | Hosting | Proprietarul a ales Vercel și va cumpăra personal planul comercial; activarea nu este verificată |
 | MFA personal | Proprietarul a declarat activarea; testarea independentă privește factorul sintetic |
 | RPO/RTO și retenție | Propuneri de aprobat, fără SLA inventat |

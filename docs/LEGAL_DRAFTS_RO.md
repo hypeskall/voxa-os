@@ -1,6 +1,6 @@
 # Documente pentru lansare — PROIECT, 4 octombrie 2026
 
-Versiune: 2026-10-04.draft.1. Sursa unică pentru paginile publice și acest export: src/features/legal/documents.json.
+Versiune: 2026-10-04.draft.2. Sursa unică pentru paginile publice și acest export: src/features/legal/documents.json.
 
 Firma furnizoare nu este încă înființată, iar identitatea juridică, condițiile comerciale și anexele trebuie completate și aprobate. Aceste documente nu sunt acorduri definitive și nu atestă conformitatea. Testarea se face cu date fictive până la finalizarea condițiilor pentru folosirea datelor reale.
 
@@ -30,9 +30,9 @@ Produsul nu furnizează consultații, diagnostic sau decizii medicale. Clinica �
 
 ### 3. Testarea, prețul și activarea
 
-Versiunea actuală oferă un trial de 30 de zile și afișează un preț de referință de 19,99 EUR/lună/organizație. Trialul nu inițiază debitări automate, iar activarea actuală folosește o licență. Stripe nu este încă integrat.
+Versiunea actuală oferă un trial de 30 de zile și afișează un preț de referință de 19,99 EUR/lună/organizație. Trialul la înscriere nu inițiază debitări automate, iar licențele manuale rămân disponibile. Stripe Checkout și portalul de facturare sunt integrate numai în sandbox, pentru abonamentele organizațiilor pe staging protejat. Abonarea de test reînnoiește automat 19,99 EUR/lună după perioada gratuită rămasă; anularea din portal are efect la finalul perioadei plătite. Nu sunt activate plăți reale sau colectarea taxelor.
 
-Înaintea oricărei comenzi plătite, oferta finală trebuie să precizeze prețul total, regimul TVA, moneda și conversia, perioada facturată, modalitatea de plată, reînnoirea, încetarea și eventualele costuri suplimentare. Prețul afișat în versiunea de test nu substituie această ofertă. Nu se solicită acceptarea unor condiții de debitare care nu există în produs.
+Înaintea oricărei comenzi plătite, oferta finală trebuie să precizeze prețul total, regimul TVA, moneda și conversia, perioada facturată, modalitatea de plată, reînnoirea, încetarea și eventualele costuri suplimentare. Prețul afișat în versiunea de test nu substituie această ofertă. Confirmarea reînnoirii în sandbox privește exclusiv simularea tehnică, fără o comandă sau debitare reală.
 
 La expirarea trialului sau a licenței, accesul operațional poate fi suspendat conform stării afișate în aplicație. Expirarea nu șterge automat datele. Procedura de restituire a datelor se agrează înaintea lansării comerciale.
 
@@ -114,7 +114,7 @@ Temeiurile de mai jos sunt propuse pentru aprobarea operatorului după stabilire
 | Cont și serviciu solicitat | Executarea contractului, art. 6 alin. (1) lit. b, când persoana este parte; pentru personalul clientului, interes legitim documentat pentru administrarea relației profesionale, art. 6 alin. (1) lit. f. |
 | Securitate, roluri și audit | Interes legitim documentat pentru prevenirea accesului neautorizat și investigarea incidentelor; obligație legală numai dacă este identificată concret. |
 | Suport și solicitări | Gestionarea relației solicitate și protejarea drepturilor; contract, interes legitim sau obligația legală aplicabilă, în funcție de solicitare. |
-| Facturare viitoare | Executarea relației contractuale și obligațiile legale financiar-contabile aplicabile după identificarea firmei; plățile Stripe nu sunt încă active. |
+| Facturare viitoare | Executarea relației contractuale și obligațiile legale financiar-contabile aplicabile după identificarea firmei; Stripe este utilizat numai în sandbox cu date sintetice; plățile reale nu sunt active. |
 | Date ale pacienților | Instrucțiunile clinicii în baza DPA. Clinica identifică un temei art. 6 și, pentru sănătate, o condiție art. 9, plus normele aplicabile activității sale. Nu se presupune că un checkbox GDPR rezolvă această analiză. |
 | Marketing | Nu există în versiunea verificată un program de marketing către pacienți. Orice activare viitoare se evaluează distinct și nu condiționează accesul de un consimțământ de marketing. |
 
@@ -130,7 +130,7 @@ Accesul este limitat la utilizatorii autorizați ai clinicii, personalul de oper
 | Cloudflare R2 | Arhive de backup criptate în bucket privat cu jurisdicție UE. Cheia de decriptare este păstrată separat de R2. |
 | GitHub Actions — runner privat | Execută backupurile: datele și fișierele sunt citite temporar pentru captură și criptare, apoi arhiva criptată este transferată în R2. Nu se publică arhive sau secrete ca artefacte. GitHub nu reprezintă o garanție de procesare exclusiv în UE. |
 | Zoho | Corespondența operațională pentru contact@voxatech.ro; nu este expeditorul automat al mesajelor tranzacționale. |
-| Stripe | Nu este activ în fluxul actual; politica, DPA și oferta vor fi actualizate înaintea integrării. |
+| Stripe | Checkout și portal de facturare pentru abonamente, numai în sandbox cu date sintetice. Se transmit identificatorul organizației, denumirea și datele de facturare completate în Stripe; nu se transmit date medicale sau de pacient. Metodele de plată sunt colectate de Stripe în pagina sa găzduită, fără stocarea cardului în Voxa. Rolurile/entitățile, contractele, transferurile și oferta finală se confirmă înainte de plățile reale. |
 
 ### 5. Localizare și transferuri internaționale
 

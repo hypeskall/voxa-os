@@ -15,7 +15,7 @@ function securityHeaders(framePolicy:string,includeFrameHeader=true) {
     { key: "Content-Security-Policy", value:
       "default-src 'self'; script-src 'self' 'unsafe-inline'" +
       (process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : "") +
-      "; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' https:; font-src 'self'; connect-src 'self' https://*.supabase.co http://127.0.0.1:54321; object-src 'none'; frame-ancestors "+framePolicy+"; base-uri 'self'; form-action 'self'" },
+      "; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' https:; font-src 'self'; connect-src 'self' https://*.supabase.co http://127.0.0.1:54321; object-src 'none'; frame-ancestors "+framePolicy+"; base-uri 'self'; form-action 'self' https://checkout.stripe.com https://billing.stripe.com" },
   ];
 }
 const config: NextConfig = {

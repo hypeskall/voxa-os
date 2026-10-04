@@ -12,6 +12,8 @@ import {
 } from "./model";
 import { ActionForm } from "@/components/ui/action-form";
 import { Field, Input } from "@/components/ui/form";
+import { stripeConfigured } from "./stripe-client";
+import { startStripeCheckout, openStripePortal } from "./stripe-actions";
 
 export async function BillingPage({
   organizationId,
@@ -39,6 +41,10 @@ export async function BillingPage({
   if (subscription.error || events.error)
     throw new Error("Datele abonamentului nu au putut fi încărcate.");
   const s = subscription.data;
+  const stripeEnabled = stripeConfigured();
+  const billing = stripeEnabled ? await client.from("organization_stripe_billing")
+    .select("customer_id,subscription_id,status").eq("organization_id", organizationId).maybeSingle() : null;
+  if (billing?.error) throw new Error("Facturarea nu a putut fi verificată.");
   const license = s.license_key_id
     ? await client
         .from("license_keys")
@@ -67,7 +73,7 @@ export async function BillingPage({
           <div>
             <strong>Accesul operațional este suspendat.</strong>
             <p>
-              Datele clinicii sunt păstrate. Activați o licență pentru a
+              Datele clinicii sunt păstrate. Activați un abonament sau o licență pentru a
               continua.
             </p>
           </div>
@@ -129,6 +135,18 @@ export async function BillingPage({
           <p className="muted">
             Trialul este gratuit. Nu există debitare automată prin licență.
           </p>
+          {stripeEnabled && <div className="billing-help">
+            <h3>Abonament online · test</h3>
+            <p>Folosiți numai date de test. Plata reală nu este activată. Abonamentul se reînnoiește automat la 19,99 EUR/lună/organizație după perioada gratuită rămasă. Anularea se face din portal, cu efect la finalul perioadei plătite. Nu se colectează taxe în sandbox.</p>
+            {billing?.data?.customer_id && <form action={openStripePortal.bind(null, organizationId)}>
+              <button className="button button-outline" type="submit">Gestionează abonamentul și facturile</button>
+            </form>}
+            {!(s.entitlement_source === "license" && entitled) && !["active", "trialing", "past_due", "unpaid", "incomplete", "paused"].includes(billing?.data?.status ?? "") &&
+              <ActionForm action={startStripeCheckout.bind(null, organizationId)} submit="Continuă la plata de test">
+                <label><input name="billing_consent" type="checkbox" required /> Confirm reînnoirea automată și posibilitatea de anulare din portalul de facturare.</label>
+              </ActionForm>}
+            <p className="muted">Confirmarea abonamentului poate dura câteva momente. Revenirea din pagina de plată nu acordă automat acces; reîncărcați pagina după confirmare.</p>
+          </div>}
         </section>
         <section className="billing-card" id="activation">
           <div className="billing-card-title">
@@ -157,8 +175,7 @@ export async function BillingPage({
           <div className="billing-help">
             <h3>Ai nevoie de un abonament?</h3>
             <p>
-              Activarea este gestionată prin echipa Voxa-OS. Plata online nu
-              este disponibilă încă.
+              Activarea prin licență este gestionată de echipa Voxa-OS.{stripeEnabled ? " Plata online este disponibilă numai pentru testare." : " Plata online reală nu este activată."}
             </p>
             <Link
               className="text-link"
