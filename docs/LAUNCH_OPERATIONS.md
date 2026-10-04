@@ -35,6 +35,8 @@ For incidents, record UTC time/displayed reference, inspect matching hosting log
 
 Auth and application invitation SMTP are configured independently. Patient delivery remains disabled. The private ledger stores only a key digest, timestamps and sending/accepted/uncertain state. Acceptance means the SMTP server accepted the message, not inbox delivery. Sending/uncertain requires verification and is never automatically retried. Do not blindly reset ledger state. Inspect provider evidence; revoke/reissue invitations when appropriate. Test with controlled accounts, not real patient contact.
 
+Zoho Mail's current usage policy excludes automated/transactional sending. New sending must use an approved transactional provider; the Brevo migration procedure is in [TRANSACTIONAL_EMAIL_SETUP.md](TRANSACTIONAL_EMAIL_SETUP.md). The operator configurator no longer reapplies ordinary Zoho Mail credentials. Historical Zoho acceptance evidence remains historical and does not establish permission for a commercial transactional workload.
+
 ## First clinic pilot
 
 - Approve legal/privacy/retention, hosting/recovery gates and contacts.

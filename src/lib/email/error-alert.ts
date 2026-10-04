@@ -9,10 +9,12 @@ export async function alertServerError(reference: string, type: string) {
   lastAlert = Date.now();
   const address = z.email().safeParse(process.env.ERROR_ALERT_EMAIL);
   const from = z.email().safeParse(process.env.SMTP_FROM);
+  const replyTo = process.env.SMTP_REPLY_TO ? z.email().safeParse(process.env.SMTP_REPLY_TO) : null;
   if (!address.success || !from.success || !/^[a-z0-9-]{1,50}$/i.test(reference)) return;
+  if (replyTo && !replyTo.success) return;
   try {
     const transport = smtpTransport();
-    try { await transport.sendMail({from:from.data,to:address.data,subject:"Voxa-OS · eroare de server",
+    try { await transport.sendMail({from:from.data,to:address.data,...(replyTo?.success ? {replyTo:replyTo.data} : {}),subject:"Voxa-OS · eroare de server",
       text:`A fost detectată o eroare de server.\nReferință: ${reference}\nTip: ${["render","route","action","proxy"].includes(type) ? type : "server"}\nMoment: ${new Date().toISOString()}\n\nVerifică jurnalul aplicației folosind referința. Acest mesaj nu conține date despre pacienți sau conturi.`}); }
     finally { transport.close(); }
   } catch { /* Monitoring must never recursively fail the request. */ }

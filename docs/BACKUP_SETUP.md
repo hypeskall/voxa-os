@@ -1,6 +1,6 @@
 # Private off-device backup setup
 
-The R2 transport is implemented and tested with synthetic responses. The owner created a Cloudflare account, but subscription activation was not verified and R2 setup is deferred at the owner's request. No bucket credentials are connected, no production snapshot has been uploaded, and no recurring backup runner is active.
+The R2 transport is implemented and tested with synthetic responses. Setup resumed at the owner's request: the owner activated R2 and `voxa-private-backups` was created with EU jurisdiction, Standard storage, no custom domains and its public development URL disabled. Object credentials/read-only privacy verification access are being prepared. No production snapshot has been uploaded, and no recurring backup runner is active.
 
 ## Owner account step
 

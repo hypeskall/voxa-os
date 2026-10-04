@@ -41,4 +41,15 @@ describe("SMTP delivery security and uncertainty",()=>{
     vi.stubEnv("NOTIFICATION_PROVIDER","smtp");
     await expect(notificationProvider().send({channel:"SMS",recipient:"0700000000",subject:"",body:"",idempotencyKey:"test"})).rejects.toThrow(/SMS/);
   });
+  it("routes replies to the support mailbox and rejects injected reply addresses before sending",async()=>{
+    vi.stubEnv("SMTP_REPLY_TO","contact@example.ro");
+    mocks.rpc.mockResolvedValueOnce({data:"claimed",error:null}).mockResolvedValueOnce({error:null});
+    mocks.send.mockResolvedValue({accepted:[message.to]});
+    await sendTransactionalEmail(message);
+    expect(mocks.send.mock.calls[0][0]).toMatchObject({replyTo:"contact@example.ro"});
+    vi.clearAllMocks();
+    vi.stubEnv("SMTP_REPLY_TO","contact@example.ro\r\nBcc:evil@example.ro");
+    await expect(sendTransactionalEmail(message)).rejects.toThrow();
+    expect(mocks.send).not.toHaveBeenCalled();
+  });
 });

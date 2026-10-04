@@ -21,9 +21,9 @@ Current release supports controlled product testing. Commercial and real medical
 
 ## Open owner/clinic gates
 
-- [ ] Review the current global Auth email quota of 2/hour against Zoho's plan before public pilot. Controlled confirmation and recovery delivery/login are verified; DKIM selector/alignment still needs provider evidence.
+- [ ] Complete transactional email acceptance after replacing ordinary Zoho Mail, whose usage policy excludes automated/transactional messages. Brevo Free, subdomain DNS/authentication, verified sender, dedicated SMTP key and explicitly approved production Supabase/Vercel settings are configured; deployment and new-provider inbox acceptance remain pending. Auth pilot quota is 10/hour. Procedure: docs/TRANSACTIONAL_EMAIL_SETUP.md.
 - [ ] Select commercial hosting. Current Vercel team is Hobby; its [fair-use policy](https://vercel.com/docs/limits/fair-use-guidelines) requires Pro/Enterprise for commercial usage. No paid upgrade was made.
-- [ ] Approve recurring off-device backups, separate key custody, recovery objectives and full hosted Auth/Storage restore. R2 setup is deferred at the owner's request; no remote transfer or recurring runner is active. Production API currently lists no backups and PITR is disabled; logical snapshots are not physical/PITR backups.
+- [ ] Complete recurring off-device backups, separate key custody, recovery objectives and full hosted Auth/Storage restore. R2 is activated and its private EU Standard bucket is created; credentials, exact-data transfer approval, verified upload and recurring runner remain pending. Production API currently lists no backups and PITR is disabled; logical snapshots are not physical/PITR backups.
 - [ ] Confirm failed-workflow notification preferences/inbox delivery, assign a responder and provision dedicated uptime monitoring if guaranteed intervals are required. GitHub readiness checks are best effort; they can be delayed and public-repository inactivity can disable them.
 - [ ] Fill firm/CUI/address and approve terms, privacy notice, DPA, processor list and retention. Drafts: docs/LEGAL_DRAFTS_RO.md. Footer dialogs are product summaries, not approved agreements.
 - [ ] Agree medical-original retention/deletion and identity checks. Archiving and privacy review attestations do not physically erase data/files.

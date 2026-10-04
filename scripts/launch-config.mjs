@@ -2,20 +2,16 @@ import fs from "node:fs";
 import { spawnSync } from "node:child_process";
 import nodemailer from "nodemailer";
 import { readEnv, stagingEnv } from "./staging-env.mjs";
+import { approvedMailSettings, mailSettings, mailTransportOptions } from "./mail-settings.mjs";
 
 const staging = process.argv[3] === "staging";
 const envFile = staging ? ".env.staging.local" : ".env.production.local";
 const env = staging ? stagingEnv().env : readEnv(envFile);
-const smtp = readEnv(".env.staging.local");
 const origin = staging ? "https://voxa-os-staging-voxa6.vercel.app" : "https://voxa-os.vercel.app";
 const ref = staging ? "wlnrfjrjkyywqyvsngps" : "fibcbsdattoqiyizzeda";
 if (env.APP_ORIGIN !== origin || env.NEXT_PUBLIC_SUPABASE_URL !== `https://${ref}.supabase.co`)
   throw new Error("Named launch target mismatch.");
 const token = env.SUPABASE_ACCESS_TOKEN;
-const mail = {host:smtp.STAGING_SMTP_HOST,port:Number(smtp.STAGING_SMTP_PORT),user:smtp.STAGING_SMTP_USER,pass:smtp.STAGING_SMTP_PASSWORD,from:smtp.STAGING_SMTP_SENDER};
-if (mail.host !== "smtp.zoho.eu" || mail.port !== 587 || mail.from !== "contact@voxatech.ro" || !mail.user || !mail.pass)
-  throw new Error("Expected the existing verified Zoho sender.");
-const transport = () => nodemailer.createTransport({host:mail.host,port:mail.port,secure:false,requireTLS:true,tls:{minVersion:"TLSv1.2",rejectUnauthorized:true},auth:{user:mail.user,pass:mail.pass},connectionTimeout:10000,greetingTimeout:10000,socketTimeout:15000,logger:false,debug:false});
 function save(values) {
   const names=Object.keys(values);
   const lines=fs.readFileSync(envFile,"utf8").split(/\r?\n/).filter(line=>!names.some(k=>line.startsWith(k+"=")));
@@ -31,14 +27,22 @@ function vercel(key,value,secret) {
 }
 try {
   const mode=process.argv[2];
+  // Ordinary Zoho Mail cannot be used for automated/transactional sending.
+  // Never silently fall back to the old mailbox or copy its application key.
+  const manualStaging = staging && mode === "vercel";
+  const provider = manualStaging ? null : readEnv(".env.mail.local");
+  const mail = manualStaging ? { from:"contact@voxatech.ro" }
+    : mode === "smtp-check" ? mailSettings(provider) : approvedMailSettings(provider, ref);
+  const transport = () => nodemailer.createTransport(mailTransportOptions(mail));
   if(mode==="smtp-check") {
     const client=transport();try{await client.verify();}finally{client.close();}
-    console.log("PASS: existing Zoho SMTP authentication over verified STARTTLS. No email sent.");
+    console.log("PASS: transactional SMTP authentication over verified TLS. No email sent; sender-domain/inbox approval remain separate checks.");
   } else if(mode==="auth") {
     const client=transport();try{await client.verify();}finally{client.close();}
     const config={site_url:origin,uri_allow_list:`${origin}/auth/callback,${origin}/auth/callback?next=**`,
       disable_signup:false,mailer_autoconfirm:false,external_email_enabled:true,external_anonymous_users_enabled:false,password_min_length:12,
       smtp_host:mail.host,smtp_port:String(mail.port),smtp_user:mail.user,smtp_pass:mail.pass,smtp_admin_email:mail.from,smtp_sender_name:"Voxa-OS",
+      rate_limit_email_sent:mail.hourlyLimit,
       mailer_templates_confirmation_content:fs.readFileSync("supabase/templates/staging-confirm-signup.html","utf8"),
       mailer_templates_recovery_content:fs.readFileSync("supabase/templates/staging-recovery.html","utf8"),
       mailer_templates_magic_link_content:fs.readFileSync("supabase/templates/staging-magic-link.html","utf8"),
@@ -53,12 +57,12 @@ try {
   } else if(mode==="vercel") {
     // Staging needs no SMTP credentials: its app uses manual invitations and
     // development notifications. Do not copy production mail secrets there.
-    const values=staging ? {APP_ENVIRONMENT:"staging",APP_ORIGIN:origin,VOXA_SUPPORT_EMAIL:mail.from,
+    const values=staging ? {APP_ENVIRONMENT:"staging",APP_ORIGIN:origin,VOXA_SUPPORT_EMAIL:"contact@voxatech.ro",
       STAFF_INVITATION_PROVIDER:"manual",NOTIFICATION_PROVIDER:"development",NOTIFICATION_DELIVERY_ENABLED:"false"}
-      : {APP_ENVIRONMENT:"production",APP_ORIGIN:origin,VOXA_SUPPORT_EMAIL:mail.from,
-      STAFF_INVITATION_PROVIDER:"smtp",SMTP_HOST:mail.host,SMTP_PORT:String(mail.port),SMTP_USER:mail.user,SMTP_PASSWORD:mail.pass,SMTP_FROM:mail.from,
-      ERROR_ALERT_EMAIL:mail.from,NOTIFICATION_PROVIDER:"smtp",NOTIFICATION_DELIVERY_ENABLED:"false"};
-    save(values);
+      : {APP_ENVIRONMENT:"production",APP_ORIGIN:origin,VOXA_SUPPORT_EMAIL:mail.replyTo,
+      STAFF_INVITATION_PROVIDER:"smtp",SMTP_HOST:mail.host,SMTP_PORT:String(mail.port),SMTP_USER:mail.user,SMTP_PASSWORD:mail.pass,SMTP_FROM:mail.from,SMTP_REPLY_TO:mail.replyTo,
+      ERROR_ALERT_EMAIL:mail.replyTo,NOTIFICATION_PROVIDER:"smtp",NOTIFICATION_DELIVERY_ENABLED:"false"};
     for(const [key,value] of Object.entries(values))if(value)vercel(key,value,key==="SMTP_PASSWORD");
+    save(values);
   } else throw new Error("Use smtp-check, auth or vercel [staging].");
 }catch(error){console.error(error.message && !/password|token|recipient/i.test(error.message)?error.message:"Launch configuration failed; sensitive diagnostics suppressed.");process.exitCode=1;}

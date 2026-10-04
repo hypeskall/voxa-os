@@ -23,6 +23,7 @@ export function smtpTransport() {
 export async function sendTransactionalEmail(input: { to: string; subject: string; text: string; key: string }) {
   const from = address.parse(process.env.SMTP_FROM);
   const to = address.parse(input.to);
+  const replyTo = process.env.SMTP_REPLY_TO ? address.parse(process.env.SMTP_REPLY_TO) : undefined;
   if (/\r|\n/.test(input.subject) || input.subject.length > 200 || !input.key)
     throw new Error("Mesaj de email invalid.");
   const messageId = `<${createHash("sha256").update(input.key).digest("hex")}@${from.split("@")[1]}>`;
@@ -36,7 +37,7 @@ export async function sendTransactionalEmail(input: { to: string; subject: strin
     if (claim.data !== "claimed") throw new Error("Trimiterea anterioară trebuie verificată înainte de retrimitere.");
     try {
       const result = await transport.sendMail({
-        from: { name: "Voxa-OS", address: from }, to, subject: input.subject,
+        from: { name: "Voxa-OS", address: from }, to, ...(replyTo ? {replyTo} : {}), subject: input.subject,
         text: input.text, messageId,
       });
       if (!result.accepted.some(recipient => String(recipient).toLowerCase() === to.toLowerCase()))
