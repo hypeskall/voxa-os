@@ -187,6 +187,7 @@ export function Shell({
         </main>
         <footer className="workspace-footer">
           <span>VOXA</span>
+          <Link href="/help">Ajutor și suport</Link>
           <span>{clinic.timezone}</span>
         </footer>
       </div>

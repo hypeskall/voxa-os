@@ -27,7 +27,7 @@ test.beforeEach(async ({ request, context }) => {
   }, { timeout: 30000, message: "Authorized access must reach the exact staging configuration marker" }).toBe(true);
 });
 test("anonymous protected routes and invalid callback stay on staging login", async ({ page }) => {
-  for (const route of ["/", "/dashboard", "/onboarding", "/reset-password", `/clinics/${actors.a.clinicId}/patients`]) {
+  for (const route of ["/dashboard", "/onboarding", "/reset-password", `/clinics/${actors.a.clinicId}/patients`]) {
     await page.goto(route); await expect(page).toHaveURL(/\/login/);
   }
   await page.goto("/auth/callback?next=https://evil.invalid");
@@ -49,6 +49,20 @@ test("real hosted session survives refresh and logout removes access", async ({ 
   expect(cookies.every(cookie => cookie.httpOnly && cookie.secure && cookie.sameSite === "Lax")).toBe(true);
   await page.getByRole("button", { name: "Deconectare", exact: true }).click(); await expect(page).toHaveURL(/\/login/);
   await page.goto(`/clinics/${actors.a.clinicId}`); await expect(page).toHaveURL(/\/login/);
+});
+
+test("real existing account can recover public entry and switch accounts", async ({ page }) => {
+  await signIn(page, actors.a);
+  await page.goto("/register");
+  await expect(page.getByRole("status")).toContainText("Ai deja o sesiune conectată");
+  await expect(page.getByLabel("Nume complet")).toHaveCount(0);
+  await page.getByRole("link", { name: "Continuă în platformă" }).click();
+  await expect(page.getByRole("heading", { name: "Spațiul de lucru" })).toBeVisible();
+  await page.goto("/login?switch=1");
+  await page.getByRole("button", { name: "Deconectează-te și schimbă contul" }).click();
+  await expect(page.getByLabel("Utilizator")).toBeVisible();
+  await page.goto("/dashboard");
+  await expect(page).toHaveURL(/\/login/);
 });
 for (const [own,other] of [[actors.a,actors.b],[actors.b,actors.a]]) test(`Clinic ${own===actors.a ? "A" : "B"} cannot open the other clinic's patient IDs`, async ({ page }) => {
   await signIn(page, own);

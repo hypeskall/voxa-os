@@ -38,3 +38,11 @@ export async function logout() {
   if (error) throw new Error("Deconectarea nu a reușit. Reîncercați.");
   redirect("/login");
 }
+export async function switchAccount(_: ActionState, form: FormData): Promise<ActionState> {
+  const destination = form.get("destination") === "/register" ? "/register" : "/login";
+  const client = await db();
+  const { error } = await client.auth.signOut({ scope: "local" });
+  if (error) return { error: "Deconectarea nu a reușit. Reîncercați." };
+  const next = safeAuthDestination(String(form.get("next") ?? "/"));
+  redirect(next === "/" ? destination : `${destination}?next=${encodeURIComponent(next)}`);
+}

@@ -16,11 +16,14 @@ export default async function NotificationsPage({ params }: { params: Promise<{ 
     client.from("communication_logs").select("*").eq("clinic_id", clinicId).order("created_at", { ascending: false }).limit(100),
   ]);
   const manage = can(permissions, "notifications.manage");
+  const activeDelivery = process.env.NOTIFICATION_DELIVERY_ENABLED === "true";
+  const smsAvailable = process.env.NOTIFICATION_PROVIDER === "webhook";
   return <><PageHeading eyebrow={clinic.name} title="Comunicări" description="Confirmări, șabloane, remindere și starea livrărilor."/>
+    {!activeDelivery && <p className="message" role="status">Trimiterea automată către pacienți nu este activată. Setările și șabloanele pot fi pregătite; mesajele nu sunt trimise automat.</p>}
     {settings && <Section title="Politici și remindere" description="Jobul programat verifică mesajele datorate la fiecare cinci minute.">
       {manage ? <ActionForm action={saveNotificationSettings.bind(null, clinicId)}>
         <div className="form-grid"><Field label="Expirare link confirmare (ore)"><Input name="confirmation_expiry_hours" type="number" defaultValue={settings.confirmation_expiry_hours}/></Field><Field label="Termen minim anulare (ore)"><Input name="cancellation_min_notice_hours" type="number" defaultValue={settings.cancellation_min_notice_hours}/></Field></div>
-        <fieldset className="check-group"><legend>Canale</legend><label><input name="email_enabled" type="checkbox" defaultChecked={settings.email_enabled}/> Email</label><label><input name="sms_enabled" type="checkbox" defaultChecked={settings.sms_enabled}/> SMS</label></fieldset>
+        <fieldset className="check-group"><legend>Canale</legend><label><input name="email_enabled" type="checkbox" defaultChecked={settings.email_enabled}/> Email</label><label><input name="sms_enabled" type="checkbox" defaultChecked={settings.sms_enabled && smsAvailable} disabled={!smsAvailable}/> SMS{!smsAvailable && " · indisponibil"}</label></fieldset>
         <fieldset className="check-group"><legend>Reamintiri</legend>{[[2880,"48 ore"],[1440,"24 ore"],[120,"2 ore"]] .map(([value,label]) => <label key={value}><input name="reminders" value={value} type="checkbox" defaultChecked={settings.reminder_offsets_minutes.includes(Number(value))}/>{label}</label>)}</fieldset>
       </ActionForm> : <p className="muted">Configurarea este disponibilă administratorilor clinicii.</p>}
     </Section>}

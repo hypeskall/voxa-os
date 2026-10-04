@@ -11,12 +11,13 @@ function render(template: string, values: Record<string, string>) {
   return template.replace(/{{([a-z_]+)}}/g, (_, key: string) => values[key] ?? "");
 }
 export async function processNotifications(origin: string) {
+  const provider = notificationProvider();
   const client = adminDb();
   const { error: enqueueError } = await client.rpc("enqueue_due_reminders", { reference_time: new Date().toISOString() });
-  if (enqueueError) throw enqueueError;
+  if (enqueueError) throw new Error("Notificările datorate nu au putut fi pregătite.");
   // Parallel deliveries preserve batch capacity within the provider's 15s timeout.
-  const { data, error } = await client.rpc("claim_notification_jobs", { batch_size: 25 });
-  if (error) throw error;
+  const { data, error } = await client.rpc("claim_notification_jobs", { batch_size: process.env.NOTIFICATION_PROVIDER === "smtp" ? 5 : 25 });
+  if (error) throw new Error("Notificările nu au putut fi preluate.");
   const jobs = z.array(jobSchema).parse(data);
   let sent = 0;
   const outcomes = await Promise.allSettled(jobs.map(async (job) => {
@@ -28,7 +29,7 @@ export async function processNotifications(origin: string) {
       const start = context.start_at ? new Date(context.start_at) : null;
       const confirmation = context.confirmation_public_id && context.confirmation_expires_at ? confirmationToken(context.confirmation_public_id, context.confirmation_expires_at) : "";
       const values = { clinic_name: context.clinic_name, clinic_address: context.clinic_address, clinic_phone: context.clinic_phone, patient_name: context.patient_name, service_name: context.service_name ?? "", date: start ? new Intl.DateTimeFormat("ro-RO", { dateStyle: "long", timeZone: context.timezone }).format(start) : "", time: start ? new Intl.DateTimeFormat("ro-RO", { timeStyle: "short", timeZone: context.timezone }).format(start) : "", confirmation_url: confirmation ? `${origin}/appointment/${confirmation}` : "", portal_url: `${origin}/portal` };
-      const delivery = await notificationProvider().send({ channel: job.channel, recipient: job.recipient, subject: render(context.template_subject ?? "Voxa", values), body: render(context.template_body ?? "Aveți o actualizare disponibilă.", values), idempotencyKey: job.idempotency_key });
+      const delivery = await provider.send({ channel: job.channel, recipient: job.recipient, subject: render(context.template_subject ?? "Voxa", values), body: render(context.template_body ?? "Aveți o actualizare disponibilă.", values), idempotencyKey: job.idempotency_key });
       providerAccepted = true;
       const { error: finishError } = await client.rpc("finish_notification_job", { job_id: job.id, final_status: delivery.status, provider_id: delivery.providerMessageId, error_text: "" });
       if (finishError) throw finishError;

@@ -122,6 +122,7 @@ export function MarketingHeader({ authenticated }: { authenticated: boolean }) {
             {authenticated ? "Platforma mea" : "Autentificare"}
             <ArrowUpRight size={16} />
           </Link>
+          {authenticated && <Link href="/login?switch=1" onClick={() => dialog.current?.close()} className="marketing-text-link">Schimbă contul</Link>}
           <p>30 de zile gratuit. Apoi 19,99 EUR / lună.</p>
         </dialog>
       </header>

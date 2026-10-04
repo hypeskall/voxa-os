@@ -192,6 +192,8 @@ export type Database = {
     };
     Views: Record<string, never>;
     Functions: {
+      claim_transactional_email: { Args: { digest: string }; Returns: string };
+      finish_transactional_email: { Args: { digest: string; outcome: "accepted" | "uncertain" }; Returns: undefined };
       organization_access: { Args: { oid: string }; Returns: boolean };
       activate_license: { Args: { oid: string; digest: string }; Returns: boolean };
       issue_license: { Args: { digest: string; hint: string; assigned_org?: string | null; months?: number; redeem_deadline?: string }; Returns: string };

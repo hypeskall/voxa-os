@@ -15,7 +15,7 @@ test.beforeEach(async ({ request, context }) => {
 });
 
 test("logged-out users cannot enter protected hosted routes", async ({ page }) => {
-  for (const route of ["/", "/dashboard", "/onboarding", "/reset-password", "/clinics/00000000-0000-4000-8000-000000000001/patients"]) {
+  for (const route of ["/dashboard", "/onboarding", "/reset-password", "/clinics/00000000-0000-4000-8000-000000000001/patients"]) {
     await page.goto(route);
     await expect(page).toHaveURL(/\/login/);
   }
@@ -32,6 +32,19 @@ test("hosted Auth rejects an invalid login without creating a session", async ({
   expect((await context.cookies()).filter(cookie => cookie.name.startsWith("sb-"))).toHaveLength(0);
   await page.goto("/dashboard");
   await expect(page).toHaveURL(/\/login/);
+});
+
+test("hosted readiness exposes only status and support works on mobile", async ({ page, request }) => {
+  const headers: Record<string,string> = config.env.STAGING_PREVIEW_BYPASS_SECRET
+    ? {"x-vercel-protection-bypass":config.env.STAGING_PREVIEW_BYPASS_SECRET} : {};
+  const response = await request.get("/api/health", {headers});
+  expect(response.status()).toBe(200);
+  expect(await response.json()).toEqual({status:"ok"});
+  expect(response.headers()["cache-control"]).toContain("no-store");
+  await page.setViewportSize({width:390,height:844});
+  await page.goto("/help");
+  await expect(page.getByRole("heading", {name:"De la cont la prima programare"})).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
 for (const width of [1440, 1024, 390]) test(`hosted public Auth pages at ${width}px`, async ({ page }) => {

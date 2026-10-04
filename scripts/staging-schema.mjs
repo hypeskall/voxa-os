@@ -2,7 +2,7 @@ import fs from "node:fs";
 import { PGlite } from "@electric-sql/pglite";
 import { stagingEnv } from "./staging-env.mjs";
 
-export async function expectedSchema() {
+export async function expectedSchema(throughVersion) {
   const db = new PGlite();
   try {
     await db.exec(`create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls;
@@ -11,7 +11,7 @@ export async function expectedSchema() {
       create schema storage;create table storage.buckets(id text primary key,name text,public boolean default false,file_size_limit bigint,allowed_mime_types text[]);
       create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text,name text);
       alter table storage.objects enable row level security;`);
-    for (const file of fs.readdirSync("supabase/migrations").filter(f => f.endsWith(".sql")).sort()) await db.exec(fs.readFileSync(`supabase/migrations/${file}`, "utf8"));
+    for (const file of fs.readdirSync("supabase/migrations").filter(f => f.endsWith(".sql") && (!throughVersion || f.split("_")[0] <= throughVersion)).sort()) await db.exec(fs.readFileSync(`supabase/migrations/${file}`, "utf8"));
     return (await db.query(fs.readFileSync("scripts/staging-schema.sql", "utf8"))).rows;
   } finally { await db.close(); }
 }

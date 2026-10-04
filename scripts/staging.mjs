@@ -25,11 +25,11 @@ async function smoke(config) {
     const result = await client.from(table).select("*").limit(1);
     check(denied(result), `anonymous access denied: ${table}`);
   }
-  for (const route of ["/login", "/register", "/forgot-password"]) {
+  for (const route of ["/", "/login", "/register", "/forgot-password"]) {
     const response = await request(config.origin + route, config);
     check(response.status === 200, `hosted public route ${route}`);
   }
-  for (const route of ["/", "/dashboard", "/onboarding", "/reset-password", "/clinics/00000000-0000-4000-8000-000000000001/settings"]) {
+  for (const route of ["/dashboard", "/onboarding", "/reset-password", "/clinics/00000000-0000-4000-8000-000000000001/settings"]) {
     const response = await request(config.origin + route, config);
     let target;
     let destination = response.headers.get("location");

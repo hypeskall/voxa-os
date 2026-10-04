@@ -4,8 +4,9 @@ import { LoginForm } from "@/features/auth/login-form";
 import Link from "next/link";
 import { safeAuthDestination } from "@/features/auth/account-model";
 import { hasSupabaseConfig } from "@/lib/supabase/config";
+import { SessionNotice } from "@/features/auth/session-notice";
 export const metadata = { title: "Conectare" };
-export default async function Login({ searchParams }: { searchParams: Promise<{ next?: string; error?: string; password?: string }> }) {
+export default async function Login({ searchParams }: { searchParams: Promise<{ next?: string; error?: string; password?: string; switch?: string }> }) {
   const search = await searchParams;
   const next = safeAuthDestination(search.next ?? "/");
   if (!hasSupabaseConfig())
@@ -14,7 +15,7 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
   const {
     data: { user },
   } = await client.auth.getUser();
-  if (user) redirect(next === "/" ? "/dashboard" : next);
+  if (user && search.switch !== "1") redirect(next === "/" ? "/dashboard" : next);
   return (
     <div className="auth-page">
       <aside className="auth-aside">
@@ -43,7 +44,7 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
           <p className="muted">Introduceți datele contului dumneavoastră.</p>
           {search.error === "link" && <p className="message error" role="alert">Linkul nu mai este valid. Solicitați un link nou în același browser.</p>}
           {search.password === "updated" && <p className="message success" role="status">Parola a fost actualizată. Conectați-vă din nou.</p>}
-          <LoginForm next={next}/>
+          {user ? <SessionNotice next={next}/> : <LoginForm next={next}/>}
           <p className="auth-note"><Link className="text-link" href="/forgot-password">Ai uitat parola?</Link></p>
           <p className="auth-note">O clinică nouă? <Link className="text-link" href={`/register?next=${encodeURIComponent(next)}`}>Creează un cont</Link></p>
         </div>

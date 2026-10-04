@@ -60,6 +60,8 @@ export function MarketingFooter({
         <div className="marketing-footer-bottom">
           <span>© {new Date().getFullYear()} Voxa-OS</span>
           <nav aria-label="Informații">
+            <Link href="/help">Ajutor</Link>
+            {authenticated && <Link href="/login?switch=1">Schimbă contul</Link>}
             <button type="button" onClick={() => show("privacy")}>
               Confidențialitate
             </button>

@@ -14,6 +14,8 @@ function authorized(request: Request) {
 }
 async function run(request: Request) {
   if (!authorized(request)) return NextResponse.json({ error: "Neautorizat." }, { status: 401 });
+  if (process.env.NOTIFICATION_DELIVERY_ENABLED !== "true" && (process.env.APP_ENVIRONMENT === "production" || process.env.VERCEL_ENV === "production"))
+    return NextResponse.json({ error: "Trimiterea automată nu este activată." }, { status: 503, headers: { "Cache-Control": "no-store" } });
   const origin = process.env.APP_ORIGIN ?? new URL(request.url).origin;
   return NextResponse.json(await processNotifications(origin));
 }

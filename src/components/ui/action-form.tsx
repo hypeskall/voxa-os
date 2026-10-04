@@ -28,7 +28,7 @@ export function ActionForm({
           {state.success}
         </p>
       )}
-      {state.invitationUrl && <label className="field"><span>Link de invitație · valabil 7 zile</span><input className="input" readOnly value={state.invitationUrl} onFocus={(e) => e.target.select()}/><small>Trimiteți linkul colegului indicat. Emailul nu a fost trimis automat.</small></label>}
+      {state.invitationUrl && <label className="field"><span>Link de invitație · valabil 7 zile</span><input className="input" readOnly value={state.invitationUrl} onFocus={(e) => e.target.select()}/><small>Linkul este destinat colegului indicat. Starea trimiterii emailului este afișată mai sus.</small></label>}
       <div>
         <Button disabled={pending}>{pending ? "Se salvează…" : submit}</Button>
       </div>

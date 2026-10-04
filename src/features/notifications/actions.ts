@@ -9,6 +9,8 @@ export async function saveNotificationSettings(cid: string, _: ActionState, form
   const parsed = z.object({ confirmation_expiry_hours: z.coerce.number().int().min(1).max(720), cancellation_min_notice_hours: z.coerce.number().int().min(0).max(720) }).safeParse(Object.fromEntries(form));
   if (!parsed.success) return { error: "Verificați intervalele configurate." };
   const offsets = [2880, 1440, 120].filter(value => form.getAll("reminders").includes(String(value)));
+  if (form.get("sms_enabled") === "on" && process.env.NOTIFICATION_PROVIDER !== "webhook")
+    return { error: "Canalul SMS nu este configurat. Folosiți emailul." };
   const { error } = await client.rpc("save_notification_settings", { cid, payload: { ...parsed.data, sms_enabled: form.get("sms_enabled") === "on", email_enabled: form.get("email_enabled") === "on", reminder_offsets_minutes: offsets } });
   if (error) return { error: "Setările nu au putut fi salvate." };
   revalidatePath(`/clinics/${cid}/notifications`);

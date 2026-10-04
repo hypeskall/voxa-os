@@ -8,6 +8,6 @@ export async function patientDocuments(cid: string, pid: string) {
     client.rpc("list_patient_documents", { cid, pid }),
     client.from("document_types").select("id,name").eq("clinic_id", cid).eq("active", true).order("name"),
   ]);
-  if (error) throw error;
+  if (error) throw new Error("Documentele nu au putut fi încărcate.");
   return { documents: z.array(documentSchema).parse(data), types: types ?? [] };
 }
