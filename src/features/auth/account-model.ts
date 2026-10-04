@@ -4,7 +4,7 @@ const accountFields = z.object({ full_name: z.string().trim().min(2).max(100), e
 export const registerSchema = accountFields.refine((v) => v.password === v.password_confirmation, { message: "Parolele nu coincid.", path: ["password_confirmation"] });
 export const resetSchema = accountFields.pick({ password: true, password_confirmation: true }).refine((v) => v.password === v.password_confirmation, { message: "Parolele nu coincid." });
 export function safeAuthDestination(value: string | null) {
-  if (value === "/" || value === "/portal" || value === "/reset-password") return value;
+  if (value === "/" || value === "/portal" || value === "/reset-password" || value === "/account/security") return value;
   if (value && /^\/invitations\/[A-Za-z0-9_-]{43}$/.test(value)) return value;
   return "/";
 }

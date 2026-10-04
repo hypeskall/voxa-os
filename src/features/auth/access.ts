@@ -6,7 +6,9 @@ import { can, type Permission } from "@/lib/permissions";
 import { z } from "zod";
 import { hasSupabaseConfig } from "@/lib/supabase/config";
 import { requireSubscription } from "@/features/subscriptions/access";
-export const requireUser = cache(async () => {
+import { mfaRequired } from "./mfa";
+import { safeMfaDestination } from "./mfa-model";
+export const authenticatedUser = cache(async () => {
   if (!hasSupabaseConfig())
     redirect("/setup");
   const client = await db();
@@ -16,6 +18,12 @@ export const requireUser = cache(async () => {
   } = await client.auth.getUser();
   if (error || !user) redirect("/login");
   return { client, user };
+});
+export const requireUser = cache(async (next = "/dashboard") => {
+  const session = await authenticatedUser();
+  if (await mfaRequired(session.client))
+    redirect(`/auth/mfa?next=${encodeURIComponent(safeMfaDestination(next))}`);
+  return session;
 });
 export const workspace = cache(async () => {
   const { client, user } = await requireUser();

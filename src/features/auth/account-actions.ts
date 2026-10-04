@@ -36,7 +36,7 @@ export async function confirmRecovery(_: ActionState, form: FormData): Promise<A
 export async function resetPassword(_: ActionState, form: FormData): Promise<ActionState> {
   const input = resetSchema.safeParse(Object.fromEntries(form));
   if (!input.success) return { error: "Folosiți cel puțin 12 caractere și confirmați aceeași parolă." };
-  const { client } = await requireUser();
+  const { client } = await requireUser("/reset-password");
   const { error } = await client.auth.updateUser({ password: input.data.password });
   if (error) return { error: "Parola nu a putut fi actualizată. Solicitați un nou link sau reîncercați." };
   const signout = await client.auth.signOut({ scope: "global" });

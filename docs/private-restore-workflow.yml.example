@@ -1,0 +1,44 @@
+# Install only in the approved private backup runner, with a reviewed commit and
+# the explicitly approved staging decryption key. Production keys are not loaded.
+name: Private Voxa isolated restoration
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: voxa-isolated-staging-restore
+  cancel-in-progress: false
+jobs:
+  restore:
+    if: github.repository == 'hypeskall/voxa-backup-runner' && github.event.repository.private == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: hypeskall/voxa-os
+          ref: REVIEWED_VOXA_COMMIT
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24
+      - name: Install reviewed dependencies and start disposable Supabase before loading backup credentials
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          node scripts/restore-isolated.mjs prepare
+      - name: Restore synthetic staging archive and prove Auth, records, Storage and isolation
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PRIVATE_BACKUP_RUNNER_APPROVED: ${{ vars.PRIVATE_BACKUP_RUNNER_APPROVED }}
+          STAGING_BACKUP_ENCRYPTION_KEY: ${{ secrets.STAGING_BACKUP_ENCRYPTION_KEY }}
+          STAGING_SNAPSHOT_OBJECT_KEY: APPROVED_STAGING_OBJECT_KEY
+          STAGING_SNAPSHOT_SHA256: APPROVED_STAGING_SHA256
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: node scripts/restore-isolated.mjs restore
+      - name: Remove disposable services and private local diagnostics
+        if: always()
+        run: node scripts/restore-isolated.mjs cleanup
+# No artifacts/caches, plaintext snapshots, hosted Auth passwords, SMTP passwords
+# or production Supabase credentials are exported by this restoration workflow.

@@ -4,6 +4,7 @@ import { db } from "@/lib/supabase/server";
 import { loginSchema } from "@/lib/validation";
 import { loginIdentityEmail } from "./login-identity";
 import { safeAuthDestination } from "./account-model";
+import { mfaRequired } from "./mfa";
 export type ActionState = { error?: string; success?: string; invitationUrl?: string };
 export async function login(
   _: ActionState,
@@ -24,12 +25,14 @@ export async function login(
           ? "Prea multe încercări. Reîncercați mai târziu."
           : "Autentificarea nu a reușit. Verificați utilizatorul și parola.",
     };
+  const destination = safeAuthDestination(String(form.get("next") ?? "/"));
+  if (await mfaRequired(client))
+    redirect(`/auth/mfa?next=${encodeURIComponent(destination === "/" ? "/dashboard" : destination)}`);
   const audit = await client.rpc("record_login");
   if (audit.error) {
     await client.auth.signOut();
     return { error: "Conectarea nu a putut fi înregistrată. Reîncercați." };
   }
-  const destination = safeAuthDestination(String(form.get("next") ?? "/"));
   redirect(destination === "/" ? "/dashboard" : destination);
 }
 export async function logout() {
