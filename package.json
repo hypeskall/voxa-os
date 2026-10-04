@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "licenses": "node scripts/licenses.mjs",
+    "monitor:check": "node scripts/uptime-check.mjs",
     "staging:check": "node scripts/staging.mjs check",
     "staging:migrate": "node scripts/staging-cli.mjs migrate",
     "staging:vercel-env": "node scripts/staging-cli.mjs vercel-env",

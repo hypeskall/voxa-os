@@ -13,7 +13,7 @@ describe("notification scheduler and retry boundaries", () => {
       return tx.query<T>(sql, args);
     });
   }
-  it("has no Vercel or GitHub scheduled jobs", () => {
+  it("keeps patient delivery unscheduled in Vercel and GitHub", () => {
     expect(JSON.parse(readFileSync("vercel.json", "utf8")).crons).toEqual([]);
     const workflow = readFileSync(".github/workflows/notification-worker.yml", "utf8");
     expect(workflow).not.toMatch(/\bschedule:/);

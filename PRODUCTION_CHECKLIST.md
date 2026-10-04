@@ -10,6 +10,7 @@ Current release supports controlled product testing. Commercial and real medical
 - [x] Authorized production Zoho SMTP, verified STARTTLS, mandatory email confirmation, 12-character new-password policy and bounded callback URLs. Staff invitation SMTP configured; patient delivery disabled.
 - [x] Durable email acknowledgement ledger prevents automatic resend after accepted/uncertain delivery. SMTP acceptance does not prove inbox delivery.
 - [x] Database readiness at /api/health, scrubbed request-error references and optional operator SMTP alerts.
+- [x] Credential-free GitHub production readiness workflow prepared for approximately 15-minute checks of health, Auth forms, anonymous dashboard redirection and staging-route isolation; all six public checks pass locally. Schedule activation/hosted-run evidence is recorded in the operations report.
 - [x] Encrypted production pre-upgrade snapshot captured/decrypt-verified. Synthetic local restore matches 48 application tables exactly; two Storage files pass integrity checks.
 - [x] Hosted A/B tenant/Storage and role/invitation checks pass. Hosted browsers: 17 pass, one expiry fixture skipped this round. Prior genuine expiry evidence is in docs/HOSTED_STAGING_REPORT.md.
 - [x] Twelve independent appointment clients: one success, eleven explicit conflicts; winner cancelled normally. This is a race test, not capacity certification.
@@ -21,7 +22,7 @@ Current release supports controlled product testing. Commercial and real medical
 - [ ] Confirm actual production signup and recovery inbox delivery with a controlled owner account. Staging has prior inbox verification; production has SMTP/configuration verification only.
 - [ ] Select commercial hosting. Current Vercel team is Hobby; its [fair-use policy](https://vercel.com/docs/limits/fair-use-guidelines) requires Pro/Enterprise for commercial usage. No paid upgrade was made.
 - [ ] Approve recurring off-device backups, separate key custody, recovery objectives and full hosted Auth/Storage restore. Production API currently lists no backups and PITR is disabled; logical snapshots are not physical/PITR backups.
-- [ ] Enable independent uptime monitoring and assign a responder. Readiness and error alerts are implemented; no external always-on monitor is claimed.
+- [ ] Confirm failed-workflow notification preferences/inbox delivery, assign a responder and provision dedicated uptime monitoring if guaranteed intervals are required. GitHub readiness checks are best effort; they can be delayed and public-repository inactivity can disable them.
 - [ ] Fill firm/CUI/address and approve terms, privacy notice, DPA, processor list and retention. Drafts: docs/LEGAL_DRAFTS_RO.md. Footer dialogs are product summaries, not approved agreements.
 - [ ] Agree medical-original retention/deletion and identity checks. Archiving and privacy review attestations do not physically erase data/files.
 - [ ] Review MFA, leaked-password/email-change controls, staff permissions, schedules and ownership handoff; run the clinic pilot with synthetic data until medical-data gates pass.
