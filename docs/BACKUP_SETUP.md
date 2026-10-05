@@ -1,5 +1,7 @@
 # Private off-device backup setup
 
+**5 October update:** the first actual scheduled run completed successfully. Its private EU R2 copy was read back and SHA-256/decrypt/file-integrity verified: 80 tables and two files. A new local encrypted pre-upgrade snapshot was also captured after explicit renewed authorization. No restore was performed today and no retention, PITR, runner or credential policy changed. The nominal GitHub cron ran late; no exact execution-time/RPO guarantee is inferred. See [current evidence](PORTAL_EMAIL_BACKUP_FIXES_2026-10-05.md). Historical postponement to 6 October below no longer applies to observing the first scheduled run.
+
 The private EU R2 bucket, approved encrypted staging/production transfers, private daily runner, manual cloud backup, failure-alert receipt and separate key custody are verified. Full Auth/application/private/Storage restoration also passed in a disposable private runner on 4 October: 77 data tables and two actual files were compared, restored accounts logged in and tenant/file isolation passed. See [current acceptance](ACCEPTANCE_1_4_2026-10-04.md) for scheduled-trigger and email Inbox status.
 
 ## Owner account step

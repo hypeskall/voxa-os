@@ -1,16 +1,16 @@
 {
   "format": 1,
-  "deploymentId": "dpl_9Bq6VhBjB2LT8NHJ2onmaWC6zgM2",
+  "deploymentId": "dpl_sysZzbdgWwrukkKWmsWVNZqxomKp",
   "origin": "https://voxa-os.vercel.app",
-  "publishedAt": "2026-10-05T00:10:41.932Z",
-  "verifiedAt": "2026-10-05T09:18:27.074Z",
-  "deploymentMetadataVerifiedAt": "2026-10-05T09:18:27.073Z",
+  "publishedAt": "2026-10-05T09:48:46.849Z",
+  "verifiedAt": "2026-10-05T09:52:22.167Z",
+  "deploymentMetadataVerifiedAt": "2026-10-05T09:52:22.166Z",
   "subsequentVercelApiCheck": "passed",
   "regions": [
     "dub1"
   ],
   "normalization": "Text: UTF-8, CRLF normalized to LF. Files containing NUL: raw binary bytes.",
-  "sourceSetSha256": "1e4e8321c345c53d91c4e1fa606a820255293362df20256e207b52d2a3bd8bf7",
+  "sourceSetSha256": "9f61ededb6e40ba6fe84c0f228f5258bd203ffc087eacb64dcefcab98ce2b42b",
   "files": [
     {
       "path": ".env.backup.example",
@@ -148,6 +148,16 @@
       "sha256": "df1ef14dd4ebcbf09cc561bf502cd97848d57f61a27dab3eda9e3b881b93e947"
     },
     {
+      "path": "scripts/auth-email-templates.d.mts",
+      "kind": "tooling",
+      "sha256": "39af02088df120c65b401ca6d0bf8edcf3f334117bc25397a727698d5d67c552"
+    },
+    {
+      "path": "scripts/auth-email-templates.mjs",
+      "kind": "tooling",
+      "sha256": "2b3e6f57091e321a59a31caa8ddd98414dddf37ea2e7aad85c87e4bec43ef2a7"
+    },
+    {
       "path": "scripts/backup-ci-env.mjs",
       "kind": "tooling",
       "sha256": "6d29479850126b1d20c922e8ecb1afcd7a2105ca12118757237a3486f5bf88cc"
@@ -163,6 +173,11 @@
       "sha256": "b7ac1e3e36bb0afc2882fdb9954a682c0b0606c31609104e21226c1ed5fd9618"
     },
     {
+      "path": "scripts/configure-auth-emails.mjs",
+      "kind": "tooling",
+      "sha256": "6c9010f37e45e2c85eacc7080b423579da6c40f6bc85097e0c2e23b3c1fc0dcd"
+    },
+    {
       "path": "scripts/create-demo-user.mjs",
       "kind": "tooling",
       "sha256": "e1df4136b10c03fd5f9225fe5046104a9ac295e271947824f17cbc00a1d6b54f"
@@ -175,7 +190,7 @@
     {
       "path": "scripts/launch-config.mjs",
       "kind": "tooling",
-      "sha256": "b1d9d9033214e846da3386af6310c010ee0227aff1b7798d4d26e45577243c21"
+      "sha256": "7f4294c84143cc44e9058c2c8177bbdab96915ce1bcbab8b222b4f835e4e3d2d"
     },
     {
       "path": "scripts/licenses.mjs",
@@ -470,7 +485,7 @@
     {
       "path": "src/app/clinics/[clinicId]/notifications/page.tsx",
       "kind": "runtime",
-      "sha256": "d663ee8ad6a4d331372bda0bfe5e30d4b0e34f5aeb19283f825117d0c89bedee"
+      "sha256": "92fc208d22969fe124649e640fc7b82859285e26210d240fa04a35a0c8550d2b"
     },
     {
       "path": "src/app/clinics/[clinicId]/page.tsx",
@@ -655,7 +670,7 @@
     {
       "path": "src/app/portal/login/page.tsx",
       "kind": "runtime",
-      "sha256": "5a995a2cefd07f04df8191046b877595a276a202c0456744713b9f5d3992b0ac"
+      "sha256": "e82a868c1c1c052874fd903fba0c2b921900083cfb011d8c148b60ca35fd5451"
     },
     {
       "path": "src/app/portal/page.tsx",
@@ -1518,6 +1533,11 @@
       "sha256": "e44a47896bd879ba649f0528ceef45860226fef50515593283d6601004e5e02f"
     },
     {
+      "path": "supabase/migrations/202610050041_reminder_daytime_delivery.sql",
+      "kind": "runtime",
+      "sha256": "08ee4a44c412d9901785d646dde9956941a35c39f9cc497c630c9e882970dca2"
+    },
+    {
       "path": "supabase/seed-clinica-maria.sql",
       "kind": "runtime",
       "sha256": "7fe767572a04d5acb79feb1b515d0f7d9f9e4c7b9a8da468cb6227face01a25f"
@@ -1538,6 +1558,26 @@
       "sha256": "c6de13cd8abb2a0d877ef99dff67ea3ddf935a90238fa0bf63d2167ee3e0eed8"
     },
     {
+      "path": "supabase/templates/production-auth-invite.html",
+      "kind": "runtime",
+      "sha256": "a969445c3215079997562591310d75baae9fa7cfbe6776f1a7cba1ecb8c0d414"
+    },
+    {
+      "path": "supabase/templates/production-confirm-signup.html",
+      "kind": "runtime",
+      "sha256": "3e17658c2c74471a49c0697fffa0a4580359d6f249f3a85796b0511177138092"
+    },
+    {
+      "path": "supabase/templates/production-magic-link.html",
+      "kind": "runtime",
+      "sha256": "2f46722027a50db1ff2e4253bdabed35e497a09dc3cbaf55aef7248544e3e49a"
+    },
+    {
+      "path": "supabase/templates/production-recovery.html",
+      "kind": "runtime",
+      "sha256": "4fe3903f6ff34812138f3bfdf02d8185b42c7a3ec3bc28f7328d5d0c7dc8e825"
+    },
+    {
       "path": "supabase/templates/staging-auth-invite.html",
       "kind": "runtime",
       "sha256": "c399d12b729f6980e10f15e8fdbf5a36d6ef63b9998538203c080a97373b075a"
@@ -1556,6 +1596,11 @@
       "path": "supabase/templates/staging-recovery.html",
       "kind": "runtime",
       "sha256": "9932f91d7eea2ba365841a5f5a99fe97d63c3a8babb9a8d26676e3addc53d6df"
+    },
+    {
+      "path": "tests/auth-email-templates.test.ts",
+      "kind": "tooling",
+      "sha256": "b27bc7c3ae2b5cf18e781c930acdd0bec57a1a539c637641b7ac575d6cd76b16"
     },
     {
       "path": "tests/backup-ci-env.test.ts",
@@ -1680,7 +1725,7 @@
     {
       "path": "tests/hosted-browser/reception-results.spec.ts",
       "kind": "tooling",
-      "sha256": "fb053e62d93f5c239408eb6282fa994020c5d41c8b82fbbd29d433fb63c59afd"
+      "sha256": "f2f9400c417979159a96524880c265fdad72f543f7ce99649f787a81d6212888"
     },
     {
       "path": "tests/hosted-browser/roles.spec.ts",
@@ -1735,7 +1780,7 @@
     {
       "path": "tests/notification-scheduler.test.ts",
       "kind": "tooling",
-      "sha256": "800567e3a3f666020e460cef91f36b254b9f871dc1f5664045cc5af7f9905ff8"
+      "sha256": "6b9092fa1ede557530fe0d45059855d860ac417f257465cffd3d158c93b68a37"
     },
     {
       "path": "tests/operations.test.ts",
@@ -1746,6 +1791,11 @@
       "path": "tests/reception-results.test.ts",
       "kind": "tooling",
       "sha256": "ad5c466b2f14fa0040202f17efeb411e0b4f429e18df1ffd548a1a2b1654fd86"
+    },
+    {
+      "path": "tests/reminder-daytime.test.ts",
+      "kind": "tooling",
+      "sha256": "3696cca16e5b152f0b77177242ca288cb189d3d1e1a76e262512677a5ff0b892"
     },
     {
       "path": "tests/reschedule-slots.test.ts",

@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 import nodemailer from "nodemailer";
 import { readEnv, stagingEnv } from "./staging-env.mjs";
 import { approvedMailSettings, mailSettings, mailTransportOptions } from "./mail-settings.mjs";
+import { authEmailConfiguration } from "./auth-email-templates.mjs";
 
 const staging = process.argv[3] === "staging";
 const envFile = staging ? ".env.staging.local" : ".env.production.local";
@@ -43,10 +44,7 @@ try {
       disable_signup:false,mailer_autoconfirm:false,external_email_enabled:true,external_anonymous_users_enabled:false,password_min_length:12,
       smtp_host:mail.host,smtp_port:String(mail.port),smtp_user:mail.user,smtp_pass:mail.pass,smtp_admin_email:mail.from,smtp_sender_name:"Voxa-OS",
       rate_limit_email_sent:mail.hourlyLimit,
-      mailer_templates_confirmation_content:fs.readFileSync("supabase/templates/staging-confirm-signup.html","utf8"),
-      mailer_templates_recovery_content:fs.readFileSync("supabase/templates/staging-recovery.html","utf8"),
-      mailer_templates_magic_link_content:fs.readFileSync("supabase/templates/staging-magic-link.html","utf8"),
-      mailer_templates_invite_content:fs.readFileSync("supabase/templates/staging-auth-invite.html","utf8")};
+      ...authEmailConfiguration(staging)};
     const response=await fetch(`https://api.supabase.com/v1/projects/${ref}/config/auth`,{method:"PATCH",headers:{Authorization:`Bearer ${token}`,"Content-Type":"application/json"},body:JSON.stringify(config),signal:AbortSignal.timeout(30000)});
     if(!response.ok)throw new Error(`Auth configuration failed (HTTP ${response.status}); response suppressed.`);
     const check=await fetch(`https://api.supabase.com/v1/projects/${ref}/config/auth`,{headers:{Authorization:`Bearer ${token}`},signal:AbortSignal.timeout(30000)});

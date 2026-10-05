@@ -19,10 +19,12 @@ test("real reception upload appears only in the linked patient's portal and down
   const contexts = [];
   const marker = Date.now();
   const base = `/clinics/${actor.clinicId}`;
-  const headers: Record<string, string> = config.env.STAGING_PREVIEW_BYPASS_SECRET ? { "x-vercel-protection-bypass": config.env.STAGING_PREVIEW_BYPASS_SECRET } : {};
+  const bypass = config.env.STAGING_PREVIEW_BYPASS_SECRET || config.env.STRIPE_STAGING_BYPASS_SECRET;
+  const headers: Record<string, string> = bypass ? { "x-vercel-protection-bypass": bypass } : {};
   const protect = async (target: typeof context) => { await target.route(`${config.origin}/**`, route => route.continue({ headers: { ...route.request().headers(), ...headers } })); };
   await protect(context);
   const status = await page.request.get(`${config.origin}/api/staging/status`, { headers });
+  expect(status.status()).toBe(200);
   expect((await status.json()).supabaseProjectRef).toBe(config.ref);
   const createUser = async (prefix: string) => {
     const email = `${prefix}-${marker}@voxa-qa.invalid`, password = randomBytes(32).toString("base64url");
@@ -78,6 +80,18 @@ test("real reception upload appears only in the linked patient's portal and down
     callback.searchParams.set("type", "magiclink"); callback.searchParams.set("next", "/portal");
     await portalPage.goto(callback.toString());
     await expect(portalPage).toHaveURL(`${config.origin}/portal`);
+    const sessionCookies = (await portalContext.cookies()).filter(cookie => cookie.name.includes("auth-token"));
+    expect(sessionCookies.length).toBeGreaterThan(0);
+    expect(sessionCookies.every(cookie => cookie.httpOnly && cookie.secure && cookie.expires > Date.now() / 1000)).toBe(true);
+    await portalPage.goto(`${config.origin}/portal/login`);
+    await expect(portalPage).toHaveURL(`${config.origin}/portal`);
+    await portalPage.reload();
+    await expect(portalPage).toHaveURL(`${config.origin}/portal`);
+    const reopened = await portalContext.newPage();
+    await reopened.goto(`${config.origin}/portal/login`);
+    await expect(reopened).toHaveURL(`${config.origin}/portal`);
+    await expect(reopened.locator("#rezultate").getByText(title, { exact: true })).toBeVisible();
+    await reopened.close();
     await expect(portalPage.locator("#rezultate").getByText(title, { exact: true })).toBeVisible();
     await expect(portalPage.getByText(draftTitle, { exact: true })).toHaveCount(0);
     await expect(portalPage.locator("#documente").getByText(title, { exact: true })).toHaveCount(0);
@@ -91,7 +105,7 @@ test("real reception upload appears only in the linked patient's portal and down
     expect((await foreign.rpc("list_patient_result_uploads", { cid: actor.clinicId, pid: pilot.patientId })).error).toBeTruthy();
     expect((await foreign.rpc("authorize_document_download", { cid: actor.clinicId, document_id: document.id })).error).toBeTruthy();
     await portalPage.screenshot({ path: ".staging-deploy/results-portal-proof.png", fullPage: true });
-    fs.writeFileSync(".staging-deploy/reception-results.receipt.json", JSON.stringify({ verifiedAt: new Date().toISOString(), ref: config.ref, clinicId: actor.clinicId, receptionDraftRead: true, receptionUpload: true, patientPortalRead: true, originalPdfDownload: true, foreignPatientDenied: true }, null, 2));
+    fs.writeFileSync(".staging-deploy/reception-results.receipt.json", JSON.stringify({ verifiedAt: new Date().toISOString(), ref: config.ref, clinicId: actor.clinicId, receptionDraftRead: true, receptionUpload: true, patientPortalRead: true, portalSessionPersistent: true, originalPdfDownload: true, foreignPatientDenied: true }, null, 2));
     await foreign.auth.signOut({ scope: "local" });
   } finally {
     for (const target of contexts) await target.close();

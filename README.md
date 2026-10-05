@@ -1,5 +1,7 @@
 # Voxa
 
+Actualizare 5 octombrie: [emailuri în română, sesiunea portalului, remindere în timpul zilei și backupul verificat](docs/PORTAL_EMAIL_BACKUP_FIXES_2026-10-05.md).
+
 Release curent: [auditul din 5 octombrie](docs/DEEP_AUDIT_2026-10-05.md) · [reconcilierea cu Git](docs/RELEASE_RECONCILIATION_2026-10-05.md) · [manifestul sursei publicate](docs/PRODUCTION_SOURCE_MANIFEST_2026-10-05.json). Hosted staging: [ghid](docs/HOSTED_STAGING.md); restaurarea, MFA și pilotul fictiv au [dovezi istorice separate](docs/ACCEPTANCE_1_4_2026-10-04.md). Lansarea comercială și datele medicale păstrează deciziile proprietarului din [checklist](PRODUCTION_CHECKLIST.md).
 
 Aplicație B2B pentru administrarea clinicilor. Implementarea include fundația multi-tenant, programările, booking-ul public, comunicările, documentele medicale private, rezultatele versionate și portalul pacientului. Documentul original este păstrat intact, iar interfața este în română.

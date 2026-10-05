@@ -1,10 +1,12 @@
 # Voxa-OS — reconcilierea release-ului, 5 octombrie 2026
 
+**Închidere ulterioară:** release-ul inițial este păstrat în `a1e46d35bdcccba6af76cbf58a9f47b8d874d038`; corecția ulterioară este publicată ca `dpl_sysZzbdgWwrukkKWmsWVNZqxomKp`. Manifestul curent verifică 383 fișiere sursă, inclusiv 270 runtime. [Raportul corecției](PORTAL_EMAIL_BACKUP_FIXES_2026-10-05.md) conține lista exactă și verificările. Branch-ul rămâne `codex/stripe-sandbox`, sincronizat cu upstream prin push normal, working tree curat. `main` nu a fost modificat și rămâne cu trei commituri în urmă. Commitul curent se obține prin `git log -1 --format=%H -- docs/PRODUCTION_SOURCE_MANIFEST_2026-10-05.json`; evităm o referință circulară la hashul documentului. Diferențele față de snapshotul live sunt exclusiv documentație. Nu există o restantă de implementare identificată în verificările acestei sesiuni; limitele dovezilor și responsabilitățile proprietarului rămân explicite.
+
 ## Starea găsită
 Branch `codex/stripe-sandbox`, HEAD inițial `2a8bceea1e3d5cba7e2ec726f7cf0a11ce9d81c5`; 48 fișiere tracked modificate, 29 untracked, nimic staged. După fetch, upstream avea același HEAD; `origin/main` era cu un commit în urmă, fără divergență.
 
 ## Release publicat înaintea problemelor noi
-Deployment `dpl_9Bq6VhBjB2LT8NHJ2onmaWC6zgM2`, READY, dub1; domeniul live și sursa snapshotului au fost verificate pe 5 octombrie la 12:18 (Europe/Bucharest). Manifestul `PRODUCTION_SOURCE_MANIFEST_2026-10-05.json` identifică 373 fișiere de aplicație/assets/teste/configurație, inclusiv 265 runtime. Toate corespund snapshotului folosit la publicare, cu normalizare CRLF/LF. Comparația nu pretinde extragerea codului de pe serverul live.
+Deployment anterior `dpl_9Bq6VhBjB2LT8NHJ2onmaWC6zgM2`, READY, dub1; domeniul live și sursa snapshotului au fost verificate pe 5 octombrie la 12:18 (Europe/Bucharest). Manifestul inițial, păstrat în commitul de bază, identifica 373 fișiere de aplicație/assets/teste/configurație, inclusiv 265 runtime. Toate corespundeau snapshotului folosit la publicare, cu normalizare CRLF/LF. Manifestul din checkout descrie acum corecția publicată ulterior. Comparația nu pretinde extragerea codului de pe serverul live.
 
 Sursa acestui release este salvată separat în Git înaintea corecțiilor următoare; fișierele modificate între timp rămân în working tree pentru commitul ulterior. Nu sunt șterse sau suprascrise. Commitul de bază se identifică prin `git log --diff-filter=A --format=%H -- docs/PRODUCTION_SOURCE_MANIFEST_2026-10-05.json`.
 
@@ -24,7 +26,7 @@ Afirmațiile vechi despre Stripe doar sandbox, 3DS, invitații manuale, email de
 ## Cerere nouă în curs
 Utilizatorul a raportat ulterior emailuri de staging, conectare repetată în portal, reminder la 06:05 și a cerut verificarea backupurilor acum. Pagina Documente a fost confirmată ulterior funcțională de utilizator; nu se reimplementează fără defect reproductibil.
 
-Emailurile de producție au fost corectate prin actualizarea exclusivă a celor patru șabloane și subiecte, cu readback verificat; nu s-au trimis emailuri de probă. Corecția paginii de conectare și migrația 041 pentru remindere sunt testate local și în staging; statusul publicării finale va fi consemnat în raportul dedicat. Build/typecheck/lint au trecut; cele 17 teste relevante au trecut după corectarea fixturelor.
+Emailurile de producție au fost corectate prin actualizarea exclusivă a celor patru șabloane și subiecte, cu readback verificat; nu s-au trimis emailuri de probă. Corecția paginii de conectare și migrația 041 pentru remindere sunt testate și publicate. Build/typecheck/lint au trecut; 17 teste relevante și un scenariu hosted cu pacient fictiv au trecut. Detaliile și limitele verificării live sunt în raportul dedicat.
 
 Backupul automat `schedule` din 5 octombrie a trecut; copia R2 creată la 08:34 ora României a fost citită și verificată: checksum, decriptare autentificată, 80 tabele și 2 fișiere. Nu s-a făcut restaurare în producție. Crearea unei copii noi a fost inițial respinsă automat; după autorizarea explicită suplimentară a utilizatorului, copia locală criptată pre-upgrade a fost creată și verificată. Nu s-au modificat retenția, PITR, runnerul sau tokenul backupului.
 

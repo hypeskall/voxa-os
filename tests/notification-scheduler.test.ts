@@ -37,7 +37,7 @@ describe("notification scheduler and retry boundaries", () => {
   it("retries with the same key, excludes leased jobs, and never reclaims sent jobs", async () => {
     const id = "a1000000-0000-4000-8000-000000000001";
     await db.query(`insert into public.notification_jobs(id,organization_id,clinic_id,event,channel,recipient,idempotency_key)
-      values($1,$2,$3,'APPOINTMENT_REMINDER','EMAIL','demo@example.test','scheduler-retry-test')`, [id, ids.org, ids.a]);
+      values($1,$2,$3,'APPOINTMENT_CREATED','EMAIL','demo@example.test','scheduler-retry-test')`, [id, ids.org, ids.a]);
     const first = await service<{ jobs: { id: string; idempotency_key: string }[] }>("select public.claim_notification_jobs(25) jobs");
     expect(first.rows[0].jobs).toHaveLength(1);
     expect((await service<{ jobs: unknown[] }>("select public.claim_notification_jobs(25) jobs")).rows[0].jobs).toEqual([]);

@@ -1,5 +1,7 @@
 # Voxa / Voxa-OS — context complet pentru GPT și următorul prompt de lucru
 
+**Ultima actualizare, 5 octombrie:** emailurile Auth ale producției sunt acum în română, cu șabloane dedicate fără staging; portalul reutilizează sesiunea validă; reminderele se trimit între 08:00–20:00, cu cele nocturne mutate la 19:55. Migrația 041 este aplicată, 1.462 verificări de schemă trecute. Deployment curent: `dpl_sysZzbdgWwrukkKWmsWVNZqxomKp`, READY/dub1. Au trecut acum 17 teste relevante, un scenariu browser hosted, lint/typecheck/build și 6 verificări publice. Pagina Documente funcționează, confirmat de utilizator. Prima execuție programată a backupului a trecut și copia R2 a fost verificată: 80 tabele, 2 fișiere, checksum și decriptare. Detalii și lista exactă: `docs/PORTAL_EMAIL_BACKUP_FIXES_2026-10-05.md`. Numerele 245/62/29 de mai jos rămân istorice. Nu redeschide aceste corecții ca restante.
+
 **Data situației:** 5 octombrie 2026, fus orar Europe/Bucharest.
 **Proiect local:** `C:\Users\mihai\Documents\Codex\regina maria`
 **Aplicație publicată:** https://voxa-os.vercel.app
@@ -9,7 +11,7 @@
 
 Vreau să citești tot contextul și să îmi construiești un **prompt final, concret, pentru Codex**, cu ce mai trebuie făcut în proiectul existent. Nu vreau să reconstruim produsul, să repetăm lucrurile deja finalizate sau să prezentăm drept restante sarcini rezolvate între timp.
 
-Promptul trebuie să țină cont de ultimele mele decizii: **firma/oferta și planul Vercel le rezolv eu; backupul a fost amânat pentru discuția din 6 octombrie; pilotul cu o clinică reală este în afara listei tehnice curente.** Notificările și Stripe au fost cerute și finalizate, apoi am cerut un audit de performanță și buguri, care a fost făcut și publicat.
+Promptul trebuie să țină cont de ultimele mele decizii: **firma/oferta și planul Vercel le rezolv eu; verificarea backupului a fost reluată explicit pe 5 octombrie și prima execuție schedule este confirmată; retenția/RPO/RTO rămân de discutat; pilotul cu o clinică reală este în afara listei tehnice curente.** Notificările, Stripe și corecțiile portalului sunt finalizate și publicate.
 
 Acest document sintetizează codul, starea Git, rapoartele proiectului și conversația recentă. Prima versiune rezuma rapoartele; după ea am cerut un audit extins și un flux nou pentru recepție. Actualizarea include verificări executate efectiv pe 5 octombrie: 245 teste interne, 62 browser local, 29 hosted și regresii finale. Detaliile sunt în `docs/DEEP_AUDIT_2026-10-05.md`. Nu conține chei API, parole sau date reale de pacient.
 
@@ -19,9 +21,9 @@ Voxa este o aplicație web B2B pentru administrarea clinicilor, cu backend real,
 
 **După închiderea listei tehnice inițiale am cerut un audit extins:** corectarea tabelelor Medici/Servicii/Resurse, accesul recepției inclusiv la ciornele rezultatelor și încărcarea rezultatelor PDF/imagine pentru portalul pacientului. Acestea sunt implementate, testate și **publicate în producție**: **245 teste interne, 62 browser local, 29 hosted, build optimizat și regresii finale trecute**. Release-ul **`dpl_9Bq6VhBjB2LT8NHJ2onmaWC6zgM2`** este READY/dub1, verificat la **03:12 RO**; șapte endpoint-uri publice au trecut. În sesiunea contului raportat, fila Rezultate a unui pacient existent se afișează și are butonul de încărcare; verificarea live nu a modificat date. Nu confunda deployment-ul anterior de la 02:26 cu acest release.
 
-**Mai există operațiuni și decizii pentru lansarea comercială/date medicale reale**, însă acestea nu trebuie reintroduse automat în lista curentă: firma, fiscalitatea, contractele, hostingul comercial, confirmarea backupului programat, retenția și pilotul real.
+**Mai există operațiuni și decizii pentru lansarea comercială/date medicale reale**, însă acestea nu trebuie reintroduse automat în lista curentă: firma, fiscalitatea, contractele, hostingul comercial, retenția/RPO/RTO și pilotul real. Execuția programată a backupului a fost între timp confirmată.
 
-**Actualizare ulterioară — reconcilierea release-ului:** toate cele 373 de fișiere executabile/asset/test/configurație coincid cu snapshotul producției; au fost păstrate și înregistrate împreună cu documentația actualizată. Ramura de lucru rămâne `codex/stripe-sandbox`; commitul sursei este cel care introduce `docs/PRODUCTION_SOURCE_MANIFEST_2026-10-05.json`. Raportul complet este în `docs/RELEASE_RECONCILIATION_2026-10-05.md`. Nu s-a modificat cod executabil sau producția în această etapă. Integrarea în `main` este distinctă de reproducerea release-ului și nu trebuie făcută prin suprascriere de istoric.
+**Etapă istorică — reconcilierea release-ului de la 03:12:** toate cele 373 de fișiere executabile/asset/test/configurație coincid cu snapshotul producției; au fost păstrate și înregistrate împreună cu documentația actualizată. Ramura de lucru rămâne `codex/stripe-sandbox`; commitul sursei este cel care introduce `docs/PRODUCTION_SOURCE_MANIFEST_2026-10-05.json`. Raportul complet este în `docs/RELEASE_RECONCILIATION_2026-10-05.md`. Nu s-a modificat cod executabil sau producția în această etapă. Integrarea în `main` este distinctă de reproducerea release-ului și nu trebuie făcută prin suprascriere de istoric.
 
 ## 3. Obiectivul produsului și constrângerile inițiale
 
@@ -173,7 +175,7 @@ Versiunile declarate în `package.json` includ Next.js `^16.3.6`, React `^19.3.0
 - Program zilnic instalat la **00:17 UTC**: 03:17 în România în timpul verii, 02:17 iarna.
 - Restaurare completă într-un mediu izolat: **77 tabele Auth/aplicație/private** comparate cu sursa, două fișiere recuperate, login normal al conturilor restaurate și izolare între clinici verificate.
 - Restaurarea nu a resetat vreun proiect hosted; runtime-ul temporar a fost eliminat.
-- **Prima execuție declanșată efectiv de programarea zilnică nu este confirmată în dovezile disponibile.** Rularea manuală reușită nu o înlocuiește.
+- **Prima execuție efectivă `schedule` este confirmată pe 5 octombrie**, cu copia R2 creată la 08:34 RO și verificată prin checksum/decriptare. Execuția GitHub a întârziat față de ora nominală; nu garantează o oră exactă/RPO.
 - RPO/RTO și retenția nu sunt încă stabilite. Rapoartele nu consemnează backup nativ/PITR activ în producție.
 - Cheia de recuperare este păstrată separat, confirmat de proprietar. Tokenul de citire pentru runner trebuie rotit înainte de **2 ianuarie 2027**, conform documentației curente.
 - `/api/health`, referințe de eroare fără conținut medical și alerte SMTP pentru operator.
@@ -251,7 +253,7 @@ Testele locale folosesc PostgreSQL/PGlite și fixture de protocol Auth; testele 
 - Fișiere noi relevante: `docs/STRIPE_LIVE.md`, `docs/PERFORMANCE_AUDIT_2026-10-05.md`, capturile aferente, scripturile `stripe-live-*`, `notification-acceptance.mjs`, iconurile, loading-ul clinicii și teste pentru interacțiuni/MFA/Stripe.
 - Istoricul recent conține deja SaaS/onboarding/landing, operațiuni Auth/email, R2, runner privat, MFA, restaurare, pilot sintetic, draft-uri juridice și Stripe sandbox.
 
-**Reconciliere ulterioară:** snapshotul release-ului de la 03:12 a fost comparat cu checkout-ul complet. Toate cele 373 de fișiere executabile/asset/test/configurație coincid; diferențele ulterioare sunt numai documentație. Manifestul versionat leagă sursa de deployment-ul `dpl_9Bq6VhBjB2LT8NHJ2onmaWC6zgM2`, cu normalizarea LF/CRLF pentru verificarea pe alt sistem. Credentialele și chitanțele private rămân în directoarele ignorate. Identificatorul commitului se obține cu `git log -1 --format=%H -- docs/PRODUCTION_SOURCE_MANIFEST_2026-10-05.json`; relația cu remote și lista exactă sunt în raportul reconcilierii. Nu s-a făcut merge în `main`.
+**Reconciliere inițială (păstrată în commitul a1e46d3):** snapshotul release-ului de la 03:12 a fost comparat cu checkout-ul complet. Toate cele 373 de fișiere executabile/asset/test/configurație coincid; diferențele ulterioare sunt numai documentație. Manifestul inițial din commitul a1e46d3 leagă sursa de deployment-ul `dpl_9Bq6VhBjB2LT8NHJ2onmaWC6zgM2`, cu normalizarea LF/CRLF pentru verificarea pe alt sistem. Credentialele și chitanțele private rămân în directoarele ignorate. Identificatorul commitului se obține cu `git log -1 --format=%H -- docs/PRODUCTION_SOURCE_MANIFEST_2026-10-05.json`; relația cu remote și lista exactă sunt în raportul reconcilierii. Nu s-a făcut merge în `main`.
 
 ## 9. Ce mai rămâne — fără să redeschidem sarcini finalizate
 
@@ -265,14 +267,14 @@ Testele locale folosesc PostgreSQL/PGlite și fixture de protocol Auth; testele 
 
 Acestea sunt recomandări rezultate din evidențele actuale, nu o declarație că integrarea Stripe sau auditul au eșuat.
 
-### B. Backup — amânat explicit pentru 6 octombrie
+### B. Backup — verificat pe 5 octombrie, decizii separate
 
-- Observarea unei execuții reale de tip `schedule` a backupului privat și consemnarea rezultatului.
+- Execuția reală `schedule` și integritatea copiei au fost verificate; acest punct este închis.
 - Acord pentru retenție, RPO/RTO, eventual PITR/backup nativ și un responsabil pentru incidente.
 - Verificarea versiunii fixate în runner față de schema curentă: nu presupune că runnerul urmărește automat codul nou.
 - Plan de rotație a tokenului înainte de 2 ianuarie 2027.
 
-Backupurile manuale, criptarea, transferul și restaurarea completă au trecut deja. **Nu cere refacerea lor de la zero și nu porni acest follow-up înainte de a fi reluat de proprietar.**
+Backupurile manuale, criptarea, transferul și restaurarea completă au trecut anterior. Verificarea schedule a fost reluată explicit de proprietar și închisă. Nu cere refacerea lor de la zero; deciziile de retenție/RPO/RTO/PITR rămân distincte.
 
 ### C. Firma, oferta, Vercel și juridicul — responsabilitatea proprietarului
 
@@ -312,7 +314,7 @@ Nu transforma aceste posibilități într-un backlog obligatoriu numai pentru c�
 | `docs/PERFORMANCE_AUDIT_2026-10-05.md` | Ultimul audit, măsurători, teste și publicare live |
 | `docs/DEEP_AUDIT_2026-10-05.md` | Auditul ulterior: tabele, rolul real al contului raportat, recepție, încărcare rezultate și portal, dovezi finale și publicare |
 | `docs/RELEASE_RECONCILIATION_2026-10-05.md` | Starea găsită, inventarul exact, verificările executate în reconciliere și relația cu Git/producție |
-| `docs/PRODUCTION_SOURCE_MANIFEST_2026-10-05.json` | Amprentele verificabile ale celor 373 de fișiere executabile/asset/test/configurație ale release-ului |
+| `docs/PRODUCTION_SOURCE_MANIFEST_2026-10-05.json` | Amprentele verificabile ale celor 383 de fișiere executabile/asset/test/configurație ale release-ului curent |
 | `docs/STRIPE_LIVE.md` | Configurarea live și acceptanța actuală |
 | `docs/SUBSCRIPTIONS.md` | Trial, abonament, expirare, licențe și billing |
 | `docs/STRIPE_SANDBOX.md` | Configurarea și operarea sandbox |
@@ -330,7 +332,7 @@ Nu transforma aceste posibilități într-un backlog obligatoriu numai pentru c�
 
 **Ordinea de încredere pentru contradicții:** ultimele decizii explicite ale proprietarului → starea curentă observabilă → rapoartele din 5 octombrie și checklistul actual → rapoartele istorice. Păstrează diferența dintre „observat acum” și „confirmat într-un raport anterior”.
 
-Exemple de afirmații istorice depășite: „Stripe este doar sandbox”, „3DS nu a fost verificat”, „notificările pacienților sunt oprite”, „MFA încă trebuie implementat”, „nu există restaurare completă”, „invitațiile sunt numai manuale”. Acestea au fost rezolvate în etapele ulterioare descrise aici. Draft-urile juridice și prima execuție programată a backupului privat rămân, în schimb, deschise/separate.
+Exemple de afirmații istorice depășite: „Stripe este doar sandbox”, „3DS nu a fost verificat”, „notificările pacienților sunt oprite”, „MFA încă trebuie implementat”, „nu există restaurare completă”, „invitațiile sunt numai manuale”. Acestea au fost rezolvate în etapele ulterioare descrise aici. Draft-urile juridice rămân separate; prima execuție programată a backupului privat este confirmată, fără garanții RPO/RTO.
 
 ## 11. Cerințe pentru promptul final pe care îl vreau de la GPT
 
@@ -339,7 +341,7 @@ Scrie în română un prompt complet, gata de lipit în Codex. El trebuie:
 1. Să precizeze că lucrăm în proiectul existent Voxa, cu arhitectura și datele actuale, fără rebuild sau înlocuirea stack-ului.
 2. Să înceapă prin verificarea situației reale a ramurii, modificărilor neînregistrate și release-ului publicat.
 3. Să transforme numai restantele tehnice relevante în acțiuni ordonate, fiecare cu criteriu de finalizare verificabil.
-4. Să păstreze separat responsabilitățile mele și backupul/pilotul amânate, fără să le execute din presupunere.
+4. Să păstreze separat responsabilitățile mele și deciziile de retenție/RPO/RTO și pilotul separat, fără să le execute din presupunere.
 5. Să nu ceară din nou implementarea Stripe live, MFA, onboardingului, notificărilor, faviconului sau corecțiilor din audit; să le verifice doar dacă următoarea schimbare o justifică.
 6. Să ceară păstrarea multi-tenancy, RLS, MFA, permisiunilor pe rol și izolării sandbox/live.
 7. Să interzică reseturi de producție, seed demonstrativ de producție, pierderea schimbărilor existente și expunerea secretelor.
