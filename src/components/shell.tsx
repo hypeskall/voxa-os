@@ -100,7 +100,7 @@ export function Shell({
       <a className="skip-link" href="#main"><T>{"Sari la conținut"}</T></a>
       <aside className="sidebar">
         <Link
-          href={base}
+          href="/"
           className="brand"
           aria-label="Voxa — pagina principală"
         >

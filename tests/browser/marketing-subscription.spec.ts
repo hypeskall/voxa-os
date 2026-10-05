@@ -29,7 +29,9 @@ test("public homepage, pricing, functional walkthrough and mobile layout", async
       .getByRole("link", { name: "Începe testarea gratuită", exact: true })
       .first(),
   ).toHaveAttribute("href", "/register");
+  await page.goto("/pret");
   await expect(page.locator("#pret")).toContainText("19,99 EUR");
+  await page.goto("/prezentare");
   await page.getByRole("tab", { name: "Calendar", exact: true }).click();
   await expect(page.locator("#product-panel").getByRole("img")).toHaveAttribute(
     "alt",
@@ -40,6 +42,7 @@ test("public homepage, pricing, functional walkthrough and mobile layout", async
     page.getByRole("button", { name: "Oprește turul" }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Oprește turul" }).click();
+  await page.goto("/faq");
   await page
     .locator("#intrebari summary")
     .filter({ hasText: "Ce se întâmplă" })
@@ -66,21 +69,25 @@ test("public homepage, pricing, functional walkthrough and mobile layout", async
       await expect(section).toHaveCSS("opacity", "1");
     }
     if (width === 390 || width === 1440) {
+      await page.goto("/functionalitati");
       await page
         .locator("#functionalitati")
         .screenshot({ path: `test-results/marketing/features-${width}.png` });
+      await page.goto("/produs");
       await page
         .locator(".product-story")
         .nth(1)
         .screenshot({
           path: `test-results/marketing/calendar-story-${width}.png`,
         });
+      await page.goto("/prezentare");
       await page
         .locator("#prezentare")
         .screenshot({
           path: `test-results/marketing/walkthrough-${width}.png`,
         });
     }
+    await page.goto("/pret");
     await page.locator("#pret").scrollIntoViewIfNeeded();
     await page.screenshot({
       path: `test-results/marketing/pricing-${width}.png`,
@@ -113,8 +120,8 @@ test("mobile navigation, keyboard product controls, dialogs and reduced motion",
   await menuButton.click();
   await menu.getByRole("link", { name: "Preț", exact: true }).click();
   await expect(menu).not.toBeVisible();
-  await expect(page).toHaveURL(/#pret$/);
-  await expect(page.locator(".marketing-header")).toHaveClass(/is-scrolled/);
+  await expect(page).toHaveURL(/\/pret$/);
+  await page.goto("/produs");
   await page.getByRole("tab", { name: "Medici", exact: true }).click();
   await page.keyboard.press("ArrowDown");
   await expect(
@@ -135,6 +142,7 @@ test("mobile navigation, keyboard product controls, dialogs and reduced motion",
     "transform",
     "none",
   );
+  await page.goto("/prezentare");
   await page.getByRole("tab", { name: "Calendar", exact: true }).click();
   await expect(page.locator(".walkthrough-frame")).toHaveCSS(
     "animation-name",
@@ -150,7 +158,7 @@ test("walkthrough advances, pauses, completes and replays", async ({
   page,
 }) => {
   await page.clock.install();
-  await page.goto("/");
+  await page.goto("/prezentare");
   await page
     .getByRole("tab", { name: "Privire de ansamblu", exact: true })
     .click();

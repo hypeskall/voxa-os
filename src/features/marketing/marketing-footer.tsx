@@ -19,8 +19,8 @@ export function MarketingFooter({
             <p><T>{"Un spațiu de lucru pentru întreaga clinică."}</T></p>
           </div>
           <LocalizedElement as="nav" aria-label="Produs și cont">
-            <a href="#platforma"><T>{"Produs"}</T></a>
-            <a href="#pret"><T>{"Preț"}</T></a>
+            <Link href="/produs"><T>{"Produs"}</T></Link>
+            <Link href="/pret"><T>{"Preț"}</T></Link>
             <Link href={authenticated ? "/dashboard" : "/login"}>
               <T>{authenticated ? "Platforma mea" : "Autentificare"}</T>
             </Link>

@@ -5,13 +5,10 @@ import Link from "next/link";
 import { Menu, X, ArrowUpRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-const links = [
-  ["#platforma", "Produs"],
-  ["#functionalitati", "Funcționalități"],
-  ["#cum-functioneaza", "Cum funcționează"],
-  ["#pret", "Preț"],
-  ["#intrebari", "FAQ"],
-];
+import { usePathname } from "next/navigation";
+import { marketingPages } from "./navigation";
+
+const links = marketingPages.filter(item => item.page !== "prezentare");
 
 export function Brand() {
   return (
@@ -28,6 +25,7 @@ export function Brand() {
 }
 
 export function MarketingHeader({ authenticated }: { authenticated: boolean }) {
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const sentinel = useRef<HTMLDivElement>(null);
   const dialog = useRef<HTMLDialogElement>(null);
@@ -56,10 +54,10 @@ export function MarketingHeader({ authenticated }: { authenticated: boolean }) {
         <div className="marketing-container marketing-nav">
           <Brand />
           <LocalizedElement as="nav" className="marketing-desktop-nav" aria-label="Navigație website">
-            {links.map(([href, label]) => (
-              <a key={href} href={href}>
+            {links.map(({href, label}) => (
+              <Link key={href} href={href} aria-current={pathname === href ? "page" : undefined}>
                 <T>{label}</T>
-              </a>
+              </Link>
             ))}
           </LocalizedElement>
           <div className="marketing-nav-actions">
@@ -106,12 +104,12 @@ export function MarketingHeader({ authenticated }: { authenticated: boolean }) {
             </LocalizedElement>
           </div>
           <LocalizedElement as="nav" aria-label="Navigație mobilă">
-            {links.map(([href, label], index) => (
-              <a key={href} href={href} onClick={() => dialog.current?.close()}>
+            {links.map(({href, label}, index) => (
+              <Link key={href} href={href} aria-current={pathname === href ? "page" : undefined} onClick={() => dialog.current?.close()}>
                 <span aria-hidden="true">0{index + 1}</span>
                 <T>{label}</T>
                 <ArrowUpRight size={20} />
-              </a>
+              </Link>
             ))}
           </LocalizedElement>
           <Link

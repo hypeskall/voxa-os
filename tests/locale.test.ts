@@ -8,10 +8,10 @@ import itMessages from "../src/lib/locale/messages/it.json";
 import pl from "../src/lib/locale/messages/pl.json";
 
 describe("locale selection and interface catalogues", () => {
-  it("uses a validated saved choice and weighted browser preferences", () => {
+  it("defaults to Romanian regardless of browser preferences and honors saved choices", () => {
     expect(resolveLocale("fr", "de-DE")).toBe("fr");
-    expect(resolveLocale("invalid", "en;q=0.2,de-DE;q=0.9")).toBe("de");
-    expect(resolveLocale(undefined, "pt;q=1,es;q=0.5")).toBe("es");
+    expect(resolveLocale("invalid", "en;q=0.2,de-DE;q=0.9")).toBe("ro");
+    expect(resolveLocale(undefined, "pt;q=1,es;q=0.5")).toBe("ro");
     expect(resolveLocale(undefined, "en;q=0")).toBe("ro");
     expect(resolveLocale("../../private", "xx")).toBe("ro");
   });

@@ -10,12 +10,9 @@ export function isLocale(value: unknown): value is Locale {
   return typeof value === "string" && languages.some(language => language.code === value);
 }
 export function resolveLocale(saved?: string, accepted = ""): Locale {
-  if (isLocale(saved)) return saved;
-  const preferred = accepted.split(",").map((item, order) => {
-    const [tag, quality] = item.trim().split(";");
-    return { code: tag.toLowerCase().split("-")[0], quality: quality?.startsWith("q=") ? Number(quality.slice(2)) : 1, order };
-  }).filter(item => item.quality > 0).sort((a, b) => b.quality - a.quality || a.order - b.order);
-  return preferred.find(item => isLocale(item.code))?.code as Locale ?? "ro";
+  // Browser preferences never override the Romanian default.
+  void accepted;
+  return isLocale(saved) ? saved : "ro";
 }
 export function translateText(text: string, dictionary: Record<string, string>) {
   const key = text.replace(/\s+/g, " ").trim();

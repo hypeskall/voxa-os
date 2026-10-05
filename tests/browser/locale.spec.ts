@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 test("website languages persist and platform language changes retain the session and patient data", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/pret");
   for (const [locale, label] of [["en", "Sign in"], ["de", "Anmelden"], ["fr", "Connexion"], ["es", "Iniciar sesión"], ["it", "Accedi"], ["pl", "Zaloguj się"], ["ro", "Autentificare"]]) {
     await page.getByRole("combobox", { name: "Language", exact: true }).selectOption(locale);
     await expect(page.locator("html")).toHaveAttribute("lang", locale);

@@ -2081,3 +2081,16 @@ body:has(.marketing-page dialog[open]) {
     position: static;
   }
 }
+
+.marketing-page .marketing-desktop-nav a[aria-current="page"],
+.marketing-page .marketing-mobile-menu a[aria-current="page"] { color: var(--m-green); font-weight: 700; }
+.marketing-page .marketing-page-intro { padding-block: 48px 0; }
+.marketing-page .marketing-page-intro h1 { margin-top: 20px; font-size: clamp(36px, 5vw, 60px); line-height: 1.15; letter-spacing: -2px; font-weight: 500; }
+.marketing-page .marketing-home-links { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding-block: 48px; }
+.marketing-page .marketing-home-links a { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 22px; border: 1px solid var(--m-line); border-radius: 12px; color: var(--m-ink); background: white; font-size: 15px; }
+.marketing-page .marketing-home-links a:hover { border-color: var(--m-green); }
+@media (max-width: 760px) {
+  .marketing-page .marketing-home-links { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .marketing-page .marketing-home-links a { padding: 16px; font-size: 13px; }
+}
+@media (max-width: 360px) { .marketing-page .marketing-home-links { grid-template-columns: 1fr; } }

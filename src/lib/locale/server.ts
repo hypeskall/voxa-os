@@ -1,10 +1,10 @@
 import "server-only";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { LOCALE_COOKIE, resolveLocale, type Locale } from "./config";
 
 export async function getLocale(): Promise<Locale> {
-  const [jar, requestHeaders] = await Promise.all([cookies(), headers()]);
-  return resolveLocale(jar.get(LOCALE_COOKIE)?.value, requestHeaders.get("accept-language") ?? "");
+  const jar = await cookies();
+  return resolveLocale(jar.get(LOCALE_COOKIE)?.value);
 }
 export async function getDictionary(locale: Locale): Promise<Record<string, string>> {
   if (locale === "ro") return {};

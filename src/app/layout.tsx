@@ -5,6 +5,7 @@ import "@fontsource/noto-sans/600.css";
 import "@fontsource/noto-sans/700.css";
 import "./globals.css";
 import { LocaleProvider } from "@/components/locale-provider";
+import { CookieNotice } from "@/components/cookie-notice";
 import { getLocale, getDictionary } from "@/lib/locale/server";
 import { translateText } from "@/lib/locale/config";
 export const dynamic = "force-dynamic";
@@ -26,7 +27,7 @@ export default async function RootLayout({
   const dictionary = await getDictionary(locale);
   return (
     <html lang={locale}>
-      <body><LocaleProvider locale={locale} dictionary={dictionary}>{children}</LocaleProvider></body>
+      <body><LocaleProvider locale={locale} dictionary={dictionary}>{children}<CookieNotice /></LocaleProvider></body>
     </html>
   );
 }

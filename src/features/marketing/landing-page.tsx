@@ -16,6 +16,7 @@ import {
   ChevronDown,
   Play,
 } from "lucide-react";
+import { marketingPages, type MarketingPage } from "./navigation";
 import { MarketingHeader } from "./marketing-header";
 import { MarketingFooter } from "./marketing-footer";
 import { MarketingMotion } from "./marketing-motion";
@@ -107,19 +108,26 @@ export function LandingPage({
   authenticated,
   videoSrc,
   supportEmail,
+  page = "home",
 }: {
   authenticated: boolean;
   videoSrc?: string;
   supportEmail?: string;
+  page?: MarketingPage;
 }) {
   const destination = authenticated ? "/dashboard" : "/register";
   const cta = authenticated ? "Deschide platforma" : "Începe testarea gratuită";
   return (
-    <div className="marketing-page">
+    <div className={`marketing-page ${page !== "home" ? "marketing-subpage" : ""}`}>
       <a className="skip-link" href="#marketing-main"><T>{"Sari la conținut"}</T></a>
       <MarketingHeader authenticated={authenticated} />
-      <MarketingMotion>
+      <MarketingMotion key={page}>
         <main id="marketing-main">
+          {page !== "home" && <div className="marketing-container marketing-page-intro">
+            <Link href="/" className="marketing-text-link"><T>{"Pagina principală"}</T><ArrowUpRight size={16} /></Link>
+            <h1><T>{marketingPages.find(item => item.page === page)!.label}</T></h1>
+          </div>}
+          {page === "home" && (
           <section
             className="marketing-container marketing-hero"
             aria-labelledby="hero-title"
@@ -138,8 +146,8 @@ export function LandingPage({
                   <T>{cta}</T>
                   <ArrowRight size={17} />
                 </Link>
-                <a href="#prezentare" className="marketing-button is-secondary">
-                  <Play size={15} /><T>{"Vezi platforma"}</T></a>
+                <Link href="/prezentare" className="marketing-button is-secondary">
+                  <Play size={15} /><T>{"Vezi platforma"}</T></Link>
               </div>
               <p className="hero-trial hero-enter">
                 <Check size={14} />
@@ -180,6 +188,8 @@ export function LandingPage({
               <figcaption><T>{"Interfața reală a platformei. Date demonstrative."}</T></figcaption>
             </figure>
           </section>
+          )}
+          {page === "home" && <>
           <div className="marketing-proof-strip">
             <div className="marketing-container">
               <span className="proof-intro"><T>{"Întreaga clinică."}</T><br />
@@ -194,6 +204,14 @@ export function LandingPage({
             </div>
           </div>
 
+          <section className="marketing-container marketing-home-links" aria-label="Descoperă Voxa-OS">
+            {marketingPages.map(item => <Link key={item.href} href={item.href}>
+              <span><T>{item.label}</T></span><ArrowUpRight size={20} />
+            </Link>)}
+          </section>
+          </>}
+
+          {page === "functionalitati" && (
           <section
             id="functionalitati"
             className="marketing-container marketing-section marketing-capabilities"
@@ -212,8 +230,8 @@ export function LandingPage({
                 <CalendarDays size={28} strokeWidth={1.3} />
                 <h3><T>{"Un calendar."}</T><br /><T>{"Toată echipa."}</T></h3>
                 <p><T>{"Programări, disponibilitate și resurse coordonate. Claritate pentru recepție, context pentru medic."}</T></p>
-                <a href="#calendar" className="marketing-text-link"><T>{"Descoperă calendarul"}</T><ArrowUpRight size={17} />
-                </a>
+                <Link href="/produs" className="marketing-text-link"><T>{"Descoperă calendarul"}</T><ArrowUpRight size={17} />
+                </Link>
                 <div className="capability-calendar">
                   <Image
                     src={productMedia.calendar}
@@ -240,7 +258,9 @@ export function LandingPage({
               </div>
             </div>
           </section>
+          )}
 
+          {page === "produs" && (
           <section
             id="platforma"
             className="marketing-product-stories"
@@ -292,7 +312,9 @@ export function LandingPage({
               <WorkspaceShowcase />
             </div>
           </section>
+          )}
 
+          {page === "cum-functioneaza" && (
           <section
             id="cum-functioneaza"
             className="marketing-container marketing-section marketing-workflow"
@@ -327,7 +349,9 @@ export function LandingPage({
               ))}
             </ol>
           </section>
+          )}
 
+          {page === "prezentare" && (
           <section
             id="prezentare"
             className="marketing-demo-section"
@@ -350,7 +374,9 @@ export function LandingPage({
               </div>
             </div>
           </section>
+          )}
 
+          {page === "produs" && (
           <section
             className="marketing-container marketing-trust"
             aria-labelledby="trust-title"
@@ -389,7 +415,9 @@ export function LandingPage({
               ))}
             </div>
           </section>
+          )}
 
+          {page === "pret" && (
           <section
             id="pret"
             className="marketing-pricing-section"
@@ -438,7 +466,9 @@ export function LandingPage({
               </div>
             </div>
           </section>
+          )}
 
+          {page === "faq" && (
           <section
             id="intrebari"
             className="marketing-container marketing-section marketing-faq"
@@ -463,7 +493,9 @@ export function LandingPage({
               ))}
             </div>
           </section>
+          )}
 
+          {page === "home" && (
           <section
             className="marketing-final-section"
             aria-labelledby="final-title"
@@ -503,6 +535,7 @@ export function LandingPage({
               </div>
             </div>
           </section>
+          )}
         </main>
       </MarketingMotion>
       <MarketingFooter
