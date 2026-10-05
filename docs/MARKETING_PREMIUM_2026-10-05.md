@@ -27,7 +27,7 @@ Plan implementat:
 
 ## Instrumente
 
-MCP shadcn: registrul, exemplul de accordion și checklist-ul de audit au fost consultate. FAQ-ul nativ accesibil a fost păstrat pentru a evita o dependență suplimentară. Context7, Playwright MCP, GitHub MCP, Vercel MCP și Supabase MCP nu erau disponibile în sesiune. Au fost utilizate documentația Next.js instalată, Git local și Playwright/Edge instalat în proiect. Nu a fost efectuat un deployment.
+MCP shadcn: registrul, exemplul de accordion și checklist-ul de audit au fost consultate. FAQ-ul nativ accesibil a fost păstrat pentru a evita o dependență suplimentară. Context7, Playwright MCP, GitHub MCP, Vercel MCP și Supabase MCP nu erau disponibile în sesiune. Au fost utilizate documentația Next.js instalată, Git local și Playwright/Edge instalat în proiect. La cererea utilizatorului, versiunea aprobată a fost publicată pe `main` în commit-ul `62ea9bd`; actualizarea site-ului Vercel a fost verificată prin răspunsul public HTML/CSS.
 
 ## Verificări
 
@@ -40,3 +40,11 @@ MCP shadcn: registrul, exemplul de accordion și checklist-ul de audit au fost c
 Capturile locale se află în `test-results/marketing/premium/` (folder ignorat de Git). Rulările de browser folosesc datele fictive din fixture-ul local, nu date de producție. Capturile sunt verificări de layout; nu reprezintă un benchmark de 60 fps pe toate dispozitivele. Nu s-au evaluat certificări sau conformitatea juridică a platformei.
 
 Verificarea suplimentară fără JavaScript a confirmat că textul complet este în HTML, dar infrastructura existentă `src/app/loading.tsx` transmite pagina prin streaming și folosește JavaScript pentru a înlocui ecranul de încărcare. Un browser cu JavaScript complet dezactivat rămâne pe acel ecran. Această limitare preexistentă nu a fost schimbată, pentru a păstra comportamentul aplicației. Verificările interactive și vizuale de mai sus folosesc JavaScript activ.
+
+## Contact
+
+Secțiune nouă după FAQ, în aceeași identitate vizuală, cu datele furnizate de utilizator: +40 770 541 817 (`tel:`), contact@voxatech.ro (`mailto:`), Oradea, România. Linkuri exacte către Facebook, TikTok și Instagram, cu iconuri de brand și deschidere în tab nou. Meniurile desktop/mobil și footer-ul trimit la `/#contact`.
+
+Navigarea din altă pagină a expus o limitare a alinierii fragmentului URL înainte de montarea secțiunii transmise prin streaming. Componenta Contact aliniază fragmentul după montare, fără timere sau schimbări ale infrastructurii platformei. Testul existent de navigație acoperă acum acest caz.
+
+Verificat la 1440, 1280, 1101, 1024, 768, 390 și 320 px: fără overflow orizontal, meniu mobil, linkuri de contact/socials, focus de tastatură, acces direct prin fragment și mișcare redusă. Capturile finale sunt în `test-results/contact/`. Testul de navigație, build, typecheck și lint au trecut.

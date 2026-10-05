@@ -8,7 +8,10 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { marketingPages } from "./navigation";
 
-const links = marketingPages.filter((item) => item.page !== "prezentare");
+const links = [
+  ...marketingPages.filter((item) => item.page !== "prezentare"),
+  { href: "/#contact", label: "Contact" },
+];
 
 export function Brand() {
   return (

@@ -28,6 +28,7 @@ import { HeroPreview } from "./hero-preview";
 import { ProductShowcase } from "./product-showcase";
 import { MarketingROI } from "./marketing-roi";
 import { MarketingPrice } from "./marketing-price";
+import { MarketingContact } from "./marketing-contact";
 import { marketingFaqs } from "./marketing-content";
 import { productMedia } from "./product-media";
 
@@ -539,6 +540,8 @@ export function MarketingHome({
               ))}
             </div>
           </section>
+
+          <MarketingContact />
 
           <section
             className="marketing-final-section premium-final"

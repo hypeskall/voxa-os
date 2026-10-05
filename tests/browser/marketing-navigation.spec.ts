@@ -37,6 +37,9 @@ test("Romanian default, separate destinations, home logo and remembered cookie n
   await page.getByRole("dialog").getByRole("link", { name: "Preț", exact: true }).click();
   await expect(page).toHaveURL(/\/pret$/);
   await expect(page.getByRole("dialog")).not.toBeVisible();
+  await page.locator("footer").getByRole("link", { name: "Contact", exact: true }).click();
+  await expect(page).toHaveURL(/\/#contact$/);
+  await expect(page.locator("#contact-title")).toBeInViewport();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 

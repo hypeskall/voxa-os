@@ -982,6 +982,109 @@ html:has(.marketing-page) {
 .premium-home .marketing-faq .marketing-text-link {
   margin-top: 24px;
 }
+.premium-home .premium-contact {
+  border-top: 1px solid var(--m-line);
+  background: #f3f6f0;
+}
+.premium-home .contact-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(40px, 8vw, 120px);
+}
+.premium-home .contact-copy h2 {
+  max-width: 440px;
+  margin-top: 18px;
+}
+.premium-home .contact-copy > p {
+  max-width: 410px;
+  margin-top: 20px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--m-muted);
+}
+.premium-home .contact-socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  margin-top: 28px;
+}
+.premium-home .contact-socials a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-size: 12px;
+}
+.premium-home .contact-details h3 {
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+.premium-home .contact-details > p {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--m-muted);
+}
+.premium-home .contact-details dl {
+  margin-top: 20px;
+}
+.premium-home .contact-detail {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding-block: 20px;
+  border-bottom: 1px solid var(--m-line);
+}
+.premium-home .contact-detail:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.premium-home .contact-detail > svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #628166;
+}
+.premium-home .contact-detail > div {
+  min-width: 0;
+  flex: 1;
+}
+.premium-home .contact-detail dt {
+  color: var(--m-muted);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.premium-home .contact-detail dd {
+  margin: 4px 0 0;
+  font-size: clamp(16px, 1.6vw, 20px);
+  font-weight: 500;
+  letter-spacing: -0.3px;
+}
+.premium-home .contact-detail a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+  overflow-wrap: anywhere;
+}
+.premium-home .contact-detail a svg {
+  flex-shrink: 0;
+}
+.premium-home .contact-socials a,
+.premium-home .contact-detail a {
+  transition: color 160ms ease;
+}
+.premium-home .contact-socials a:hover,
+.premium-home .contact-detail a:hover {
+  color: #527549;
+}
+.premium-home .contact-socials a:focus-visible,
+.premium-home .contact-detail a:focus-visible {
+  outline: 2px solid var(--m-green);
+  outline-offset: 5px;
+  border-radius: 3px;
+}
 .premium-home .premium-final {
   text-align: center;
   padding-block: 76px 80px;
@@ -1106,6 +1209,17 @@ html:has(.marketing-page) {
   }
 }
 @media (max-width: 760px) {
+  .premium-home .contact-layout {
+    grid-template-columns: 1fr;
+    gap: 38px;
+  }
+  .premium-home .contact-copy h2 {
+    max-width: 380px;
+  }
+  .premium-home .contact-socials {
+    gap: 8px 18px;
+    margin-top: 20px;
+  }
   .premium-home .premium-product-intro {
     grid-template-columns: 1fr;
     gap: 30px;
