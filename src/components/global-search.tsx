@@ -1,4 +1,5 @@
 "use client";
+import { T, LocalizedElement } from "@/components/locale-provider";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarDays, ContactRound, FileText, Search, Stethoscope, ClipboardList } from "lucide-react";
@@ -32,13 +33,13 @@ export function GlobalSearch({clinicId}:{clinicId:string}) {
     return()=>{window.clearTimeout(timeout);controller.abort();};
   },[clinicId,open,query]);
   function choose(item:SearchResult){requestRef.current?.abort();setOpen(false);setQuery("");setResults([]);setLoading(false);router.push(item.href);}
-  return <Panel open={open} onOpenChange={(next)=>{setOpen(next);if(!next){requestRef.current?.abort();setQuery("");setResults([]);setLoading(false);}}} title="Căutare globală" description="Pacienți, medici, programări, servicii și documente accesibile în clinică." trigger={<Button variant="outline" className="global-search-trigger"><Search size={15}/><span>Caută în clinică</span><kbd>Ctrl K</kbd></Button>}>
+  return <Panel open={open} onOpenChange={(next)=>{setOpen(next);if(!next){requestRef.current?.abort();setQuery("");setResults([]);setLoading(false);}}} title="Căutare globală" description="Pacienți, medici, programări, servicii și documente accesibile în clinică." trigger={<Button variant="outline" className="global-search-trigger"><Search size={15}/><span><T>{"Caută în clinică"}</T></span><kbd><T>{"Ctrl K"}</T></kbd></Button>}>
     <div className="command-search" onKeyDown={(event)=>{if(event.key==="ArrowDown"){event.preventDefault();setActive(v=>Math.min(v+1,results.length-1));}if(event.key==="ArrowUp"){event.preventDefault();setActive(v=>Math.max(v-1,0));}if(event.key==="Enter"&&results[active]){event.preventDefault();choose(results[active]);}}}>
-      <label className="search-field"><Search size={17}/><input className="input" autoFocus value={query} onChange={e=>{const value=e.target.value;requestRef.current?.abort();setQuery(value);setResults([]);setActive(0);setLoading(value.trim().length>=2);}} placeholder="Nume, identificator, serviciu…" aria-label="Termen de căutare" role="combobox" aria-expanded={results.length>0} aria-controls="global-results" aria-activedescendant={results[active]?`search-${results[active].kind}-${results[active].id}`:undefined}/></label>
-      <div id="global-results" className="command-results" role="listbox" aria-label="Rezultate căutare">
-        {results.map((item,index)=>{const Icon=icons[item.kind];return <button type="button" role="option" aria-selected={index===active} id={`search-${item.kind}-${item.id}`} className={index===active?"active":""} key={`${item.kind}-${item.id}`} onMouseEnter={()=>setActive(index)} onClick={()=>choose(item)}><Icon size={16}/><span><strong>{item.title}</strong><small>{labels[item.kind]} · {item.subtitle}</small></span></button>;})}
-        {loading&&<p className="command-state">Se caută…</p>}{!loading&&query.trim().length>=2&&!results.length&&<p className="command-state">Nu există rezultate accesibile.</p>}{query.trim().length<2&&<p className="command-state">Introduceți cel puțin două caractere.</p>}
-      </div>
+      <label className="search-field"><Search size={17}/><LocalizedElement as="input" className="input" autoFocus value={query} onChange={e=>{const value=e.target.value;requestRef.current?.abort();setQuery(value);setResults([]);setActive(0);setLoading(value.trim().length>=2);}} placeholder="Nume, identificator, serviciu…" aria-label="Termen de căutare" role="combobox" aria-expanded={results.length>0} aria-controls="global-results" aria-activedescendant={results[active]?`search-${results[active].kind}-${results[active].id}`:undefined}/></label>
+      <LocalizedElement as="div" id="global-results" className="command-results" role="listbox" aria-label="Rezultate căutare">
+        {results.map((item,index)=>{const Icon=icons[item.kind];return <button type="button" role="option" aria-selected={index===active} id={`search-${item.kind}-${item.id}`} className={index===active?"active":""} key={`${item.kind}-${item.id}`} onMouseEnter={()=>setActive(index)} onClick={()=>choose(item)}><Icon size={16}/><span><strong>{item.title}</strong><small><T>{labels[item.kind]}</T> · <T>{item.subtitle}</T></small></span></button>;})}
+        {loading&&<p className="command-state"><T>{"Se caută…"}</T></p>}{!loading&&query.trim().length>=2&&!results.length&&<p className="command-state"><T>{"Nu există rezultate accesibile."}</T></p>}{query.trim().length<2&&<p className="command-state"><T>{"Introduceți cel puțin două caractere."}</T></p>}
+      </LocalizedElement>
     </div>
   </Panel>;
 }

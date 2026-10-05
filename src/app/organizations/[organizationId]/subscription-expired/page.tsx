@@ -1,3 +1,4 @@
+import { T } from "@/components/locale-provider";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LockKeyhole, ShieldCheck } from "lucide-react";
@@ -19,44 +20,30 @@ export default async function Expired({
       <div className="lock-icon">
         <LockKeyhole size={30} />
       </div>
-      <p className="eyebrow">{organization.name} · VOXA-OS</p>
-      <h1>Continuăm când ești pregătit.</h1>
-      <p>
-        Perioada de acces la platformă s-a încheiat. Pentru a continua să
-        gestionați programările, pacienții și echipa, activați abonamentul
-        organizației.
-      </p>
+      <p className="eyebrow">{organization.name}<T>{" · VOXA-OS"}</T></p>
+      <h1><T>{"Continuăm când ești pregătit."}</T></h1>
+      <p><T>{"Perioada de acces la platformă s-a încheiat. Pentru a continua să gestionați programările, pacienții și echipa, activați abonamentul organizației."}</T></p>
       <div className="lock-price">
-        <strong>19,99 EUR</strong>
-        <span> / lună · toate funcționalitățile</span>
+        <strong><T>{"19,99 EUR"}</T></strong>
+        <span><T>{" / lună · toate funcționalitățile"}</T></span>
       </div>
       <p className="lock-data">
-        <ShieldCheck size={17} />
-        Datele clinicii sunt păstrate.
-      </p>
+        <ShieldCheck size={17} /><T>{"Datele clinicii sunt păstrate."}</T></p>
       {membership.role === "OWNER" ? (
         <div className="marketing-actions">
           <Link
             className="button button-primary"
             href={`/organizations/${organizationId}/billing${stripeConfigured() ? "" : "/contact"}`}
-          >
-            Activează abonamentul
-          </Link>
+          ><T>{"Activează abonamentul"}</T></Link>
           <Link
             className="button button-outline"
             href={`/organizations/${organizationId}/billing#activation`}
-          >
-            Introdu codul de licență
-          </Link>
+          ><T>{"Introdu codul de licență"}</T></Link>
         </div>
       ) : (
-        <p className="billing-alert">
-          Contactați proprietarul organizației pentru reactivarea abonamentului.
-        </p>
+        <p className="billing-alert"><T>{"Contactați proprietarul organizației pentru reactivarea abonamentului."}</T></p>
       )}
-      <Link className="text-link" href="/">
-        Vezi oferta Voxa-OS
-      </Link>
+      <Link className="text-link" href="/"><T>{"Vezi oferta Voxa-OS"}</T></Link>
     </section>
   );
 }

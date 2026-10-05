@@ -1,4 +1,5 @@
 export const MONTHLY_PRICE = "19,99 EUR";
+export const ANNUAL_PRICE = "149,99 EUR";
 export const TRIAL_DAYS = 30;
 export type SubscriptionStatus =
   "trialing" | "active" | "past_due" | "canceled" | "expired" | "inactive";
@@ -7,7 +8,7 @@ export type Subscription = {
   organization_id: string;
   plan: string;
   status: SubscriptionStatus;
-  billing_cycle: "monthly";
+  billing_cycle: "monthly" | "annual";
   trial_started_at: string;
   trial_ends_at: string;
   current_period_start: string | null;

@@ -1,12 +1,13 @@
+import { T, LocalizedElement } from "@/components/locale-provider";
 import { cn } from "@/lib/utils";
 export function Input({ className, ...props }: React.ComponentProps<"input">) {
-  return <input className={cn("input", className)} {...props} />;
+  return <LocalizedElement as="input" className={cn("input", className)} {...props} />;
 }
 export function Select({
   className,
   ...props
 }: React.ComponentProps<"select">) {
-  return <select className={cn("input", className)} {...props} />;
+  return <LocalizedElement as="select" className={cn("input", className)} {...props} />;
 }
 export function Field({
   label,
@@ -21,9 +22,9 @@ export function Field({
 }) {
   return (
     <label className="field">
-      <span>{label}</span>
+      <span><T>{label}</T></span>
       {children}
-      {hint && <small id={hintId}>{hint}</small>}
+      {hint && <small id={hintId}><T>{hint}</T></small>}
     </label>
   );
 }

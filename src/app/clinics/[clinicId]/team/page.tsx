@@ -1,3 +1,4 @@
+import { T } from "@/components/locale-provider";
 import Link from "next/link";
 import { requireClinic } from "@/features/auth/access";
 import { saveMember } from "@/features/settings/actions";
@@ -50,7 +51,7 @@ export default async function Team({
             <Panel
               title="Acordă sau modifică accesul"
               description="Utilizați emailul unui cont existent. Modificarea se aplică acestei clinici."
-              trigger={<Button>Gestionează accesul</Button>}
+              trigger={<Button><T>{"Gestionează accesul"}</T></Button>}
             >
               <ActionForm
                 action={saveMember.bind(null, clinicId)}
@@ -79,8 +80,8 @@ export default async function Team({
                 </Field>
                 <Field label="Stare acces">
                   <Select name="active">
-                    <option value="true">Activ</option>
-                    <option value="false">Revocat</option>
+                    <option value="true"><T>{"Activ"}</T></option>
+                    <option value="false"><T>{"Revocat"}</T></option>
                   </Select>
                 </Field>
               </ActionForm>
@@ -89,7 +90,7 @@ export default async function Team({
         }
       />
       <div className="toolbar">
-        <p className="muted">{count ?? 0} utilizatori</p>
+        <p className="muted">{count ?? 0}<T>{" utilizatori"}</T></p>
         <form>
           <Input
             name="q"
@@ -97,16 +98,16 @@ export default async function Team({
             placeholder="Caută după nume"
             defaultValue={q}
           />
-          <Button variant="outline">Caută</Button>
+          <Button variant="outline"><T>{"Caută"}</T></Button>
         </form>
       </div>
       {can(permissions, "members.manage") && <TeamInvitations cid={clinicId}/>}
       <Table>
         <thead>
           <tr>
-            <th>Utilizator</th>
-            <th>Rol</th>
-            <th>Acces</th>
+            <th><T>{"Utilizator"}</T></th>
+            <th><T>{"Rol"}</T></th>
+            <th><T>{"Acces"}</T></th>
           </tr>
         </thead>
         <tbody>
@@ -118,16 +119,14 @@ export default async function Team({
               <td>{m.role}</td>
               <td>
                 <span className={`status ${m.active ? "" : "inactive"}`}>
-                  {m.active ? "Activ" : "Revocat"}
+                  <T>{m.active ? "Activ" : "Revocat"}</T>
                 </span>
               </td>
             </tr>
           ))}
           {!members.length && (
             <tr>
-              <td colSpan={3} className="table-empty">
-                Nu există utilizatori pentru criteriile selectate.
-              </td>
+              <td colSpan={3} className="table-empty"><T>{"Nu există utilizatori pentru criteriile selectate."}</T></td>
             </tr>
           )}
         </tbody>
@@ -137,9 +136,7 @@ export default async function Team({
           <Link
             className="text-link"
             href={`?page=${page - 1}&q=${encodeURIComponent(q)}`}
-          >
-            Pagina anterioară
-          </Link>
+          ><T>{"Pagina anterioară"}</T></Link>
         ) : (
           <span />
         )}
@@ -147,15 +144,10 @@ export default async function Team({
           <Link
             className="text-link"
             href={`?page=${page + 1}&q=${encodeURIComponent(q)}`}
-          >
-            Pagina următoare
-          </Link>
+          ><T>{"Pagina următoare"}</T></Link>
         )}
       </div>
-      <p className="note">
-        Rolurile sunt acordate în cadrul clinicii. Administratorii nu pot
-        atribui rolul OWNER sau modifica accesul unui proprietar.
-      </p>
+      <p className="note"><T>{"Rolurile sunt acordate în cadrul clinicii. Administratorii nu pot atribui rolul OWNER sau modifica accesul unui proprietar."}</T></p>
     </>
   );
 }

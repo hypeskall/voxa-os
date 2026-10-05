@@ -11,6 +11,7 @@ export default defineConfig({
   use: {
     baseURL: config.origin,
     headless: true,
+    locale: "ro-RO",
     channel: process.platform === "win32" ? "msedge" : "chromium",
     // Auth links, credentials and patient content must not be retained in traces.
     trace: "off",

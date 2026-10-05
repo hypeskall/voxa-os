@@ -1,3 +1,4 @@
+import { T } from "@/components/locale-provider";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
@@ -107,9 +108,7 @@ export default async function CoreRegistry({
       />
       {moduleKey === "services" && (
         <div className="mb-5">
-          <Link className="text-link" href={`/clinics/${clinicId}/categories`}>
-            Gestionează categoriile de servicii
-          </Link>
+          <Link className="text-link" href={`/clinics/${clinicId}/categories`}><T>{"Gestionează categoriile de servicii"}</T></Link>
         </div>
       )}
       {moduleKey === "doctors" || moduleKey === "services" ? (

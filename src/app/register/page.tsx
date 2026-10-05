@@ -1,3 +1,4 @@
+import { T } from "@/components/locale-provider";
 import { AccountPage } from "@/features/auth/account-page";
 import { safeAuthDestination } from "@/features/auth/account-model";
 import { db } from "@/lib/supabase/server";
@@ -9,7 +10,7 @@ export default async function Register({ searchParams }: { searchParams: Promise
   if (hasSupabaseConfig()) {
     const client = await db();
     const { data: { user } } = await client.auth.getUser();
-    if (user) return <main className="auth-page"><div className="auth-main"><div className="auth-box"><h1>Creează contul</h1><SessionNotice destination="/register" next={safeAuthDestination(search.next ?? "/")}/></div></div></main>;
+    if (user) return <main className="auth-page"><div className="auth-main"><div className="auth-box"><h1><T>{"Creează contul"}</T></h1><SessionNotice destination="/register" next={safeAuthDestination(search.next ?? "/")}/></div></div></main>;
   }
   return <AccountPage mode="register" next={safeAuthDestination(search.next ?? "/")}/>;
 }

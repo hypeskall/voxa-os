@@ -1,3 +1,4 @@
+import { T, LocalizedElement, LocaleMessage } from "@/components/locale-provider";
 import Link from "next/link";
 import { can, type Permission } from "@/lib/permissions";
 import { requireClinic } from "@/features/auth/access";
@@ -89,8 +90,7 @@ export async function CoreDetail({
   const visibleFieldKeys = fieldGroups[activeTab];
   return (
     <>
-      <Link className="text-link" href={module === "rooms" || module === "equipment" ? `/clinics/${cid}/resources?tab=${module}` : module === "availability" || module === "exceptions" ? `/clinics/${cid}/availability?tab=${module === "exceptions" ? "exceptions" : "clinic"}` : `/clinics/${cid}/${module}`}>
-        Înapoi la {spec.title.toLocaleLowerCase("ro")}
+      <Link className="text-link" href={module === "rooms" || module === "equipment" ? `/clinics/${cid}/resources?tab=${module}` : module === "availability" || module === "exceptions" ? `/clinics/${cid}/availability?tab=${module === "exceptions" ? "exceptions" : "clinic"}` : `/clinics/${cid}/${module}`}><T>{"Înapoi la "}</T><T>{spec.title}</T>
       </Link>
       <div className="mt-6">
         <PageHeading
@@ -104,7 +104,7 @@ export async function CoreDetail({
                 drawer
                 title={`Editează ${spec.singular.toLocaleLowerCase("ro")}`}
                 description="Modificările sunt verificate și salvate pe server."
-                trigger={<Button>Editează</Button>}
+                trigger={<Button><T>{"Editează"}</T></Button>}
               >
                 <CoreEditor
                   cid={cid}
@@ -119,7 +119,7 @@ export async function CoreDetail({
         />
       </div>
       {tabs.length > 0 && (
-        <nav className="profile-tabs" aria-label={module === "patients" ? "Secțiuni profil pacient" : "Secțiuni configurare"}>
+        <LocalizedElement as="nav" className="profile-tabs" aria-label={module === "patients" ? "Secțiuni profil pacient" : "Secțiuni configurare"}>
           {tabs.filter(([key]) => module !== "patients" || !tabPermissions[key] || can(permissions, tabPermissions[key])).map(([key, label]) => (
             <Link
               key={key}
@@ -127,14 +127,14 @@ export async function CoreDetail({
               className={activeTab === key ? "selected" : ""}
               href={`?tab=${key}`}
             >
-              {label}
+              <T>{label}</T>
             </Link>
           ))}
-        </nav>
+        </LocalizedElement>
       )}
       {deniedTab ? (
         <Section title={tabs.find(([key]) => key === activeTab)?.[1] ?? "Acces restricționat"}>
-          <p className="muted">Rolul dumneavoastră nu permite accesul la această secțiune.</p>
+          <p className="muted"><T>{"Rolul dumneavoastră nu permite accesul la această secțiune."}</T></p>
         </Section>
       ) : module !== "patients" || activeTab === "overview" ? (
         <>
@@ -182,7 +182,7 @@ export async function CoreDetail({
                         : ""
                     }
                   >
-                    <dt>{field.label}</dt>
+                    <dt><T>{field.label}</T></dt>
                     <dd>{text || "Necompletat"}</dd>
                   </div>
                 );
@@ -196,14 +196,10 @@ export async function CoreDetail({
             >
               <div className="flex flex-wrap gap-4">
                 <Button variant="outline" asChild>
-                  <Link href={`/clinics/${cid}/availability?tab=${resourceKind === "doctor" ? "doctors" : "clinic"}${resourceKind === "doctor" ? `&doctor=${id}` : ""}`}>
-                    Vezi programul de lucru
-                  </Link>
+                  <Link href={`/clinics/${cid}/availability?tab=${resourceKind === "doctor" ? "doctors" : "clinic"}${resourceKind === "doctor" ? `&doctor=${id}` : ""}`}><T>{"Vezi programul de lucru"}</T></Link>
                 </Button>
                 <Button variant="outline" asChild>
-                  <Link href={`/clinics/${cid}/availability?tab=exceptions&resource=${id}&kind=${resourceKind}`}>
-                    Blocări și excepții
-                  </Link>
+                  <Link href={`/clinics/${cid}/availability?tab=exceptions&resource=${id}&kind=${resourceKind}`}><T>{"Blocări și excepții"}</T></Link>
                 </Button>
               </div>
             </Section>
@@ -219,15 +215,15 @@ export async function CoreDetail({
             >
               {manage && <div className="mb-5"><CoreCreatePanel cid={cid} module={scheduleModule} options={scheduleOptions} timeZone={clinic.timezone} label={scheduleModule === "availability" ? "Adaugă interval" : "Adaugă indisponibilitate"} preset={{ kind: "doctor", id }} /></div>}
               <Table>
-                <thead><tr><th>Denumire</th><th>{scheduleModule === "availability" ? "Zi / interval" : "Perioadă"}</th><th>Tip</th><th></th></tr></thead>
+                <thead><tr><th><T>{"Denumire"}</T></th><th><T>{scheduleModule === "availability" ? "Zi / interval" : "Perioadă"}</T></th><th><T>{"Tip"}</T></th><th></th></tr></thead>
                 <tbody>
                   {scheduleRows.items.map((item) => <tr key={item.id}>
                     <td><strong>{item.name}</strong></td>
-                    <td>{scheduleModule === "availability" ? `${["", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă", "Duminică"][Number(item.weekday)]} · ${valueText(item, "start_time").slice(0, 5)}–${valueText(item, "end_time").slice(0, 5)}` : `${formatInTimeZone(valueText(item, "starts_at"), clinic.timezone)} – ${formatInTimeZone(valueText(item, "ends_at"), clinic.timezone)}`}</td>
+                    <td><T>{scheduleModule === "availability" ? <LocaleMessage template={"{0} · {1}–{2}"} values={[["", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă", "Duminică"][Number(item.weekday)],valueText(item, "start_time").slice(0, 5),valueText(item, "end_time").slice(0, 5)]} /> : <LocaleMessage template={"{0} – {1}"} values={[formatInTimeZone(valueText(item, "starts_at"), clinic.timezone),formatInTimeZone(valueText(item, "ends_at"), clinic.timezone)]} />}</T></td>
                     <td>{moduleSpecs[scheduleModule].fields.find(field => field.key === (scheduleModule === "availability" ? "interval_kind" : "exception_kind"))?.options?.find(([key]) => key === valueText(item, scheduleModule === "availability" ? "interval_kind" : "exception_kind"))?.[1] ?? "Necompletat"}</td>
-                    <td><Link className="text-link" href={`/clinics/${cid}/${scheduleModule}/${item.id}`}>Editează</Link></td>
+                    <td><Link className="text-link" href={`/clinics/${cid}/${scheduleModule}/${item.id}`}><T>{"Editează"}</T></Link></td>
                   </tr>)}
-                  {!scheduleRows.items.length && <tr><td colSpan={4} className="table-empty">Nu există intervale configurate.</td></tr>}
+                  {!scheduleRows.items.length && <tr><td colSpan={4} className="table-empty"><T>{"Nu există intervale configurate."}</T></td></tr>}
                 </tbody>
               </Table>
             </Section>
@@ -249,9 +245,9 @@ export async function CoreDetail({
           <Table>
             <thead>
               <tr>
-                <th>Dată și oră</th>
-                <th>Acțiune</th>
-                <th>Câmpuri modificate</th>
+                <th><T>{"Dată și oră"}</T></th>
+                <th><T>{"Acțiune"}</T></th>
+                <th><T>{"Câmpuri modificate"}</T></th>
               </tr>
             </thead>
             <tbody>
@@ -266,7 +262,7 @@ export async function CoreDetail({
                     }[h.action] ?? h.action}
                   </td>
                   <td>
-                    {Array.isArray(h.metadata.fields)
+                    <T>{Array.isArray(h.metadata.fields)
                       ? h.metadata.fields
                           .map(
                             (k) =>
@@ -279,15 +275,13 @@ export async function CoreDetail({
                           )
                           .filter(Boolean)
                           .join(", ")
-                      : "—"}
+                      : "—"}</T>
                   </td>
                 </tr>
               ))}
               {!history.length && (
                 <tr>
-                  <td colSpan={3} className="table-empty">
-                    Nu există evenimente înregistrate.
-                  </td>
+                  <td colSpan={3} className="table-empty"><T>{"Nu există evenimente înregistrate."}</T></td>
                 </tr>
               )}
             </tbody>
@@ -296,10 +290,7 @@ export async function CoreDetail({
       ) : (
         <section className="empty-module">
           <h2>{tabs.find(([key]) => key === activeTab)?.[1]}</h2>
-          <p className="muted">
-            Acest modul nu este încă activ. Aici vor apărea înregistrările reale
-            ale pacientului după implementarea etapei corespunzătoare.
-          </p>
+          <p className="muted"><T>{"Acest modul nu este încă activ. Aici vor apărea înregistrările reale ale pacientului după implementarea etapei corespunzătoare."}</T></p>
         </section>
       )}
       {manage && (
@@ -324,7 +315,7 @@ export async function CoreDetail({
             }
             trigger={
               <Button variant="outline">
-                {row.archived_at ? "Restaurează" : "Arhivează"}
+                <T>{row.archived_at ? "Restaurează" : "Arhivează"}</T>
               </Button>
             }
           >
@@ -340,9 +331,7 @@ export async function CoreDetail({
                 row.archived_at ? "Confirmă restaurarea" : "Confirmă arhivarea"
               }
             >
-              <p className="muted">
-                Operația se aplică acestei clinici.
-              </p>
+              <p className="muted"><T>{"Operația se aplică acestei clinici."}</T></p>
             </ActionForm>
           </Panel>
         </Section>

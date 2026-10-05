@@ -1,3 +1,4 @@
+import { T } from "@/components/locale-provider";
 import { redirect } from "next/navigation";
 import { workspace, requireUser } from "@/features/auth/access";
 import { createOrganization } from "@/features/settings/actions";
@@ -29,7 +30,7 @@ export default async function Onboarding({ searchParams }: { searchParams: Promi
     if (!first) throw new Error("Locația inițială nu este disponibilă.");
     const parsed = draftSchema.safeParse(saved.payload);
     const initial: OnboardingDraft = parsed.success ? parsed.data : { clinic: { name: organization.name, legal_name: "", cui: "", phone: "", email: "", website: "", specialty: "" }, locations: [{ id: first.id, name: first.name, address: first.address, phone: first.phone, email: first.email, city: "", county: "", hours: defaultHours() }], services: [], doctors: [], rooms: [], team: [] };
-    return <main className="setup-page"><header className="setup-header"><span className="brand">VOXA</span><form action={logout}><Button variant="ghost">Deconectare</Button></form></header><SetupWizard organizationId={organization.id} initial={initial} initialStep={saved.step} initialRevision={saved.revision}/><details className="setup-logo"><summary>Logo clinică (opțional)</summary><ActionForm action={uploadOrganizationLogo.bind(null, organization.id)} submit="Încarcă logo-ul"><Field label="Imagine logo" hint="PNG, JPEG sau WebP, maximum 3 MB."><Input name="file" type="file" required accept="image/png,image/jpeg,image/webp"/></Field></ActionForm>{organization.logo_path && <p className="muted">Logo-ul clinicii este salvat.</p>}</details></main>;
+    return <main className="setup-page"><header className="setup-header"><span className="brand"><T>{"VOXA"}</T></span><form action={logout}><Button variant="ghost"><T>{"Deconectare"}</T></Button></form></header><SetupWizard organizationId={organization.id} initial={initial} initialStep={saved.step} initialRevision={saved.revision}/><details className="setup-logo"><summary><T>{"Logo clinică (opțional)"}</T></summary><ActionForm action={uploadOrganizationLogo.bind(null, organization.id)} submit="Încarcă logo-ul"><Field label="Imagine logo" hint="PNG, JPEG sau WebP, maximum 3 MB."><Input name="file" type="file" required accept="image/png,image/jpeg,image/webp"/></Field></ActionForm>{organization.logo_path && <p className="muted"><T>{"Logo-ul clinicii este salvat."}</T></p>}</details></main>;
   }
   const { client, user } = await requireUser();
   const { count, error } = await client
@@ -39,19 +40,16 @@ export default async function Onboarding({ searchParams }: { searchParams: Promi
   if (error) throw new Error("Accesul nu a putut fi verificat.");
   return (
     <main className="standalone">
-      <p className="eyebrow">VOXA</p>
+      <p className="eyebrow"><T>{"VOXA"}</T></p>
       <h1>
-        {count || memberships.length
+        <T>{count || memberships.length
           ? "Accesul la locație nu este activ"
-          : "Configurarea organizației"}
+          : "Configurarea organizației"}</T>
       </h1>
-      <p className="muted">
-        Dacă faceți parte dintr-o clinică existentă, solicitați
-        administratorului atribuirea accesului.
-      </p>
+      <p className="muted"><T>{"Dacă faceți parte dintr-o clinică existentă, solicitați administratorului atribuirea accesului."}</T></p>
       {!count && !memberships.length && (
         <section className="surface">
-          <h2>Organizație nouă</h2>
+          <h2><T>{"Organizație nouă"}</T></h2>
           <ActionForm
             action={createOrganization}
             submit="Creează spațiul de lucru"
@@ -66,7 +64,7 @@ export default async function Onboarding({ searchParams }: { searchParams: Promi
         </section>
       )}
       <form action={logout} className="mt-6">
-        <Button variant="outline">Deconectare</Button>
+        <Button variant="outline"><T>{"Deconectare"}</T></Button>
       </form>
     </main>
   );

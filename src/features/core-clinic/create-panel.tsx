@@ -1,4 +1,5 @@
 "use client";
+import { T } from "@/components/locale-provider";
 
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,7 +33,7 @@ export function CoreCreatePanel({
       trigger={
         <Button variant={variant}>
           <Plus size={16} />
-          {label ?? `Adaugă ${spec.singular.toLocaleLowerCase("ro-RO")}`}
+          <T>{label ?? `Adaugă ${spec.singular.toLocaleLowerCase("ro-RO")}`}</T>
         </Button>
       }
     >

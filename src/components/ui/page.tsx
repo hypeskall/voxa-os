@@ -1,3 +1,4 @@
+import { T } from "@/components/locale-provider";
 export function PageHeading({
   eyebrow,
   title,
@@ -12,9 +13,9 @@ export function PageHeading({
   return (
     <header className="page-heading">
       <div>
-        <p className="eyebrow">{eyebrow}</p>
-        <h1>{title}</h1>
-        <p className="muted">{description}</p>
+        <p className="eyebrow"><T>{eyebrow}</T></p>
+        <h1><T>{title}</T></h1>
+        <p className="muted"><T>{description}</T></p>
       </div>
       {action}
     </header>

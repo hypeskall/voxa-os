@@ -1,3 +1,4 @@
+import { T, LocalizedElement } from "@/components/locale-provider";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -20,6 +21,7 @@ import { MarketingFooter } from "./marketing-footer";
 import { MarketingMotion } from "./marketing-motion";
 import { WorkspaceShowcase } from "./workspace-showcase";
 import { ProductShowcase } from "./product-showcase";
+import { PlanPicker } from "@/features/subscriptions/plan-picker";
 import { MONTHLY_PRICE } from "@/features/subscriptions/model";
 import { productMedia, type ProductMediaKey } from "./product-media";
 
@@ -38,7 +40,7 @@ const faqs = [
   ],
   [
     "Cum activez abonamentul?",
-    "Abonamentul este de 19,99 EUR pe lună. Proprietarul îl activează din pagina Abonament, prin plata online securizată cu Stripe sau cu o licență primită de la echipa Voxa-OS. Perioada de testare nu se transformă automat într-un abonament cu plată. Abonamentul plătit online se reînnoiește lunar și poate fi anulat din cont.",
+    "Abonamentul este de 19,99 EUR pe lună sau 149,99 EUR pe an (economisești 37,5%). Proprietarul îl activează din pagina Abonament, prin plata online securizată cu Stripe sau cu o licență primită de la echipa Voxa-OS. Perioada de testare nu se transformă automat într-un abonament cu plată. Abonamentul plătit online se reînnoiește în funcție de perioada aleasă și poate fi anulat din cont.",
   ],
   [
     "Este nevoie de instalare?",
@@ -114,9 +116,7 @@ export function LandingPage({
   const cta = authenticated ? "Deschide platforma" : "Începe testarea gratuită";
   return (
     <div className="marketing-page">
-      <a className="skip-link" href="#marketing-main">
-        Sari la conținut
-      </a>
+      <a className="skip-link" href="#marketing-main"><T>{"Sari la conținut"}</T></a>
       <MarketingHeader authenticated={authenticated} />
       <MarketingMotion>
         <main id="marketing-main">
@@ -125,53 +125,36 @@ export function LandingPage({
             aria-labelledby="hero-title"
           >
             <div className="hero-copy">
-              <span className="marketing-eyebrow hero-enter">
-                SOFTWARE PENTRU CLINICI
-              </span>
-              <h1 id="hero-title" className="hero-enter">
-                Mai mult control.
-                <br />
-                <span>Mai puțin haos.</span>
+              <span className="marketing-eyebrow hero-enter"><T>{"SOFTWARE PENTRU CLINICI"}</T></span>
+              <h1 id="hero-title" className="hero-enter"><T>{"Mai mult control."}</T><br />
+                <span><T>{"Mai puțin haos."}</T></span>
               </h1>
-              <p className="hero-description hero-enter">
-                Programări, pacienți și echipă, într-un singur spațiu de lucru.
-                Pentru o clinică în care fiecare zi are un plan.
-              </p>
+              <p className="hero-description hero-enter"><T>{"Programări, pacienți și echipă, într-un singur spațiu de lucru. Pentru o clinică în care fiecare zi are un plan."}</T></p>
               <div className="marketing-actions hero-enter">
                 <Link
                   href={destination}
                   className="marketing-button is-primary"
                 >
-                  {cta}
+                  <T>{cta}</T>
                   <ArrowRight size={17} />
                 </Link>
                 <a href="#prezentare" className="marketing-button is-secondary">
-                  <Play size={15} />
-                  Vezi platforma
-                </a>
+                  <Play size={15} /><T>{"Vezi platforma"}</T></a>
               </div>
               <p className="hero-trial hero-enter">
                 <Check size={14} />
-                <span>
-                  30 de zile gratuit <span className="marketing-dot">·</span>{" "}
-                  Apoi {MONTHLY_PRICE} / lună
-                </span>
+                <span><T>{"30 de zile gratuit "}</T><span className="marketing-dot">·</span><T>{" "}</T><T>{"Apoi "}</T>{MONTHLY_PRICE}<T>{" / lună sau 149,99 EUR / an"}</T></span>
               </p>
               <div className="hero-audience hero-enter">
-                <span>GÂNDIT PENTRU</span>
-                <p>
-                  Clinici medicale <span> / </span> Cabinete <span> / </span>{" "}
-                  Centre de investigații
-                </p>
+                <span><T>{"GÂNDIT PENTRU"}</T></span>
+                <p><T>{"Clinici medicale "}</T><span> / </span><T>{" Cabinete "}</T><span> / </span><T>{" "}</T><T>{"Centre de investigații"}</T></p>
               </div>
             </div>
             <figure className="hero-product hero-enter">
               <div className="hero-product-rail">
                 <span>
-                  <i />
-                  Spațiul tău de lucru
-                </span>
-                <span>Voxa-OS</span>
+                  <i /><T>{"Spațiul tău de lucru"}</T></span>
+                <span><T>{"Voxa-OS"}</T></span>
               </div>
               <div className="hero-screen-frame marketing-screen">
                 <Image
@@ -191,35 +174,23 @@ export function LandingPage({
                   height={1000}
                   sizes="(max-width: 760px) 150px, 260px"
                 />
-                <span>
-                  Detaliile, la un click distanță.
-                  <ArrowUpRight size={14} />
+                <span><T>{"Detaliile, la un click distanță."}</T><ArrowUpRight size={14} />
                 </span>
               </div>
-              <figcaption>
-                Interfața reală a platformei. Date demonstrative.
-              </figcaption>
+              <figcaption><T>{"Interfața reală a platformei. Date demonstrative."}</T></figcaption>
             </figure>
           </section>
           <div className="marketing-proof-strip">
             <div className="marketing-container">
-              <span className="proof-intro">
-                Întreaga clinică.
-                <br />
-                <strong>Același ritm de lucru.</strong>
+              <span className="proof-intro"><T>{"Întreaga clinică."}</T><br />
+                <strong><T>{"Același ritm de lucru."}</T></strong>
               </span>
               <span>
-                <CalendarDays size={20} />
-                Programări coordonate
-              </span>
+                <CalendarDays size={20} /><T>{"Programări coordonate"}</T></span>
               <span>
-                <ContactRound size={20} />
-                Evidență centralizată
-              </span>
+                <ContactRound size={20} /><T>{"Evidență centralizată"}</T></span>
               <span>
-                <ShieldCheck size={20} />
-                Acces pe roluri
-              </span>
+                <ShieldCheck size={20} /><T>{"Acces pe roluri"}</T></span>
             </div>
           </div>
 
@@ -230,36 +201,18 @@ export function LandingPage({
           >
             <div className="marketing-section-heading" data-reveal>
               <div>
-                <span className="marketing-eyebrow">
-                  MAI PUȚINĂ FRAGMENTARE
-                </span>
-                <h2 id="capabilities-title">
-                  Tot ce ține clinica
-                  <br />
-                  în mișcare.
-                </h2>
+                <span className="marketing-eyebrow"><T>{"MAI PUȚINĂ FRAGMENTARE"}</T></span>
+                <h2 id="capabilities-title"><T>{"Tot ce ține clinica"}</T><br /><T>{"în mișcare."}</T></h2>
               </div>
-              <p>
-                Instrumentele de zi cu zi, conectate în același loc. De la prima
-                programare la organizarea întregii echipe.
-              </p>
+              <p><T>{"Instrumentele de zi cu zi, conectate în același loc. De la prima programare la organizarea întregii echipe."}</T></p>
             </div>
             <div className="capability-layout" data-reveal>
               <article className="capability-main">
-                <span className="capability-index">FUNCȚIA CENTRALĂ / 01</span>
+                <span className="capability-index"><T>{"FUNCȚIA CENTRALĂ / 01"}</T></span>
                 <CalendarDays size={28} strokeWidth={1.3} />
-                <h3>
-                  Un calendar.
-                  <br />
-                  Toată echipa.
-                </h3>
-                <p>
-                  Programări, disponibilitate și resurse coordonate. Claritate
-                  pentru recepție, context pentru medic.
-                </p>
-                <a href="#calendar" className="marketing-text-link">
-                  Descoperă calendarul
-                  <ArrowUpRight size={17} />
+                <h3><T>{"Un calendar."}</T><br /><T>{"Toată echipa."}</T></h3>
+                <p><T>{"Programări, disponibilitate și resurse coordonate. Claritate pentru recepție, context pentru medic."}</T></p>
+                <a href="#calendar" className="marketing-text-link"><T>{"Descoperă calendarul"}</T><ArrowUpRight size={17} />
                 </a>
                 <div className="capability-calendar">
                   <Image
@@ -279,8 +232,8 @@ export function LandingPage({
                         <Icon size={22} strokeWidth={1.4} />
                         <span>0{index + 2}</span>
                       </div>
-                      <h3>{title}</h3>
-                      <p>{body}</p>
+                      <h3><T>{title}</T></h3>
+                      <p><T>{body}</T></p>
                     </article>
                   ),
                 )}
@@ -296,19 +249,10 @@ export function LandingPage({
             <div className="marketing-container">
               <div className="marketing-section-heading" data-reveal>
                 <div>
-                  <span className="marketing-eyebrow">
-                    PRODUSUL, ÎN DETALIU
-                  </span>
-                  <h2 id="stories-title">
-                    O singură platformă.
-                    <br />
-                    Un flux firesc.
-                  </h2>
+                  <span className="marketing-eyebrow"><T>{"PRODUSUL, ÎN DETALIU"}</T></span>
+                  <h2 id="stories-title"><T>{"O singură platformă."}</T><br /><T>{"Un flux firesc."}</T></h2>
                 </div>
-                <p>
-                  O interfață familiară, construită în jurul modului în care
-                  lucrează o clinică.
-                </p>
+                <p><T>{"O interfață familiară, construită în jurul modului în care lucrează o clinică."}</T></p>
               </div>
               {productStories.map((story, index) => (
                 <article
@@ -319,14 +263,14 @@ export function LandingPage({
                 >
                   <div className="product-story-copy">
                     <span className="marketing-eyebrow">
-                      {story.number} / {story.label}
+                      {story.number} / <T>{story.label}</T>
                     </span>
-                    <h3>{story.title}</h3>
-                    <p>{story.body}</p>
-                    <span className="product-story-detail">{story.detail}</span>
+                    <h3><T>{story.title}</T></h3>
+                    <p><T>{story.body}</T></p>
+                    <span className="product-story-detail"><T>{story.detail}</T></span>
                   </div>
                   <figure className="product-story-visual">
-                    <div
+                    <LocalizedElement as="div"
                       className="marketing-screen"
                       tabIndex={0}
                       role="region"
@@ -339,9 +283,8 @@ export function LandingPage({
                         height={1000}
                         sizes="(max-width: 760px) 720px, (max-width: 1100px) 90vw, 850px"
                       />
-                    </div>
-                    <figcaption>
-                      VOXA-OS <span>/ {story.number}</span>
+                    </LocalizedElement>
+                    <figcaption><T>{"VOXA-OS "}</T><span>/ {story.number}</span>
                     </figcaption>
                   </figure>
                 </article>
@@ -356,14 +299,8 @@ export function LandingPage({
             aria-labelledby="workflow-title"
           >
             <div data-reveal>
-              <span className="marketing-eyebrow">
-                DE LA CONT LA PRIMA PROGRAMARE
-              </span>
-              <h2 id="workflow-title">
-                Un început simplu.
-                <br />
-                Un mod de lucru comun.
-              </h2>
+              <span className="marketing-eyebrow"><T>{"DE LA CONT LA PRIMA PROGRAMARE"}</T></span>
+              <h2 id="workflow-title"><T>{"Un început simplu."}</T><br /><T>{"Un mod de lucru comun."}</T></h2>
             </div>
             <ol data-reveal>
               {[
@@ -383,8 +320,8 @@ export function LandingPage({
                 <li key={title}>
                   <span>0{index + 1}</span>
                   <div>
-                    <h3>{title}</h3>
-                    <p>{body}</p>
+                    <h3><T>{title}</T></h3>
+                    <p><T>{body}</T></p>
                   </div>
                 </li>
               ))}
@@ -399,19 +336,13 @@ export function LandingPage({
             <div className="marketing-container">
               <div className="marketing-section-heading" data-reveal>
                 <div>
-                  <span className="marketing-eyebrow">
-                    VEZI CUM SE LEAGĂ TOTUL
-                  </span>
-                  <h2 id="demo-title">
-                    Dintr-o privire,
-                    <br />
-                    în ritmul clinicii.
-                  </h2>
+                  <span className="marketing-eyebrow"><T>{"VEZI CUM SE LEAGĂ TOTUL"}</T></span>
+                  <h2 id="demo-title"><T>{"Dintr-o privire,"}</T><br /><T>{"în ritmul clinicii."}</T></h2>
                 </div>
                 <p>
-                  {videoSrc
+                  <T>{videoSrc
                     ? "Urmărește prezentarea platformei, în ritmul tău."
-                    : "24 de secunde prin interfața Voxa-OS. De la calendar la pacient și înapoi la activitatea zilei."}
+                    : "24 de secunde prin interfața Voxa-OS. De la calendar la pacient și înapoi la activitatea zilei."}</T>
                 </p>
               </div>
               <div data-reveal>
@@ -426,17 +357,9 @@ export function LandingPage({
             data-reveal
           >
             <div>
-              <span className="marketing-eyebrow">
-                CONTROL, LA FIECARE NIVEL
-              </span>
-              <h2 id="trust-title">
-                Accesul potrivit.
-                <br />
-                În contextul potrivit.
-              </h2>
-              <p>
-                Controale concrete pentru informațiile și activitatea clinicii.
-              </p>
+              <span className="marketing-eyebrow"><T>{"CONTROL, LA FIECARE NIVEL"}</T></span>
+              <h2 id="trust-title"><T>{"Accesul potrivit."}</T><br /><T>{"În contextul potrivit."}</T></h2>
+              <p><T>{"Controale concrete pentru informațiile și activitatea clinicii."}</T></p>
             </div>
             <div className="trust-controls">
               {[
@@ -459,8 +382,8 @@ export function LandingPage({
                 <article key={title}>
                   <Icon size={22} strokeWidth={1.4} />
                   <div>
-                    <h3>{title}</h3>
-                    <p>{body}</p>
+                    <h3><T>{title}</T></h3>
+                    <p><T>{body}</T></p>
                   </div>
                 </article>
               ))}
@@ -475,30 +398,16 @@ export function LandingPage({
             <div className="marketing-container">
               <div className="marketing-section-heading" data-reveal>
                 <div>
-                  <span className="marketing-eyebrow">
-                    PREȚ CLAR, DE LA ÎNCEPUT
-                  </span>
-                  <h2 id="pricing-title">
-                    Un plan.
-                    <br />
-                    Toată clinica.
-                  </h2>
+                  <span className="marketing-eyebrow"><T>{"PREȚ CLAR, DE LA ÎNCEPUT"}</T></span>
+                  <h2 id="pricing-title"><T>{"Un plan."}</T><br /><T>{"Toată clinica."}</T></h2>
                 </div>
-                <p>
-                  30 de zile pentru a vedea dacă Voxa-OS se potrivește clinicii
-                  tale. Fără costuri în perioada de testare.
-                </p>
+                <p><T>{"30 de zile pentru a vedea dacă Voxa-OS se potrivește clinicii tale. Fără costuri în perioada de testare."}</T></p>
               </div>
               <div className="marketing-pricing-panel" data-reveal>
                 <div className="pricing-inclusions">
-                  <span className="marketing-eyebrow">
-                    ABONAMENT PENTRU ORGANIZAȚIE
-                  </span>
-                  <h3>Voxa-OS</h3>
-                  <p>
-                    Spațiul de lucru al clinicii, cu funcționalitățile
-                    conectate.
-                  </p>
+                  <span className="marketing-eyebrow"><T>{"ABONAMENT PENTRU ORGANIZAȚIE"}</T></span>
+                  <h3><T>{"Voxa-OS"}</T></h3>
+                  <p><T>{"Spațiul de lucru al clinicii, cu funcționalitățile conectate."}</T></p>
                   <ul>
                     {[
                       "Calendar și programări",
@@ -508,36 +417,23 @@ export function LandingPage({
                     ].map((item) => (
                       <li key={item}>
                         <Check size={16} />
-                        {item}
+                        <T>{item}</T>
                       </li>
                     ))}
                   </ul>
                 </div>
                 <div className="pricing-decision">
-                  <span className="pricing-trial">
-                    Primele 30 de zile, gratuit.
-                  </span>
-                  <div className="pricing-amount">
-                    <strong>
-                      19,99 <span>EUR</span>
-                    </strong>
-                    <span>/ lună, după perioada gratuită</span>
-                  </div>
+                  <span className="pricing-trial"><T>{"Primele 30 de zile, gratuit."}</T></span>
+                  <PlanPicker />
                   <Link
                     href={destination}
                     className="marketing-button is-primary"
                   >
-                    {cta}
+                    <T>{cta}</T>
                     <ArrowRight size={17} />
                   </Link>
-                  <p>
-                    Fără plată inițială.
-                    <br />
-                    Fără trecere automată la un abonament cu plată.
-                  </p>
-                  <span className="pricing-activation">
-                    Activare prin plata online sau licență, din contul organizației.
-                  </span>
+                  <p><T>{"Fără plată inițială."}</T><br /><T>{"Fără trecere automată la un abonament cu plată."}</T></p>
+                  <span className="pricing-activation"><T>{"Activare prin plata online sau licență, din contul organizației."}</T></span>
                 </div>
               </div>
             </div>
@@ -549,23 +445,19 @@ export function LandingPage({
             aria-labelledby="faq-title"
           >
             <div data-reveal>
-              <span className="marketing-eyebrow">ÎNAINTE SĂ ÎNCEPI</span>
-              <h2 id="faq-title">
-                Câteva răspunsuri.
-                <br />
-                Mai multă claritate.
-              </h2>
-              <p>Detaliile care contează când alegi un nou mod de lucru.</p>
+              <span className="marketing-eyebrow"><T>{"ÎNAINTE SĂ ÎNCEPI"}</T></span>
+              <h2 id="faq-title"><T>{"Câteva răspunsuri."}</T><br /><T>{"Mai multă claritate."}</T></h2>
+              <p><T>{"Detaliile care contează când alegi un nou mod de lucru."}</T></p>
             </div>
             <div className="marketing-faq-list" data-reveal>
               {faqs.map(([question, answer]) => (
                 <details key={question}>
                   <summary>
-                    {question}
+                    <T>{question}</T>
                     <ChevronDown size={18} />
                   </summary>
                   <div className="faq-answer">
-                    <p>{answer}</p>
+                    <p><T>{answer}</T></p>
                   </div>
                 </details>
               ))}
@@ -581,43 +473,33 @@ export function LandingPage({
               data-reveal
             >
               <div>
-                <span className="marketing-eyebrow">
-                  URMĂTOAREA ZI POATE ÎNCEPE ALTFEL.
-                </span>
-                <h2 id="final-title">
-                  Mai multă ordine.
-                  <br />
-                  Mai mult loc pentru pacienți.
-                </h2>
-                <p>
-                  Începe cu 30 de zile în care întreaga echipă poate descoperi
-                  Voxa-OS.
-                </p>
+                <span className="marketing-eyebrow"><T>{"URMĂTOAREA ZI POATE ÎNCEPE ALTFEL."}</T></span>
+                <h2 id="final-title"><T>{"Mai multă ordine."}</T><br /><T>{"Mai mult loc pentru pacienți."}</T></h2>
+                <p><T>{"Începe cu 30 de zile în care întreaga echipă poate descoperi Voxa-OS."}</T></p>
                 <div className="marketing-actions">
                   <Link
                     href={destination}
                     className="marketing-button is-light"
                   >
-                    {cta}
+                    <T>{cta}</T>
                     <ArrowRight size={17} />
                   </Link>
                   <Link
                     href={authenticated ? "/dashboard" : "/login"}
                     className="marketing-final-login"
                   >
-                    {authenticated
+                    <T>{authenticated
                       ? "Platforma mea"
-                      : "Ai deja cont? Autentificare"}
+                      : "Ai deja cont? Autentificare"}</T>
                     <ArrowUpRight size={16} />
                   </Link>
                 </div>
               </div>
               <div className="final-product-signature" aria-hidden="true">
-                <span className="signature-mark">V</span>
-                <span>
-                  VOXA<span>-OS</span>
+                <span className="signature-mark"><T>{"V"}</T></span>
+                <span><T>{"VOXA"}</T><span><T>{"-OS"}</T></span>
                 </span>
-                <small>UN SPAȚIU DE LUCRU COMUN.</small>
+                <small><T>{"UN SPAȚIU DE LUCRU COMUN."}</T></small>
               </div>
             </div>
           </section>

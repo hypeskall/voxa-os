@@ -1,3 +1,4 @@
+import { T } from "@/components/locale-provider";
 import Link from "next/link";
 import { logout } from "@/features/auth/actions";
 import { requireOrganization } from "@/features/organizations/access";
@@ -16,13 +17,12 @@ export default async function OrganizationLayout({
     <div className="billing-shell">
       <header className="billing-topbar">
         <Link className="brand" href="/">
-          <span className="brand-mark">V</span>
-          <span>
-            VOXA<span className="marketing-os">-OS</span>
+          <span className="brand-mark"><T>{"V"}</T></span>
+          <span><T>{"VOXA"}</T><span className="marketing-os"><T>{"-OS"}</T></span>
           </span>
         </Link>
         <form action={logout}>
-          <Button variant="ghost">Deconectare</Button>
+          <Button variant="ghost"><T>{"Deconectare"}</T></Button>
         </form>
       </header>
       <main className="billing-main">{children}</main>

@@ -6,7 +6,7 @@ import {test,expect} from "@playwright/test";
 import {stagingEnv} from "../../scripts/staging-env.mjs";
 import {STRIPE_API_VERSION} from "../../src/features/subscriptions/stripe-model";
 const config=stagingEnv();
-test("sandbox Checkout initiation, verified API payment, portal cancellation and tenant boundaries",async({page,context,request})=>{
+test("annual sandbox Checkout, verified API payment, portal cancellation and tenant boundaries",async({page,context,request})=>{
  test.setTimeout(240000);
  const fixture=JSON.parse(fs.readFileSync(".staging-deploy/stripe-fixture.local.json","utf8"));
  const headers={"x-vercel-protection-bypass":config.env.STRIPE_STAGING_BYPASS_SECRET};
@@ -25,6 +25,7 @@ test("sandbox Checkout initiation, verified API payment, portal cancellation and
  await page.goto(billingPath+"?checkout=received");
  const before=await admin.from("organization_subscriptions").select("status,entitlement_source").eq("organization_id",fixture.organizationId).single();
  expect(before.data?.status).not.toBe("active");
+ await page.getByRole("radio", { name: /Anual/ }).check();
  await page.getByRole("checkbox",{name:/Confirm reînnoirea/}).check();
  await page.getByRole("button",{name:"Continuă la plata de test"}).click();
  await expect(page).toHaveURL(/^https:\/\/checkout.stripe.com\//,{timeout:30000});
@@ -33,19 +34,25 @@ test("sandbox Checkout initiation, verified API payment, portal cancellation and
  // to exercise real invoice/subscription webhooks independently of card entry.
  const pending=await admin.from("organization_stripe_billing").select("customer_id,checkout_id").eq("organization_id",fixture.organizationId).single();
  expect(pending.error).toBeNull();
- const checkout=await stripe.checkout.sessions.retrieve(pending.data!.checkout_id);
+ const checkout=await stripe.checkout.sessions.retrieve(pending.data!.checkout_id, { expand: ["line_items"] });
  expect(checkout.livemode).toBe(false);expect(checkout.mode).toBe("subscription");
+ expect(checkout.line_items?.data[0].price?.id).toBe(config.env.STRIPE_ANNUAL_PRICE_ID);
+ expect(checkout.line_items?.data[0].amount_total).toBe(14999);
  expect(checkout.subscription).toBeNull();
  await stripe.checkout.sessions.expire(checkout.id);
  const method=await stripe.paymentMethods.attach("pm_card_visa",{customer:pending.data!.customer_id});
  const subscription=await stripe.subscriptions.create({customer:pending.data!.customer_id,
-   default_payment_method:method.id,items:[{price:config.env.STRIPE_PRICE_ID,quantity:1}],
+   default_payment_method:method.id,items:[{price:config.env.STRIPE_ANNUAL_PRICE_ID,quantity:1}],
    billing_mode:{type:"flexible"},automatic_tax:{enabled:false},
    metadata:{app:"voxa-os",organization_id:fixture.organizationId}},
    {idempotencyKey:"voxa-sandbox-fixture-"+checkout.id});
  expect(subscription.livemode).toBe(false);expect(subscription.status).toBe("active");
  await page.goto(billingPath);
  await expect.poll(async()=>{const r=await admin.from("organization_subscriptions").select("status").eq("organization_id",fixture.organizationId).single();return r.data?.status;},{timeout:60000}).toBe("active");
+ const annualAccess=await admin.from("organization_subscriptions").select("plan,billing_cycle,current_period_start,current_period_end").eq("organization_id",fixture.organizationId).single();
+ expect(annualAccess.data?.plan).toBe("voxa_os_annual");
+ expect(annualAccess.data?.billing_cycle).toBe("annual");
+ expect(Date.parse(annualAccess.data!.current_period_end)-Date.parse(annualAccess.data!.current_period_start)).toBeGreaterThan(360*86400000);
  const billing=await admin.from("organization_stripe_billing").select("customer_id,subscription_id").eq("organization_id",fixture.organizationId).single();
  expect(billing.error).toBeNull();expect(billing.data?.subscription_id).toBeTruthy();
  fixture.customerId=billing.data!.customer_id;fixture.subscriptionId=billing.data!.subscription_id;
@@ -75,7 +82,7 @@ test("sandbox Checkout initiation, verified API payment, portal cancellation and
  await owner.auth.signOut({scope:"local"});
  await stripe.subscriptions.cancel(fixture.subscriptionId);
  await expect.poll(async()=>{const r=await admin.from("organization_subscriptions").select("status").eq("organization_id",fixture.organizationId).single();return r.data?.status;},{timeout:60000}).toBe("canceled");
- fs.writeFileSync(".staging-deploy/stripe-checkout.receipt.json",JSON.stringify({verifiedAt:new Date().toISOString(),ref:config.ref,organizationId:fixture.organizationId,checkoutInitiated:true,cardEntryVerified:false,cardEntryLimitation:"Stripe anti-automation CAPTCHA",paymentViaOfficialSandboxApi:true,paidWebhook:true,portal:true,cancelAtPeriodEnd:true,tenantIsolation:true,invalidSignatureRejected:true}));
+ fs.writeFileSync(".staging-deploy/stripe-checkout.receipt.json",JSON.stringify({verifiedAt:new Date().toISOString(),ref:config.ref,organizationId:fixture.organizationId,billingCycle:"annual",amount:14999,checkoutInitiated:true,cardEntryVerified:false,cardEntryLimitation:"Stripe anti-automation CAPTCHA",paymentViaOfficialSandboxApi:true,paidWebhook:true,portal:true,cancelAtPeriodEnd:true,tenantIsolation:true,invalidSignatureRejected:true}));
  console.log("PASS: hosted Checkout initiation, official sandbox payment, signed paid webhook, portal, cancellation, duplicate/out-of-order replay and tenant isolation; synthetic subscription canceled after verification.");
 });
 

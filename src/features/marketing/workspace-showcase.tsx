@@ -1,4 +1,5 @@
 "use client";
+import { T, LocalizedElement } from "@/components/locale-provider";
 
 import Image from "next/image";
 import { useState } from "react";
@@ -32,12 +33,10 @@ export function WorkspaceShowcase() {
   return (
     <div className="workspace-showcase" data-reveal>
       <div className="workspace-copy">
-        <span className="marketing-eyebrow">
-          04 / CONFIGURARE ȘI ADMINISTRARE
-        </span>
-        <h3>{view.heading}</h3>
-        <p>{view.body}</p>
-        <div
+        <span className="marketing-eyebrow"><T>{"04 / CONFIGURARE ȘI ADMINISTRARE"}</T></span>
+        <h3><T>{view.heading}</T></h3>
+        <p><T>{view.body}</T></p>
+        <LocalizedElement as="div"
           className="workspace-tabs"
           role="tablist"
           aria-label="Configurarea clinicii"
@@ -72,11 +71,11 @@ export function WorkspaceShowcase() {
                 document.getElementById(`workspace-tab-${next}`)?.focus();
               }}
             >
-              <span>{item.title}</span>
+              <span><T>{item.title}</T></span>
               <ArrowUpRight size={18} />
             </button>
           ))}
-        </div>
+        </LocalizedElement>
       </div>
       <div
         className="marketing-screen workspace-screen"

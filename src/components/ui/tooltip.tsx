@@ -1,4 +1,5 @@
 "use client";
+import { T } from "@/components/locale-provider";
 import * as Tooltip from "@radix-ui/react-tooltip";
 export function Hint({
   text,
@@ -13,7 +14,7 @@ export function Hint({
         <Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
         <Tooltip.Portal>
           <Tooltip.Content className="tooltip" sideOffset={6}>
-            {text}
+            <T>{text}</T>
           </Tooltip.Content>
         </Tooltip.Portal>
       </Tooltip.Root>

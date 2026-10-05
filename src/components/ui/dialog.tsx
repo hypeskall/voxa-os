@@ -1,4 +1,5 @@
 "use client";
+import { T } from "@/components/locale-provider";
 import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { Button } from "./button";
@@ -27,9 +28,9 @@ export function Panel({
         <Dialog.Content
           className={drawer ? "dialog-content drawer" : "dialog-content"}
         >
-          <Dialog.Title className="dialog-title">{title}</Dialog.Title>
+          <Dialog.Title className="dialog-title"><T>{title}</T></Dialog.Title>
           <Dialog.Description className="muted">
-            {description}
+            <T>{description}</T>
           </Dialog.Description>
           <Dialog.Close asChild>
             <Button

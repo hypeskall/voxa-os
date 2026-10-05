@@ -1,3 +1,4 @@
+import { T, LocalizedElement, LocaleMessage } from "@/components/locale-provider";
 import Link from "next/link";
 import { z } from "zod";
 import { CalendarClock, CalendarOff, Stethoscope } from "lucide-react";
@@ -59,25 +60,25 @@ export default async function AvailabilityPage({
         description="Programul clinicii, intervalele medicilor și indisponibilitățile care limitează programarea."
         action={tab === "exceptions" && manage ? <CoreCreatePanel cid={clinicId} module="exceptions" options={exceptionOptions} timeZone={context.clinic.timezone} label="Adaugă indisponibilitate" /> : undefined}
       />
-      <nav className="module-tabs" aria-label="Secțiuni disponibilitate">
-        <Link href="?tab=clinic" className={tab === "clinic" ? "selected" : ""}><CalendarClock size={16}/>Program clinică</Link>
-        <Link href={`?tab=doctors${selectedDoctor ? `&doctor=${selectedDoctor}` : ""}`} className={tab === "doctors" ? "selected" : ""}><Stethoscope size={16}/>Program medici</Link>
-        <Link href="?tab=exceptions" className={tab === "exceptions" ? "selected" : ""}><CalendarOff size={16}/>Indisponibilități</Link>
-      </nav>
+      <LocalizedElement as="nav" className="module-tabs" aria-label="Secțiuni disponibilitate">
+        <Link href="?tab=clinic" className={tab === "clinic" ? "selected" : ""}><CalendarClock size={16}/><T>{"Program clinică"}</T></Link>
+        <Link href={`?tab=doctors${selectedDoctor ? `&doctor=${selectedDoctor}` : ""}`} className={tab === "doctors" ? "selected" : ""}><Stethoscope size={16}/><T>{"Program medici"}</T></Link>
+        <Link href="?tab=exceptions" className={tab === "exceptions" ? "selected" : ""}><CalendarOff size={16}/><T>{"Indisponibilități"}</T></Link>
+      </LocalizedElement>
 
       {tab === "clinic" && (
         <Section title="Program general" description="Acest program este folosit de motorul de disponibilitate pentru toate rezervările.">
           <div className="weekly-schedule">
             {days.map((day, index) => {
               const rule = ruleFor(clinicRules, index + 1);
-              return <div key={day}><span>{day}</span>{rule ? <strong>{normalizedTime(valueText(rule,"start_time"),"08:00")} – {normalizedTime(valueText(rule,"end_time"),"20:00")}</strong> : <strong className="closed">Închis</strong>}</div>;
+              return <div key={day}><span>{day}</span>{rule ? <strong>{normalizedTime(valueText(rule,"start_time"),"08:00")} – {normalizedTime(valueText(rule,"end_time"),"20:00")}</strong> : <strong className="closed"><T>{"Închis"}</T></strong>}</div>;
             })}
           </div>
           {manage && (
             <Panel
               title="Modifică programul clinicii"
               description="Intervalele sunt salvate atomic și se aplică imediat disponibilității."
-              trigger={<Button variant="outline">Modifică programul</Button>}
+              trigger={<Button variant="outline"><T>{"Modifică programul"}</T></Button>}
             >
               <ActionForm action={saveClinicScheduleAction.bind(null, clinicId)} submit="Salvează programul">
                 <div className="schedule-editor">
@@ -102,19 +103,19 @@ export default async function AvailabilityPage({
           <div className="availability-doctor-picker">
             <form method="get">
               <input type="hidden" name="tab" value="doctors" />
-              <label htmlFor="doctor">Medic</label>
+              <label htmlFor="doctor"><T>{"Medic"}</T></label>
               <Select id="doctor" name="doctor" defaultValue={selectedDoctor ?? ""}>
-                {!doctors.length && <option value="">Nu există medici configurați</option>}
+                {!doctors.length && <option value=""><T>{"Nu există medici configurați"}</T></option>}
                 {doctors.map((doctor) => <option key={doctor.id} value={doctor.id}>{doctor.name}</option>)}
               </Select>
-              <Button type="submit" variant="outline">Afișează programul</Button>
+              <Button type="submit" variant="outline"><T>{"Afișează programul"}</T></Button>
             </form>
             {selectedDoctor && manage && <CoreCreatePanel cid={clinicId} module="availability" options={availabilityOptions} timeZone={context.clinic.timezone} label="Adaugă interval" preset={{ kind: "doctor", id: selectedDoctor }} />}
           </div>
           <Section title={doctors.find((doctor) => doctor.id === selectedDoctor)?.name ?? "Program medic"} description="Intervalele săptămânale configurate pentru medicul selectat.">
-            <Table><thead><tr><th>Zi</th><th>Interval</th><th>Tip</th><th>Valabilitate</th><th></th></tr></thead><tbody>
-              {doctorList.items.map((row) => <tr key={row.id}><td>{days[Number(row.weekday)-1]}</td><td><strong>{valueText(row,"start_time").slice(0,5)} – {valueText(row,"end_time").slice(0,5)}</strong></td><td>{row.interval_kind === "break" ? "Pauză" : "Lucru"}</td><td>{valueText(row,"valid_from")}{row.valid_until ? ` – ${valueText(row,"valid_until")}` : ""}</td><td><Link className="text-link" href={`/clinics/${clinicId}/availability/${row.id}`}>Editează</Link></td></tr>)}
-              {!doctorList.items.length && <tr><td colSpan={5}><div className="action-empty"><div><strong>Medicul nu are program configurat.</strong><p>Adăugați primul interval săptămânal.</p></div>{selectedDoctor && manage ? <CoreCreatePanel cid={clinicId} module="availability" options={availabilityOptions} timeZone={context.clinic.timezone} variant="outline" label="Adaugă interval" preset={{ kind: "doctor", id: selectedDoctor }} /> : undefined}</div></td></tr>}
+            <Table><thead><tr><th><T>{"Zi"}</T></th><th><T>{"Interval"}</T></th><th><T>{"Tip"}</T></th><th><T>{"Valabilitate"}</T></th><th></th></tr></thead><tbody>
+              {doctorList.items.map((row) => <tr key={row.id}><td>{days[Number(row.weekday)-1]}</td><td><strong>{valueText(row,"start_time").slice(0,5)} – {valueText(row,"end_time").slice(0,5)}</strong></td><td><T>{row.interval_kind === "break" ? "Pauză" : "Lucru"}</T></td><td>{valueText(row,"valid_from")}<T>{row.valid_until ? <LocaleMessage template={" – {0}"} values={[valueText(row,"valid_until")]} /> : ""}</T></td><td><Link className="text-link" href={`/clinics/${clinicId}/availability/${row.id}`}><T>{"Editează"}</T></Link></td></tr>)}
+              {!doctorList.items.length && <tr><td colSpan={5}><div className="action-empty"><div><strong><T>{"Medicul nu are program configurat."}</T></strong><p><T>{"Adăugați primul interval săptămânal."}</T></p></div>{selectedDoctor && manage ? <CoreCreatePanel cid={clinicId} module="availability" options={availabilityOptions} timeZone={context.clinic.timezone} variant="outline" label="Adaugă interval" preset={{ kind: "doctor", id: selectedDoctor }} /> : undefined}</div></td></tr>}
             </tbody></Table>
           </Section>
         </>
@@ -122,7 +123,7 @@ export default async function AvailabilityPage({
 
       {tab === "exceptions" && (
         <>
-          <div className="resource-context"><div><strong>Blocări operaționale</strong><span>Concedii, mentenanță, cabinet indisponibil sau închidere excepțională.</span></div></div>
+          <div className="resource-context"><div><strong><T>{"Blocări operaționale"}</T></strong><span><T>{"Concedii, mentenanță, cabinet indisponibil sau închidere excepțională."}</T></span></div></div>
           <Registry cid={clinicId} module="exceptions" initial={exceptionList} timeZone={context.clinic.timezone} emptyAction={manage ? <CoreCreatePanel cid={clinicId} module="exceptions" options={exceptionOptions} timeZone={context.clinic.timezone} variant="outline" label="Adaugă prima indisponibilitate" /> : undefined} />
         </>
       )}

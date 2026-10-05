@@ -1,4 +1,5 @@
 "use client";
+import { T } from "@/components/locale-provider";
 import { useActionState, useState } from "react";
 import type { ActionState } from "@/features/auth/actions";
 import { Button } from "./button";
@@ -19,18 +20,18 @@ export function ActionForm({
       <fieldset disabled={pending}>{children}</fieldset>
       {state.error && (
         <p className="message error" role="alert">
-          {state.error}
+          <T>{state.error}</T>
         </p>
       )}
-      {uploadError && <p className="message error" role="alert">{uploadError}</p>}
+      {uploadError && <p className="message error" role="alert"><T>{uploadError}</T></p>}
       {state.success && (
         <p className="message success" role="status">
-          {state.success}
+          <T>{state.success}</T>
         </p>
       )}
-      {state.invitationUrl && <label className="field"><span>Link de invitație · valabil 7 zile</span><input className="input" readOnly value={state.invitationUrl} onFocus={(e) => e.target.select()}/><small>Linkul este destinat colegului indicat. Starea trimiterii emailului este afișată mai sus.</small></label>}
+      {state.invitationUrl && <label className="field"><span><T>{"Link de invitație · valabil 7 zile"}</T></span><input className="input" readOnly value={state.invitationUrl} onFocus={(e) => e.target.select()}/><small><T>{"Linkul este destinat colegului indicat. Starea trimiterii emailului este afișată mai sus."}</T></small></label>}
       <div>
-        <Button disabled={pending}>{pending ? "Se salvează…" : submit}</Button>
+        <Button disabled={pending}><T>{pending ? "Se salvează…" : submit}</T></Button>
       </div>
     </form>
   );

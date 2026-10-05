@@ -4,20 +4,29 @@ import "@fontsource/noto-sans/500.css";
 import "@fontsource/noto-sans/600.css";
 import "@fontsource/noto-sans/700.css";
 import "./globals.css";
+import { LocaleProvider } from "@/components/locale-provider";
+import { getLocale, getDictionary } from "@/lib/locale/server";
+import { translateText } from "@/lib/locale/config";
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = {
+const siteMetadata: Metadata = {
   title: { default: "Voxa", template: "%s · Voxa" },
   description: "Spațiul de administrare al clinicii",
   robots: { index: false, follow: false },
 };
-export default function RootLayout({
+export async function generateMetadata(): Promise<Metadata> {
+  const dictionary = await getDictionary(await getLocale());
+  return { ...siteMetadata, description: translateText(siteMetadata.description!, dictionary) };
+}
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const locale = await getLocale();
+  const dictionary = await getDictionary(locale);
   return (
-    <html lang="ro">
-      <body>{children}</body>
+    <html lang={locale}>
+      <body><LocaleProvider locale={locale} dictionary={dictionary}>{children}</LocaleProvider></body>
     </html>
   );
 }

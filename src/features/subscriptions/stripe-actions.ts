@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { requireOrganization } from "@/features/organizations/access";
 import type { ActionState } from "@/features/auth/actions";
 import { appOrigin } from "@/lib/app-origin";
-import { assertMonthlyPrice, type StripeBilling } from "./stripe-model";
+import { getLocale } from "@/lib/locale/server";
+import { assertSubscriptionPrice, type BillingCycle, type StripeBilling } from "./stripe-model";
 import { verifiedStripe, stripeLiveMode } from "./stripe-client";
 import { billingLock, billingSave, latestSubscription, reconcileBilling } from "./stripe-service";
 
@@ -16,13 +17,18 @@ function safeStripeRedirect(value: string | null, portal = false) {
 export async function startStripeCheckout(organizationId: string, _: ActionState, form: FormData): Promise<ActionState> {
   const { organization } = await requireOrganization(organizationId, true);
   if (form.get("billing_consent") !== "on") return { error: "Confirmați reînnoirea automată a abonamentului." };
+  const selected = form.get("billing_cycle") ?? "monthly";
+  if (selected !== "monthly" && selected !== "annual") return { error: "Alegeți un plan valid." };
+  const cycle: BillingCycle = selected;
   let billing: StripeBilling | undefined;
   let destination: string | undefined;
   try {
     const stripe = await verifiedStripe();
-    const price = await stripe.prices.retrieve(process.env.STRIPE_PRICE_ID!);
+    const priceId = cycle === "annual" ? process.env.STRIPE_ANNUAL_PRICE_ID : process.env.STRIPE_PRICE_ID;
+    if (!priceId) throw new Error("Requested plan is not configured");
+    const price = await stripe.prices.retrieve(priceId);
     const livemode = stripeLiveMode();
-    assertMonthlyPrice(price, livemode);
+    assertSubscriptionPrice(price, cycle, livemode);
     billing = await billingLock(organizationId);
     if (billing.license_active) return { error: "Licența este încă activă. Păstrați accesul existent până la expirarea ei." };
     if (!billing.customer_id) {
@@ -47,7 +53,13 @@ export async function startStripeCheckout(organizationId: string, _: ActionState
       }
     }
     if (billing.checkout_id) {
-      const session = await stripe.checkout.sessions.retrieve(billing.checkout_id);
+      const session = await stripe.checkout.sessions.retrieve(billing.checkout_id, { expand: ["line_items"] });
+      const samePlan = session.line_items?.data.length === 1 && session.line_items.data[0].price?.id === price.id;
+      if (session.status === "open" && !samePlan) {
+        await stripe.checkout.sessions.expire(session.id);
+        await billingSave(billing, { reset_checkout: true, release: true });
+        billing = await billingLock(organizationId);
+      } else
       if (session.status === "open" && session.url && session.expires_at > Date.now()/1000) destination = safeStripeRedirect(session.url);
       else if (session.status === "complete") {
         await reconcileBilling(stripe, billing);
@@ -68,13 +80,14 @@ export async function startStripeCheckout(organizationId: string, _: ActionState
       }
       const base = `${appOrigin()}/organizations/${organizationId}/billing`;
       const session = await stripe.checkout.sessions.create({
+        locale: await getLocale(),
         mode: "subscription", customer: billing.customer_id!, client_reference_id: organizationId,
         integration_identifier: "voxa_os_checkout_qmztxrpa",
         line_items: [{ price: price.id, quantity: 1 }], automatic_tax: { enabled: false },
         billing_address_collection: "required", tax_id_collection: { enabled: true },
         customer_update: { name: "auto", address: "auto" }, payment_method_collection: "always",
-        metadata: { app: "voxa-os", organization_id: organizationId, checkout_attempt: billing.checkout_attempt },
-        subscription_data: { metadata: { app: "voxa-os", organization_id: organizationId }, billing_mode: { type: "flexible" },
+        metadata: { app: "voxa-os", organization_id: organizationId, checkout_attempt: billing.checkout_attempt, billing_cycle: cycle },
+        subscription_data: { metadata: { app: "voxa-os", organization_id: organizationId, billing_cycle: cycle }, billing_mode: { type: "flexible" },
           ...(billing.checkout_trial_end ? { trial_end: billing.checkout_trial_end } : {}),
           trial_settings: { end_behavior: { missing_payment_method: "cancel" } } },
         success_url: `${base}?checkout=received`, cancel_url: `${base}?checkout=canceled`,
@@ -100,6 +113,7 @@ export async function openStripePortal(organizationId: string): Promise<void> {
     if (!billing.customer_id) throw new Error("No customer");
     await reconcileBilling(stripe, billing);
     const session = await stripe.billingPortal.sessions.create({ customer: billing.customer_id,
+      locale: await getLocale(),
       configuration: process.env.STRIPE_PORTAL_CONFIGURATION_ID,
       return_url: `${appOrigin()}/organizations/${organizationId}/billing` });
     destination = safeStripeRedirect(session.url, true);

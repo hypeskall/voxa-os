@@ -1,4 +1,5 @@
 "use client";
+import { T } from "@/components/locale-provider";
 import { useActionState, startTransition, useSyncExternalStore } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -50,19 +51,17 @@ export function LoginForm({ next = "/" }: { next?: string }) {
           aria-invalid={!!errors.password}
         />
       </Field>
-      <p className="muted">Puteți folosi și adresa de email a contului existent.</p>
+      <p className="muted"><T>{"Puteți folosi și adresa de email a contului existent."}</T></p>
       {(errors.identifier || errors.password) && (
-        <p role="alert" className="message error">
-          Completați un utilizator valid și parola.
-        </p>
+        <p role="alert" className="message error"><T>{"Completați un utilizator valid și parola."}</T></p>
       )}
       {state.error && (
         <p role="alert" className="message error">
-          {state.error}
+          <T>{state.error}</T>
         </p>
       )}
       <Button disabled={!ready || pending}>
-        {pending ? "Se verifică…" : "Conectare"}
+        <T>{pending ? "Se verifică…" : "Conectare"}</T>
       </Button>
     </form>
   );

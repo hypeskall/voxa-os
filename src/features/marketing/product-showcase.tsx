@@ -1,4 +1,5 @@
 "use client";
+import { T, LocalizedElement } from "@/components/locale-provider";
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
@@ -116,14 +117,13 @@ export function ProductShowcase({ videoSrc }: { videoSrc?: string }) {
           preload="none"
           poster={productMedia.dashboard.src}
         >
-          <source src={videoSrc} />
-          Browserul nu poate reda acest video.{" "}
-          <a href={videoSrc}>Deschide prezentarea</a>
+          <source src={videoSrc} /><T>{"Browserul nu poate reda acest video."}</T><T>{" "}</T>
+          <a href={videoSrc}><T>{"Deschide prezentarea"}</T></a>
         </video>
       ) : (
         <>
           <div className="walkthrough-topline">
-            <span>VOXA-OS / TURUL PLATFORMEI</span>
+            <span><T>{"VOXA-OS / TURUL PLATFORMEI"}</T></span>
             <span>
               0{selected + 1} <span className="walkthrough-divider">/ 06</span>
             </span>
@@ -154,15 +154,15 @@ export function ProductShowcase({ videoSrc }: { videoSrc?: string }) {
               />
             </div>
             {!playing && !finished && selected === 0 && (
-              <button
+              <LocalizedElement as="button"
                 className="walkthrough-play-overlay"
                 type="button"
                 aria-label="Pornește prezentarea de 24 de secunde"
                 onClick={() => setPlaying(true)}
               >
                 <Play size={22} fill="currentColor" />
-                <span>Vezi platforma în 24 secunde</span>
-              </button>
+                <span><T>{"Vezi platforma în 24 secunde"}</T></span>
+              </LocalizedElement>
             )}
           </div>
           {playing &&
@@ -181,7 +181,7 @@ export function ProductShowcase({ videoSrc }: { videoSrc?: string }) {
               />
             )}
           <div className="walkthrough-toolbar">
-            <div
+            <LocalizedElement as="div"
               className="product-tabs"
               role="tablist"
               aria-label="Capitolele prezentării"
@@ -238,12 +238,12 @@ export function ProductShowcase({ videoSrc }: { videoSrc?: string }) {
                   </span>
                   <span className="chapter-label">
                     <small aria-hidden="true">0{index + 1}</small>
-                    {item.title}
+                    <T>{item.title}</T>
                   </span>
                 </button>
               ))}
-            </div>
-            <button
+            </LocalizedElement>
+            <LocalizedElement as="button"
               className="walkthrough-control"
               type="button"
               aria-pressed={playing}
@@ -270,13 +270,13 @@ export function ProductShowcase({ videoSrc }: { videoSrc?: string }) {
               ) : (
                 <Play size={18} />
               )}
-            </button>
+            </LocalizedElement>
           </div>
         </>
       )}
       <div className="product-caption">
-        <p>{videoSrc ? "Descoperă platforma în acțiune." : scene.caption}</p>
-        <span>Interfață reală · Date demonstrative</span>
+        <p><T>{videoSrc ? "Descoperă platforma în acțiune." : scene.caption}</T></p>
+        <span><T>{"Interfață reală · Date demonstrative"}</T></span>
       </div>
     </div>
   );

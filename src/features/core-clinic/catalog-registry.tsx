@@ -1,4 +1,5 @@
 "use client";
+import { T, LocaleMessage } from "@/components/locale-provider";
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -90,24 +91,24 @@ export function CatalogRegistry({
           value={input.filter_id ?? ""}
           onChange={(event) => update({ filter_id: event.target.value || null })}
         >
-          <option value="">{module === "doctors" ? "Toate specialitățile" : "Toate categoriile"}</option>
+          <option value=""><T>{module === "doctors" ? "Toate specialitățile" : "Toate categoriile"}</T></option>
           {filterOptions.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
         </Select>
         <Select aria-label="Status" value={input.state} onChange={(event) => update({ state: event.target.value as ListInput["state"] })}>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-          <option value="all">Toate, fără cele arhivate</option>
-          <option value="archived">Arhivate</option>
+          <option value="active"><T>{"Active"}</T></option>
+          <option value="inactive"><T>{"Inactive"}</T></option>
+          <option value="all"><T>{"Toate, fără cele arhivate"}</T></option>
+          <option value="archived"><T>{"Arhivate"}</T></option>
         </Select>
-        <span className="catalog-count" aria-live="polite">{busy ? "Se actualizează…" : `${result.total} rezultate`}</span>
+        <span className="catalog-count" aria-live="polite"><T>{busy ? "Se actualizează…" : <LocaleMessage template={"{0} rezultate"} values={[result.total]} />}</T></span>
       </div>
-      {error && <p className="message error" role="alert">{error}</p>}
+      {error && <p className="message error" role="alert"><T>{error}</T></p>}
       <Table>
         <thead>
           {module === "doctors" ? (
-            <tr><th>Medic</th><th>Specialitate</th><th>Servicii</th><th>Program</th><th>Status</th><th><span className="sr-only">Acțiuni</span></th></tr>
+            <tr><th><T>{"Medic"}</T></th><th><T>{"Specialitate"}</T></th><th><T>{"Servicii"}</T></th><th><T>{"Program"}</T></th><th><T>{"Status"}</T></th><th><span className="sr-only"><T>{"Acțiuni"}</T></span></th></tr>
           ) : (
-            <tr><th>Serviciu</th><th>Categorie</th><th>Durată</th><th>Resurse</th><th>Medici</th><th>Status</th><th><span className="sr-only">Acțiuni</span></th></tr>
+            <tr><th><T>{"Serviciu"}</T></th><th><T>{"Categorie"}</T></th><th><T>{"Durată"}</T></th><th><T>{"Resurse"}</T></th><th><T>{"Medici"}</T></th><th><T>{"Status"}</T></th><th><span className="sr-only"><T>{"Acțiuni"}</T></span></th></tr>
           )}
         </thead>
         <tbody>
@@ -116,26 +117,26 @@ export function CatalogRegistry({
               <td className="name-cell"><Link className="row-link" href={`/clinics/${cid}/doctors/${row.id}`}>{row.name}</Link><small className="table-subtitle">{text(row,"professional_code")}</small></td>
               <td>{text(row,"speciality_names") || "Neconfigurată"}</td>
               <td className="cell-clamp">{text(row,"service_names") || "Niciun serviciu asociat"}</td>
-              <td>{Number(row.availability_count ?? 0) > 0 ? <span className="schedule-state ready"><Clock3 size={14}/>Configurat</span> : <span className="schedule-state"><Clock3 size={14}/>Neconfigurat</span>}</td>
-              <td><span className={`status ${row.active && !row.archived_at ? "" : "inactive"}`}>{row.archived_at ? "Arhivat" : row.active ? "Activ" : "Inactiv"}</span></td>
-              <td><Link className="text-link" href={`/clinics/${cid}/doctors/${row.id}`}>Profil</Link></td>
+              <td>{Number(row.availability_count ?? 0) > 0 ? <span className="schedule-state ready"><Clock3 size={14}/><T>{"Configurat"}</T></span> : <span className="schedule-state"><Clock3 size={14}/><T>{"Neconfigurat"}</T></span>}</td>
+              <td><span className={`status ${row.active && !row.archived_at ? "" : "inactive"}`}><T>{row.archived_at ? "Arhivat" : row.active ? "Activ" : "Inactiv"}</T></span></td>
+              <td><Link className="text-link" href={`/clinics/${cid}/doctors/${row.id}`}><T>{"Profil"}</T></Link></td>
             </tr>
           ) : (
             <tr key={row.id}>
               <td className="name-cell"><Link className="row-link" href={`/clinics/${cid}/services/${row.id}`}>{row.name}</Link></td>
               <td>{text(row,"category_name") || "Fără categorie"}</td>
-              <td><strong>{text(row,"duration_minutes")} min</strong>{row.duration_is_demo_default === true && <small className="demo-label">valoare demo</small>}</td>
+              <td><strong>{text(row,"duration_minutes")}<T>{" min"}</T></strong>{row.duration_is_demo_default === true && <small className="demo-label"><T>{"valoare demo"}</T></small>}</td>
               <td className="cell-clamp">{[text(row,"room_names"), text(row,"equipment_names")].filter(Boolean).join(" · ") || "Neconfigurate"}</td>
               <td className="cell-clamp">{text(row,"doctor_names") || "Neasociați"}</td>
-              <td><span className={`status ${row.active && !row.archived_at ? "" : "inactive"}`}>{row.archived_at ? "Arhivat" : row.active ? "Activ" : "Inactiv"}</span></td>
-              <td><Link className="text-link" href={`/clinics/${cid}/services/${row.id}`}>Configurează</Link></td>
+              <td><span className={`status ${row.active && !row.archived_at ? "" : "inactive"}`}><T>{row.archived_at ? "Arhivat" : row.active ? "Activ" : "Inactiv"}</T></span></td>
+              <td><Link className="text-link" href={`/clinics/${cid}/services/${row.id}`}><T>{"Configurează"}</T></Link></td>
             </tr>
           ))}
           {!result.items.length && (
             <tr><td colSpan={module === "doctors" ? 6 : 7}>
               <div className="action-empty">
                 {module === "doctors" ? <Stethoscope size={22}/> : <Clock3 size={22}/>} 
-                <div><strong>{module === "doctors" ? "Nu există medici pentru filtrele selectate." : "Nu există servicii pentru filtrele selectate."}</strong><p>Modificați filtrele sau creați prima înregistrare.</p></div>
+                <div><strong><T>{module === "doctors" ? "Nu există medici pentru filtrele selectate." : "Nu există servicii pentru filtrele selectate."}</T></strong><p><T>{"Modificați filtrele sau creați prima înregistrare."}</T></p></div>
                 {emptyAction}
               </div>
             </td></tr>
@@ -143,9 +144,9 @@ export function CatalogRegistry({
         </tbody>
       </Table>
       <div className="pagination">
-        <Button variant="outline" size="sm" disabled={busy || input.page_number === 1} onClick={() => setInput({ ...input, page_number: input.page_number - 1 })}>Înapoi</Button>
-        <span className="muted">Pagina {input.page_number} din {Math.max(1, Math.ceil(result.total / 25))}</span>
-        <Button variant="outline" size="sm" disabled={busy || input.page_number * 25 >= result.total} onClick={() => setInput({ ...input, page_number: input.page_number + 1 })}>Înainte</Button>
+        <Button variant="outline" size="sm" disabled={busy || input.page_number === 1} onClick={() => setInput({ ...input, page_number: input.page_number - 1 })}><T>{"Înapoi"}</T></Button>
+        <span className="muted"><T>{"Pagina "}</T>{input.page_number}<T>{" din "}</T>{Math.max(1, Math.ceil(result.total / 25))}</span>
+        <Button variant="outline" size="sm" disabled={busy || input.page_number * 25 >= result.total} onClick={() => setInput({ ...input, page_number: input.page_number + 1 })}><T>{"Înainte"}</T></Button>
       </div>
     </section>
   );

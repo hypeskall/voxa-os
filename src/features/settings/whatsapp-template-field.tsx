@@ -1,4 +1,5 @@
 "use client";
+import { T } from "@/components/locale-provider";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/form";
@@ -12,9 +13,9 @@ export function WhatsappTemplateField({ defaultValue = defaultWhatsappReminderTe
     clinic_address: clinic?.address ?? "Adresă exemplu", clinic_phone: clinic?.phone ?? "0712 000 000",
   });
   return <section className="whatsapp-template-settings">
-    <div><strong>Remindere WhatsApp</strong><p className="muted">Mesajul se deschide manual în WhatsApp. Variabile: patient_first_name, patient_name, date, time, service_name, doctor_name, clinic_name, clinic_address, clinic_phone.</p></div>
+    <div><strong><T>{"Remindere WhatsApp"}</T></strong><p className="muted"><T>{"Mesajul se deschide manual în WhatsApp. Variabile: patient_first_name, patient_name, date, time, service_name, doctor_name, clinic_name, clinic_address, clinic_phone."}</T></p></div>
     <Field label="Mesaj implicit"><textarea className="input textarea" name="whatsapp_reminder_template" rows={5} minLength={20} maxLength={4000} value={value} onChange={(event) => setValue(event.target.value)} /></Field>
-    <div className="message-preview"><small>Previzualizare · pacient și programare fictive</small><p>{preview}</p></div>
-    <Button type="button" variant="ghost" size="sm" onClick={() => setValue(defaultWhatsappReminderTemplate)}>Revino la mesajul implicit</Button>
+    <div className="message-preview"><small><T>{"Previzualizare · pacient și programare fictive"}</T></small><p>{preview}</p></div>
+    <Button type="button" variant="ghost" size="sm" onClick={() => setValue(defaultWhatsappReminderTemplate)}><T>{"Revino la mesajul implicit"}</T></Button>
   </section>;
 }

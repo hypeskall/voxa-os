@@ -1,3 +1,4 @@
+import { T } from "@/components/locale-provider";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/supabase/server";
@@ -9,5 +10,5 @@ export default async function Invitation({ params }: { params: Promise<{ token: 
   const { token } = await params; if (!invitationTokenSchema.safeParse(token).success) notFound();
   const client = await db(); const { data: { user } } = await client.auth.getUser();
   const next = encodeURIComponent(`/invitations/${token}`);
-  return <main className="standalone"><p className="eyebrow">VOXA · ECHIPĂ</p><h1>Invitație în echipa clinicii</h1><p className="muted">Acceptarea verifică emailul contului și acordă numai rolul și locația stabilite de administrator.</p>{user ? <><p>Cont conectat: {user.email}</p><ActionForm action={acceptInvitation.bind(null, token)} submit="Acceptă invitația"/><p className="muted">Dacă adresa nu corespunde invitației, deconectați-vă înainte de a continua.</p><Link className="text-link" href="/">Înapoi la spațiul de lucru</Link></> : <div className="form-stack"><Link className="text-link" href={`/login?next=${next}`}>Conectează-te pentru a accepta</Link><Link className="text-link" href={`/register?next=${next}`}>Creează un cont cu emailul invitat</Link></div>}</main>;
+  return <main className="standalone"><p className="eyebrow"><T>{"VOXA · ECHIPĂ"}</T></p><h1><T>{"Invitație în echipa clinicii"}</T></h1><p className="muted"><T>{"Acceptarea verifică emailul contului și acordă numai rolul și locația stabilite de administrator."}</T></p>{user ? <><p><T>{"Cont conectat: "}</T>{user.email}</p><ActionForm action={acceptInvitation.bind(null, token)} submit="Acceptă invitația"/><p className="muted"><T>{"Dacă adresa nu corespunde invitației, deconectați-vă înainte de a continua."}</T></p><Link className="text-link" href="/"><T>{"Înapoi la spațiul de lucru"}</T></Link></> : <div className="form-stack"><Link className="text-link" href={`/login?next=${next}`}><T>{"Conectează-te pentru a accepta"}</T></Link><Link className="text-link" href={`/register?next=${next}`}><T>{"Creează un cont cu emailul invitat"}</T></Link></div>}</main>;
 }

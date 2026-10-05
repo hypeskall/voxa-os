@@ -1,4 +1,5 @@
 "use client";
+import { T } from "@/components/locale-provider";
 import { useActionState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/form";
@@ -16,10 +17,10 @@ export function ForgotPasswordForm() {
     <fieldset disabled={pending || submitted}>
       <Field label="Email"><Input name="email" type="email" autoComplete="email" required maxLength={254}/></Field>
     </fieldset>
-    {state.error && <p className="message error" role="alert">{state.error}</p>}
-    {state.success && <p className="message success" role="status">{state.success}</p>}
-    <p className="muted">Folosiți linkul din cel mai recent email. O nouă solicitare îl înlocuiește pe cel anterior.</p>
-    <div><Button disabled={pending || submitted}>{submitted ? "Link solicitat" : pending ? "Se trimite…" : "Trimite linkul"}</Button></div>
-    {submitted && <p><a className="text-link" href="/forgot-password">Solicită un nou link sau folosește altă adresă</a></p>}
+    {state.error && <p className="message error" role="alert"><T>{state.error}</T></p>}
+    {state.success && <p className="message success" role="status"><T>{state.success}</T></p>}
+    <p className="muted"><T>{"Folosiți linkul din cel mai recent email. O nouă solicitare îl înlocuiește pe cel anterior."}</T></p>
+    <div><Button disabled={pending || submitted}><T>{submitted ? "Link solicitat" : pending ? "Se trimite…" : "Trimite linkul"}</T></Button></div>
+    {submitted && <p><a className="text-link" href="/forgot-password"><T>{"Solicită un nou link sau folosește altă adresă"}</T></a></p>}
   </form>;
 }

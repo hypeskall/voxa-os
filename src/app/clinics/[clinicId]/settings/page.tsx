@@ -1,3 +1,4 @@
+import { T } from "@/components/locale-provider";
 import { requireClinic, workspace } from "@/features/auth/access";
 import {
   saveClinic,
@@ -41,29 +42,27 @@ export default async function Settings({
               </ActionForm>
               {clinic.public_booking_enabled && clinic.booking_slug && (
                 <Button asChild variant="outline">
-                  <Link href={`/book/${clinic.booking_slug}`} target="_blank">
-                    Deschide booking-ul public
-                  </Link>
+                  <Link href={`/book/${clinic.booking_slug}`} target="_blank"><T>{"Deschide booking-ul public"}</T></Link>
                 </Button>
               )}
             </>
           ) : (
             <dl className="detail-grid">
               <div>
-                <dt>Denumire</dt>
+                <dt><T>{"Denumire"}</T></dt>
                 <dd>{clinic.name}</dd>
               </div>
               <div>
-                <dt>Adresă</dt>
+                <dt><T>{"Adresă"}</T></dt>
                 <dd>{clinic.address || "Necompletată"}</dd>
               </div>
               <div>
-                <dt>Fus orar</dt>
+                <dt><T>{"Fus orar"}</T></dt>
                 <dd>{clinic.timezone}</dd>
               </div>
-              <div><dt>Telefon</dt><dd>{clinic.phone || "Necompletat"}</dd></div>
-              <div><dt>Telefon secundar</dt><dd>{clinic.phone_secondary || "Necompletat"}</dd></div>
-              <div><dt>Email</dt><dd>{clinic.email || "Necompletat"}</dd></div>
+              <div><dt><T>{"Telefon"}</T></dt><dd>{clinic.phone || "Necompletat"}</dd></div>
+              <div><dt><T>{"Telefon secundar"}</T></dt><dd>{clinic.phone_secondary || "Necompletat"}</dd></div>
+              <div><dt><T>{"Email"}</T></dt><dd>{clinic.email || "Necompletat"}</dd></div>
             </dl>
           )}
         </Section>
@@ -78,26 +77,26 @@ export default async function Settings({
                 name="density"
                 defaultValue={preferences?.density ?? "compact"}
               >
-                <option value="compact">Compactă</option>
-                <option value="comfortable">Confortabilă</option>
+                <option value="compact"><T>{"Compactă"}</T></option>
+                <option value="comfortable"><T>{"Confortabilă"}</T></option>
               </Select>
             </Field>
             <Field label="Vizualizare calendar implicită">
-              <Select name="calendar_view" defaultValue={preferences?.calendar_view??"week"}><option value="day">Zi</option><option value="week">Săptămână</option><option value="month">Lună</option><option value="agenda">Agendă</option></Select>
+              <Select name="calendar_view" defaultValue={preferences?.calendar_view??"week"}><option value="day"><T>{"Zi"}</T></option><option value="week"><T>{"Săptămână"}</T></option><option value="month"><T>{"Lună"}</T></option><option value="agenda"><T>{"Agendă"}</T></option></Select>
             </Field>
-            <fieldset className="preference-checks"><legend>Coloane vizibile în registrul pacienților</legend>{[["internal_id","Identificator"],["phone","Telefon"],["email","Email"]].map(([value,label])=><label key={value}><input type="checkbox" name="patient_columns" value={value} defaultChecked={patientColumns.includes(value)}/>{label}</label>)}</fieldset>
-            <fieldset className="preference-checks"><legend>Secțiuni dashboard</legend>{[["metrics","Indicatori"],["upcoming","Programări următoare"],["alerts","Atenție necesară"],["activity","Activitate recentă"]].map(([value,label])=><label key={value}><input type="checkbox" name="dashboard_modules" value={value} defaultChecked={dashboardModules.includes(value)}/>{label}</label>)}</fieldset>
+            <fieldset className="preference-checks"><legend><T>{"Coloane vizibile în registrul pacienților"}</T></legend>{[["internal_id","Identificator"],["phone","Telefon"],["email","Email"]].map(([value,label])=><label key={value}><input type="checkbox" name="patient_columns" value={value} defaultChecked={patientColumns.includes(value)}/><T>{label}</T></label>)}</fieldset>
+            <fieldset className="preference-checks"><legend><T>{"Secțiuni dashboard"}</T></legend>{[["metrics","Indicatori"],["upcoming","Programări următoare"],["alerts","Atenție necesară"],["activity","Activitate recentă"]].map(([value,label])=><label key={value}><input type="checkbox" name="dashboard_modules" value={value} defaultChecked={dashboardModules.includes(value)}/><T>{label}</T></label>)}</fieldset>
           </ActionForm>
         </Section>
       </div>
       <Section title="Configurare pe module" description="Setările operaționale sunt păstrate lângă datele pe care le controlează."><div className="settings-link-grid">
-        <Link href={`/clinics/${clinicId}/team`}>Utilizatori și roluri<small>Acces în clinică și permisiuni</small></Link>
-        <Link href={`/clinics/${clinicId}/specialities`}>Specialități<small>Nomenclator folosit în profilurile medicilor</small></Link>
-        <Link href={`/clinics/${clinicId}/notifications`}>Notificări<small>Canale, șabloane și livrare</small></Link>
-        <Link href={`/clinics/${clinicId}/services`}>Servicii<small>Durate, resurse și eligibilitate</small></Link>
-        <Link href={`/clinics/${clinicId}/resources`}>Resurse<small>Cabinete și echipamente</small></Link>
-        <Link href={`/clinics/${clinicId}/availability`}>Disponibilitate<small>Program de lucru și indisponibilități</small></Link>
-        <Link href={`/clinics/${clinicId}/settings/portal`}>Portal pacient<small>Booking și acces pacient</small></Link>
+        <Link href={`/clinics/${clinicId}/team`}><T>{"Utilizatori și roluri"}</T><small><T>{"Acces în clinică și permisiuni"}</T></small></Link>
+        <Link href={`/clinics/${clinicId}/specialities`}><T>{"Specialități"}</T><small><T>{"Nomenclator folosit în profilurile medicilor"}</T></small></Link>
+        <Link href={`/clinics/${clinicId}/notifications`}><T>{"Notificări"}</T><small><T>{"Canale, șabloane și livrare"}</T></small></Link>
+        <Link href={`/clinics/${clinicId}/services`}><T>{"Servicii"}</T><small><T>{"Durate, resurse și eligibilitate"}</T></small></Link>
+        <Link href={`/clinics/${clinicId}/resources`}><T>{"Resurse"}</T><small><T>{"Cabinete și echipamente"}</T></small></Link>
+        <Link href={`/clinics/${clinicId}/availability`}><T>{"Disponibilitate"}</T><small><T>{"Program de lucru și indisponibilități"}</T></small></Link>
+        <Link href={`/clinics/${clinicId}/settings/portal`}><T>{"Portal pacient"}</T><small><T>{"Booking și acces pacient"}</T></small></Link>
       </div></Section>
     </>
   );

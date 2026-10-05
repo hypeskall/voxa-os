@@ -28,7 +28,7 @@ export async function reconcileBilling(stripe: Stripe, billing: StripeBilling, e
   const subscription = await latestSubscription(stripe, billing);
   if (!subscription) return null;
   const livemode = stripeLiveMode();
-  const snapshot = subscriptionSnapshot(subscription, process.env.STRIPE_PRICE_ID!, billing.organization_id, livemode);
+  const snapshot = subscriptionSnapshot(subscription, { monthly: process.env.STRIPE_PRICE_ID!, annual: process.env.STRIPE_ANNUAL_PRICE_ID }, billing.organization_id, livemode);
   // A paid invoice alone also includes payments recorded outside Stripe. Require
   // an actual successful, unrefunded Stripe charge before granting paid access.
   if (snapshot.paid && typeof subscription.latest_invoice === "object" && subscription.latest_invoice) {
@@ -47,7 +47,7 @@ export async function reconcileBilling(stripe: Stripe, billing: StripeBilling, e
         !charge.refunded && charge.amount_refunded === 0 && charge.currency === "eur" &&
         objectId(charge.customer) === billing.customer_id && payment.livemode === livemode && payment.currency === "eur") collected += payment.amount_paid ?? 0;
     }
-    snapshot.paid = collected >= 1999;
+    snapshot.paid = collected >= subscription.items.data[0].price.unit_amount!;
   }
   const { error } = await adminDb().rpc("stripe_billing_apply", {
     oid: billing.organization_id, token: billing.lease_token, eid: eventId, kind, snapshot,

@@ -7,6 +7,7 @@ export default defineConfig({
   use: {
     baseURL: "http://localhost:3100",
     headless: true,
+    locale: "ro-RO",
     channel: process.platform === "win32" ? "msedge" : "chromium",
     trace: "retain-on-failure",
   },

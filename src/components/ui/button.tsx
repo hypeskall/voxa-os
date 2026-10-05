@@ -1,3 +1,5 @@
+"use client";
+import { useLocale } from "@/components/locale-provider";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
@@ -22,10 +24,15 @@ export function Button({
 }: React.ComponentProps<"button"> &
   VariantProps<typeof variants> & { asChild?: boolean }) {
   const Component = asChild ? Slot : "button";
+  const { t } = useLocale();
+  const localized = { ...props };
+  if (localized["aria-label"]) localized["aria-label"] = t(localized["aria-label"]);
+  if (localized.title) localized.title = t(localized.title);
+  if (!asChild && typeof localized.children === "string") localized.children = t(localized.children);
   return (
     <Component
       className={cn(variants({ variant, size }), className)}
-      {...props}
+      {...localized}
     />
   );
 }

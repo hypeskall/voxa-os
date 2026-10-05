@@ -1,3 +1,4 @@
+import { T } from "@/components/locale-provider";
 import Link from "next/link";
 export const metadata = { title: "Ajutor și suport" };
 const steps = [
@@ -11,14 +12,14 @@ export default function Help() {
   const contact=process.env.VOXA_SUPPORT_EMAIL?.trim();
   const email=contact && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact)?contact:null;
   return <main className="standalone" style={{maxWidth:800}}>
-    <p className="eyebrow">VOXA-OS · AJUTOR</p><h1>De la cont la prima programare</h1>
-    <p className="muted">Un ghid pentru proprietarul clinicii și echipă.</p>
+    <p className="eyebrow"><T>{"VOXA-OS · AJUTOR"}</T></p><h1><T>{"De la cont la prima programare"}</T></h1>
+    <p className="muted"><T>{"Un ghid pentru proprietarul clinicii și echipă."}</T></p>
     <ol>{steps.map(([title,body])=><li key={title} style={{marginTop:24}}><h2>{title}</h2><p>{body}</p></li>)}</ol>
-    <section style={{marginTop:32}}><h2>Cont și acces</h2><p>Perioada de testare durează 30 de zile. Datele sunt păstrate după expirare; proprietarul poate consulta pagina Abonament pentru activare.</p>
-      <p><Link className="text-link" href="/dashboard">Deschide platforma</Link> · <Link className="text-link" href="/login?switch=1">Schimbă contul</Link> · <Link className="text-link" href="/forgot-password">Recuperează parola</Link></p></section>
-    <section style={{marginTop:32}}><h2>Contactează suportul</h2><p>Descrie pașii care au dus la problemă și referința afișată pe pagina de eroare, dacă există. Nu include parole, linkuri de invitație, CNP sau documente medicale în email.</p>
-      {email?<a className="text-link" href={`mailto:${email}?subject=Suport%20Voxa-OS`}>{email}</a>:<p className="muted">Contactează reprezentantul Voxa pentru asistență.</p>}</section>
-    <section style={{marginTop:32}}><h2>Documente și confidențialitate</h2><p><Link className="text-link" href="/legal">Termeni, confidențialitate, cookies, DPA și reclamații</Link>. Documentele actuale sunt proiecte pentru revizuire, cu datele firmei încă în curs de finalizare.</p></section>
-    <p style={{marginTop:32}}><Link className="text-link" href="/">Înapoi la pagina principală</Link></p>
+    <section style={{marginTop:32}}><h2><T>{"Cont și acces"}</T></h2><p><T>{"Perioada de testare durează 30 de zile. Datele sunt păstrate după expirare; proprietarul poate consulta pagina Abonament pentru activare."}</T></p>
+      <p><Link className="text-link" href="/dashboard"><T>{"Deschide platforma"}</T></Link> · <Link className="text-link" href="/login?switch=1"><T>{"Schimbă contul"}</T></Link> · <Link className="text-link" href="/forgot-password"><T>{"Recuperează parola"}</T></Link></p></section>
+    <section style={{marginTop:32}}><h2><T>{"Contactează suportul"}</T></h2><p><T>{"Descrie pașii care au dus la problemă și referința afișată pe pagina de eroare, dacă există. Nu include parole, linkuri de invitație, CNP sau documente medicale în email."}</T></p>
+      {email?<a className="text-link" href={`mailto:${email}?subject=Suport%20Voxa-OS`}>{email}</a>:<p className="muted"><T>{"Contactează reprezentantul Voxa pentru asistență."}</T></p>}</section>
+    <section style={{marginTop:32}}><h2><T>{"Documente și confidențialitate"}</T></h2><p><Link className="text-link" href="/legal"><T>{"Termeni, confidențialitate, cookies, DPA și reclamații"}</T></Link><T>{". Documentele actuale sunt proiecte pentru revizuire, cu datele firmei încă în curs de finalizare."}</T></p></section>
+    <p style={{marginTop:32}}><Link className="text-link" href="/"><T>{"Înapoi la pagina principală"}</T></Link></p>
   </main>;
 }

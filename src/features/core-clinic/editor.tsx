@@ -1,4 +1,5 @@
 "use client";
+import { T, LocalizedElement } from "@/components/locale-provider";
 import { useId, useState } from "react";
 import { ActionForm } from "@/components/ui/action-form";
 import { Field, Input, Select } from "@/components/ui/form";
@@ -107,12 +108,12 @@ export function CoreEditor({
               >
                 {field.options?.map(([v, label]) => (
                   <option key={v} value={v}>
-                    {label}
+                    <T>{label}</T>
                   </option>
                 ))}
               </Select>
             ) : field.kind === "textarea" || field.kind === "lines" ? (
-              <textarea
+              <LocalizedElement as="textarea"
                 aria-label={field.label}
                 aria-describedby={hintId}
                 className="input textarea"
@@ -155,16 +156,12 @@ export function CoreEditor({
           name="active"
           defaultValue={row?.active === false ? "false" : "true"}
         >
-          <option value="true">Activ</option>
-          <option value="false">Inactiv</option>
+          <option value="true"><T>{"Activ"}</T></option>
+          <option value="false"><T>{"Inactiv"}</T></option>
         </Select>
       </Field>
       {(module === "availability" || module === "exceptions") && (
-        <p className="muted">
-          Fus orar: {timeZone}. Intervalele peste miezul nopții se configurează
-          separat pe fiecare zi. Programul suplimentar se adaugă programului
-          săptămânal; blocările au prioritate.
-        </p>
+        <p className="muted"><T>{"Fus orar: "}</T>{timeZone}<T>{". Intervalele peste miezul nopții se configurează separat pe fiecare zi. Programul suplimentar se adaugă programului săptămânal; blocările au prioritate."}</T></p>
       )}
     </ActionForm>
   );

@@ -1,3 +1,4 @@
+import { T } from "@/components/locale-provider";
 import type { Clinic } from "@/features/auth/access";
 import { Field, Input, Select } from "@/components/ui/form";
 import { WhatsappTemplateField } from "@/features/settings/whatsapp-template-field";
@@ -33,15 +34,15 @@ export function ClinicFields({ clinic }: { clinic?: Clinic }) {
           name="timezone"
           defaultValue={clinic?.timezone ?? "Europe/Bucharest"}
         >
-          <option>Europe/Bucharest</option>
-          <option>Europe/London</option>
-          <option>Europe/Paris</option>
+          <option value="Europe/Bucharest">Europe/Bucharest</option>
+          <option value="Europe/London">Europe/London</option>
+          <option value="Europe/Paris">Europe/Paris</option>
         </Select>
       </Field>
       <div className="form-grid scheduling-settings">
         <Field label="Increment programări" hint="Separat de durata serviciului.">
           <Select name="scheduling_increment_minutes" defaultValue={String(clinic?.scheduling_increment_minutes ?? 15)}>
-            {[5, 10, 15, 20, 30, 60].map((value) => <option key={value} value={value}>{value} minute</option>)}
+            {[5, 10, 15, 20, 30, 60].map((value) => <option key={value} value={value}>{value}<T>{" minute"}</T></option>)}
           </Select>
         </Field>
         <Field label="Calendar vizibil de la">
@@ -56,8 +57,8 @@ export function ClinicFields({ clinic }: { clinic?: Clinic }) {
           name="public_booking_enabled"
           defaultValue={clinic?.public_booking_enabled ? "true" : "false"}
         >
-          <option value="false">Dezactivat</option>
-          <option value="true">Activ</option>
+          <option value="false"><T>{"Dezactivat"}</T></option>
+          <option value="true"><T>{"Activ"}</T></option>
         </Select>
       </Field>
       <WhatsappTemplateField defaultValue={clinic?.whatsapp_reminder_template} clinic={clinic}/>

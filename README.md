@@ -6,7 +6,7 @@ Release curent: [auditul din 5 octombrie](docs/DEEP_AUDIT_2026-10-05.md) · [rec
 
 Aplicație B2B pentru administrarea clinicilor. Implementarea include fundația multi-tenant, programările, booking-ul public, comunicările, documentele medicale private, rezultatele versionate și portalul pacientului. Documentul original este păstrat intact, iar interfața este în română.
 
-Pagina publică Voxa-OS este la `/`, iar intrarea în aplicație este la `/dashboard`. Planul unic costă **19,99 EUR/lună**, cu **30 de zile gratuit**, fără card la înscriere. Migrarea `202610030032_subscriptions_and_licenses.sql` adaugă abonamente, licențe și blocarea accesului operațional după expirare. Stripe Checkout, portalul și webhookurile semnate sunt integrate; abonarea explicită activează reînnoirea automată. Staging folosește exclusiv sandbox, iar producția cere modul live și chei live distincte. [Ghid de operare și activare](docs/SUBSCRIPTIONS.md) · [Stripe live](docs/STRIPE_LIVE.md).
+Pagina publică Voxa-OS este la `/`, iar intrarea în aplicație este la `/dashboard`. Planul unic costă **19,99 EUR/lună sau 149,99 EUR/an**, cu **30 de zile gratuit**, fără card la înscriere. Migrarea `202610030032_subscriptions_and_licenses.sql` adaugă abonamente, licențe și blocarea accesului operațional după expirare. Stripe Checkout, portalul și webhookurile semnate sunt integrate; abonarea explicită activează reînnoirea automată. Staging folosește exclusiv sandbox, iar producția cere modul live și chei live distincte. [Ghid de operare și activare](docs/SUBSCRIPTIONS.md) · [Stripe live](docs/STRIPE_LIVE.md).
 
 ## Cerințe și instalare
 

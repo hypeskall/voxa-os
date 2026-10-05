@@ -1,3 +1,4 @@
+import { T, LocalizedElement } from "@/components/locale-provider";
 import Link from "next/link";
 import { DoorOpen, MonitorCog } from "lucide-react";
 import { can } from "@/lib/permissions";
@@ -40,13 +41,13 @@ export default async function ResourcesPage({
         description="Cabinetele și echipamentele folosite pentru alocarea programărilor."
         action={manage ? <CoreCreatePanel cid={clinicId} module={resourceModule} options={options} timeZone={clinic.timezone} label={label} /> : undefined}
       />
-      <nav className="module-tabs" aria-label="Tip resursă">
-        <Link href="?tab=rooms" className={resourceModule === "rooms" ? "selected" : ""}><DoorOpen size={16}/>Cabinete</Link>
-        <Link href="?tab=equipment" className={resourceModule === "equipment" ? "selected" : ""}><MonitorCog size={16}/>Echipamente</Link>
-      </nav>
+      <LocalizedElement as="nav" className="module-tabs" aria-label="Tip resursă">
+        <Link href="?tab=rooms" className={resourceModule === "rooms" ? "selected" : ""}><DoorOpen size={16}/><T>{"Cabinete"}</T></Link>
+        <Link href="?tab=equipment" className={resourceModule === "equipment" ? "selected" : ""}><MonitorCog size={16}/><T>{"Echipamente"}</T></Link>
+      </LocalizedElement>
       <div className="resource-context">
-        <div><strong>{resourceModule === "rooms" ? "Spații de lucru" : "Aparatură medicală"}</strong><span>{resourceModule === "rooms" ? "Capacitate, tip și stare operațională." : "Amplasare, identificare și disponibilitate pentru mentenanță."}</span></div>
-        {resourceModule === "equipment" && <Link className="text-link" href={`/clinics/${clinicId}/availability?tab=exceptions`}>Gestionează mentenanța</Link>}
+        <div><strong><T>{resourceModule === "rooms" ? "Spații de lucru" : "Aparatură medicală"}</T></strong><span><T>{resourceModule === "rooms" ? "Capacitate, tip și stare operațională." : "Amplasare, identificare și disponibilitate pentru mentenanță."}</T></span></div>
+        {resourceModule === "equipment" && <Link className="text-link" href={`/clinics/${clinicId}/availability?tab=exceptions`}><T>{"Gestionează mentenanța"}</T></Link>}
       </div>
       <Registry
         key={resourceModule}

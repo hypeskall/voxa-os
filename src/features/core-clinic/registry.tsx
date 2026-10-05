@@ -1,4 +1,5 @@
 "use client";
+import { T, useLocale, LocaleMessage } from "@/components/locale-provider";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Input, Select } from "@/components/ui/form";
@@ -28,7 +29,7 @@ const labels: Record<string, string> = {
   manual: "Blocare",
   extra_work: "Program suplimentar",
 };
-export function displayValue(row: CoreRow, key: string, timeZone: string) {
+export function displayValue(row: CoreRow, key: string, timeZone: string, locale = "ro") {
   const value = valueText(row, key);
   if (!value) return "—";
   if (key === "weekday")
@@ -49,12 +50,12 @@ export function displayValue(row: CoreRow, key: string, timeZone: string) {
   )
     return labels[value] ?? value;
   if (key === "price")
-    return new Intl.NumberFormat("ro-RO", {
+    return new Intl.NumberFormat(locale, {
       style: "currency",
       currency: "RON",
     }).format(Number(value));
   if (key === "starts_at" || key === "ends_at")
-    return new Intl.DateTimeFormat("ro-RO", {
+    return new Intl.DateTimeFormat(locale, {
       dateStyle: "short",
       timeStyle: "short",
       timeZone,
@@ -80,6 +81,7 @@ export function Registry({
   visibleColumnKeys?: string[];
   emptyAction?: React.ReactNode;
 }) {
+  const { locale, t } = useLocale();
   const [input, setInput] = useState(() =>
     listInputSchema.parse({ filter_id: initialFilter }),
   );
@@ -149,10 +151,10 @@ export function Registry({
             })
           }
         >
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-          <option value="all">Toate ne-arhivate</option>
-          <option value="archived">Arhivate</option>
+          <option value="active"><T>{"Active"}</T></option>
+          <option value="inactive"><T>{"Inactive"}</T></option>
+          <option value="all"><T>{"Toate ne-arhivate"}</T></option>
+          <option value="archived"><T>{"Arhivate"}</T></option>
         </Select>
         {filterOptions.length > 0 && (
           <Select
@@ -166,7 +168,7 @@ export function Registry({
               })
             }
           >
-            <option value="">Toate categoriile / specialitățile</option>
+            <option value=""><T>{"Toate categoriile / specialitățile"}</T></option>
             {filterOptions.map((o) => (
               <option key={o.id} value={o.id}>
                 {o.name}
@@ -187,15 +189,15 @@ export function Registry({
             });
           }}
         >
-          <option value="name:false">Nume A–Z</option>
-          <option value="name:true">Nume Z–A</option>
-          <option value="created_at:true">Cele mai noi</option>
-          <option value="updated_at:true">Modificate recent</option>
+          <option value="name:false"><T>{"Nume A–Z"}</T></option>
+          <option value="name:true"><T>{"Nume Z–A"}</T></option>
+          <option value="created_at:true"><T>{"Cele mai noi"}</T></option>
+          <option value="updated_at:true"><T>{"Modificate recent"}</T></option>
         </Select>
       </div>
       <div className="toolbar">
         <p className="muted" aria-live="polite">
-          {busy ? "Se actualizează…" : `${result.total} înregistrări`}
+          <T>{busy ? "Se actualizează…" : <LocaleMessage template={"{0} înregistrări"} values={[result.total]} />}</T>
         </p>
         {initialFilter && (
           <Button
@@ -204,14 +206,12 @@ export function Registry({
             onClick={() =>
               setInput({ ...input, filter_id: null, page_number: 1 })
             }
-          >
-            Toate resursele
-          </Button>
+          ><T>{"Toate resursele"}</T></Button>
         )}
       </div>
       {error && (
         <p role="alert" className="message error mb-4">
-          {error}
+          <T>{error}</T>
         </p>
       )}
       <div aria-busy={busy}>
@@ -219,11 +219,11 @@ export function Registry({
           <thead>
             <tr>
               {columns.map(([key, label]) => (
-                <th key={key}>{label}</th>
+                <th key={key}><T>{label}</T></th>
               ))}
-              <th>Stare</th>
+              <th><T>{"Stare"}</T></th>
               <th>
-                <span className="sr-only">Acțiuni</span>
+                <span className="sr-only"><T>{"Acțiuni"}</T></span>
               </th>
             </tr>
           </thead>
@@ -243,7 +243,7 @@ export function Registry({
                         {row.name}
                       </Link>
                     ) : (
-                      displayValue(row, key, timeZone)
+                      ["weekday", "resource_kind", "interval_kind", "exception_kind"].includes(key) ? t(displayValue(row, key, timeZone, locale)) : displayValue(row, key, timeZone, locale)
                     )}
                   </td>
                 ))}
@@ -251,11 +251,11 @@ export function Registry({
                   <span
                     className={`status ${row.active && !row.archived_at ? "" : "inactive"}`}
                   >
-                    {row.archived_at
+                    <T>{row.archived_at
                       ? "Arhivat"
                       : row.active
                         ? "Activ"
-                        : "Inactiv"}
+                        : "Inactiv"}</T>
                   </span>
                 </td>
                 <td>
@@ -263,9 +263,7 @@ export function Registry({
                     className="text-link"
                     aria-label={`Deschide ${row.name}`}
                     href={`/clinics/${cid}/${module}/${row.id}`}
-                  >
-                    Deschide
-                  </Link>
+                  ><T>{"Deschide"}</T></Link>
                 </td>
               </tr>
             ))}
@@ -274,8 +272,8 @@ export function Registry({
                 <td colSpan={columns.length + 2}>
                   <div className="action-empty">
                     <div>
-                      <strong>Nu există înregistrări pentru filtrele selectate.</strong>
-                      <p>Modificați filtrele sau adăugați prima înregistrare.</p>
+                      <strong><T>{"Nu există înregistrări pentru filtrele selectate."}</T></strong>
+                      <p><T>{"Modificați filtrele sau adăugați prima înregistrare."}</T></p>
                     </div>
                     {emptyAction}
                   </div>
@@ -293,11 +291,8 @@ export function Registry({
           onClick={() =>
             setInput({ ...input, page_number: input.page_number - 1 })
           }
-        >
-          Înapoi
-        </Button>
-        <span className="muted">
-          Pagina {input.page_number} din{" "}
+        ><T>{"Înapoi"}</T></Button>
+        <span className="muted"><T>{"Pagina "}</T>{input.page_number}<T>{" din"}</T><T>{" "}</T>
           {Math.max(1, Math.ceil(result.total / 25))}
         </span>
         <Button
@@ -307,9 +302,7 @@ export function Registry({
           onClick={() =>
             setInput({ ...input, page_number: input.page_number + 1 })
           }
-        >
-          Înainte
-        </Button>
+        ><T>{"Înainte"}</T></Button>
       </div>
     </>
   );

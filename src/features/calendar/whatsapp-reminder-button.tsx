@@ -1,4 +1,5 @@
 "use client";
+import { T } from "@/components/locale-provider";
 import { useState, useTransition } from "react";
 import { FaWhatsapp } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
@@ -19,9 +20,9 @@ export function WhatsappReminderButton({ clinicId, appointmentId, phone, templat
         if (response.ok) { setOpenedAt(String(response.data)); setError(""); }
         else setError(response.error);
       });
-    }}><FaWhatsapp aria-hidden /> Deschide WhatsApp{recommended ? " · recomandat" : ""}</Button>
-    {!url && <small>Pacientul nu are un număr de telefon valid.</small>}
-    {openedAt && <small>WhatsApp deschis la {new Intl.DateTimeFormat("ro-RO", { hour: "2-digit", minute: "2-digit" }).format(new Date(openedAt))}</small>}
-    {error && <small className="form-error">{error}</small>}
+    }}><FaWhatsapp aria-hidden /><T>{" Deschide WhatsApp"}</T><T>{recommended ? " · recomandat" : ""}</T></Button>
+    {!url && <small><T>{"Pacientul nu are un număr de telefon valid."}</T></small>}
+    {openedAt && <small><T>{"WhatsApp deschis la "}</T>{new Intl.DateTimeFormat("ro-RO", { hour: "2-digit", minute: "2-digit" }).format(new Date(openedAt))}</small>}
+    {error && <small className="form-error"><T>{error}</T></small>}
   </div>;
 }

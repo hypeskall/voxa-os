@@ -63,6 +63,14 @@ describe("Stripe billing database trust boundary",()=>{
     expect((await db.query("select entitlement_source,license_key_id from public.organization_subscriptions where organization_id=$1",[ids.org])).rows[0]).toEqual({entitlement_source:"license",license_key_id:license});
     await save(next.lease_token,{release:true});
   });
+  it("persists annual paid access and rejects unsupported billing cycles", async () => {
+    await db.query("update public.organization_subscriptions set status='inactive',entitlement_source=null,license_key_id=null,current_period_start=null,current_period_end=null where organization_id=$1", [ids.org]);
+    const b = await lock();
+    await expect(apply(b.lease_token, "evt_invalid_cycle", snap({ billing_cycle: "weekly" }))).rejects.toThrow("Invalid billing cycle");
+    await apply(b.lease_token, "evt_annual", snap({ billing_cycle: "annual" }));
+    expect((await db.query("select plan,billing_cycle,status from public.organization_subscriptions where organization_id=$1", [ids.org])).rows[0]).toEqual({ plan: "voxa_os_annual", billing_cycle: "annual", status: "active" });
+    await save(b.lease_token, { release: true });
+  });
 });
 function fixture() {
   return {id:"sub_test",livemode:false,status:"active",metadata:{app:"voxa-os",organization_id:ids.org},customer:"cus_test",cancel_at:null,cancel_at_period_end:false,pause_collection:null,
@@ -71,6 +79,21 @@ function fixture() {
       lines:{data:[{amount:1999,quantity:1,period:{start:100,end:200},pricing:{price_details:{price:"price_test"}},parent:{subscription_item_details:{subscription_item:"si_test",proration:false}}}]}}
   } as unknown as Stripe.Subscription;
 }
+it("grants annual access only for the configured EUR 149.99 yearly price and paid invoice", () => {
+  const subscription = fixture();
+  const price = subscription.items.data[0].price;
+  price.id = "price_annual"; price.unit_amount = 14999; price.recurring!.interval = "year";
+  const invoice = subscription.latest_invoice as Stripe.Invoice;
+  invoice.amount_paid = 14999; invoice.lines.data[0].amount = 14999;
+  invoice.lines.data[0].pricing!.price_details!.price = "price_annual";
+  const prices = { monthly: "price_test", annual: "price_annual" };
+  expect(subscriptionSnapshot(subscription, prices, ids.org)).toMatchObject({ paid: true, billing_cycle: "annual" });
+  expect(() => subscriptionSnapshot(subscription, "price_test", ids.org)).toThrow();
+  invoice.amount_paid = 1999;
+  expect(subscriptionSnapshot(subscription, prices, ids.org).paid).toBe(false);
+  invoice.amount_paid = 14999; price.recurring!.interval = "month";
+  expect(() => subscriptionSnapshot(subscription, prices, ids.org)).toThrow();
+});
 it("requires the configured price, organization, quantity and paid matching period",()=>{
   const s=fixture(); expect(subscriptionSnapshot(s,"price_test",ids.org).paid).toBe(true);
   expect(()=>subscriptionSnapshot(s,"price_other",ids.org)).toThrow();

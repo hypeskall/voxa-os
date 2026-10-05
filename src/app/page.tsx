@@ -3,12 +3,18 @@ import { db } from "@/lib/supabase/server";
 import { hasSupabaseConfig } from "@/lib/supabase/config";
 import { LandingPage } from "@/features/marketing/landing-page";
 import "./marketing.css";
-export const metadata: Metadata = {
+import { getLocale, getDictionary } from "@/lib/locale/server";
+import { translateText } from "@/lib/locale/config";
+const pageMetadata: Metadata = {
   title: "Voxa-OS · Platforma de administrare pentru clinici",
   description:
-    "Programări, pacienți, medici și locații într-o singură platformă. Încearcă Voxa-OS gratuit 30 de zile. Apoi 19,99 EUR pe lună.",
+    "Programări, pacienți, medici și locații într-o singură platformă. Încearcă Voxa-OS gratuit 30 de zile. Apoi 19,99 EUR pe lună sau 149,99 EUR pe an.",
   robots: { index: true, follow: true },
 };
+export async function generateMetadata(): Promise<Metadata> {
+  const dictionary = await getDictionary(await getLocale());
+  return { ...pageMetadata, title: translateText(String(pageMetadata.title), dictionary), description: translateText(pageMetadata.description!, dictionary) };
+}
 export default async function Home() {
   let authenticated = false;
   if (hasSupabaseConfig()) {

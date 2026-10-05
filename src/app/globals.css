@@ -1672,3 +1672,7 @@ tbody tr:hover {
  .setup-content { padding:20px; }
 }
 @media(max-width:480px) { .setup-fields { grid-template-columns:1fr; } .setup-actions .button { flex:1 1 auto; } }
+
+/* Persistent locale selection; native language names stay recognizable. */
+.language-selector{position:fixed;right:16px;bottom:16px;z-index:80;display:flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid #c9d4cf;border-radius:8px;background:#fff;color:#173e34;box-shadow:0 2px 12px #0001;font-size:13px}.language-selector select{border:0;background:transparent;color:inherit;max-width:110px;min-height:28px}.language-selector select:focus-visible{outline:2px solid #176b56;outline-offset:2px}.plan-options{border:0;padding:0;display:grid;gap:10px;margin:12px 0}.plan-options legend{font-weight:600;margin-bottom:10px}.plan-options label{display:flex;align-items:center;gap:8px;padding:12px;border:1px solid #c9d4cf;border-radius:8px;cursor:pointer}.plan-options input{accent-color:#173e34}.plan-picker .pricing-amount{display:flex;align-items:baseline;gap:4px;flex-wrap:wrap}.plan-picker .pricing-amount strong{font-size:36px}.plan-picker .muted{font-size:13px}
+@media(max-width:640px){.language-selector{right:8px;bottom:8px;padding:3px 6px}.plan-picker .pricing-amount strong{font-size:28px}}

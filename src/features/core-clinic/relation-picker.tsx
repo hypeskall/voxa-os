@@ -1,4 +1,5 @@
 "use client";
+import { T } from "@/components/locale-provider";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/form";
 import type { CoreModule, Option } from "./model";
@@ -59,7 +60,7 @@ export function RelationPicker({
   }
   return (
     <fieldset className="relation-picker">
-      <legend>{label}</legend>
+      <legend><T>{label}</T></legend>
       {selected.map((id) => (
         <input key={id} type="hidden" name={name} value={id} />
       ))}
@@ -83,15 +84,12 @@ export function RelationPicker({
             />
             <span>
               {option.name}
-              {!option.active && <small> · inactiv / arhivat</small>}
+              {!option.active && <small><T>{" · inactiv / arhivat"}</T></small>}
             </span>
           </label>
         ))}
         {!options.length && (
-          <p className="muted">
-            Nu există opțiuni. Adăugați mai întâi înregistrarea în modulul
-            corespunzător.
-          </p>
+          <p className="muted"><T>{"Nu există opțiuni. Adăugați mai întâi înregistrarea în modulul corespunzător."}</T></p>
         )}
       </div>
       {!multiple && selected.length > 0 && (
@@ -99,14 +97,12 @@ export function RelationPicker({
           type="button"
           className="text-link"
           onClick={() => setSelected([])}
-        >
-          Elimină selecția
-        </button>
+        ><T>{"Elimină selecția"}</T></button>
       )}
-      <small>{selected.length} selectate · căutare în clinică</small>
+      <small>{selected.length}<T>{" selectate · căutare în clinică"}</T></small>
       {error && (
         <p role="alert" className="message error">
-          {error}
+          <T>{error}</T>
         </p>
       )}
     </fieldset>
