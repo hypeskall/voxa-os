@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useSyncExternalStore } from "react";
 import { T } from "./locale-provider";
+import { marketingPages } from "@/features/marketing/navigation";
 
 const storageKey = "voxa-cookie-notice-v1";
 const changeEvent = "voxa-cookie-notice-change";
@@ -26,8 +28,12 @@ function isDismissed() {
 }
 
 export function CookieNotice() {
+  const pathname = usePathname();
   const dismissed = useSyncExternalStore(subscribe, isDismissed, () => true);
-  if (dismissed) return null;
+  const informationalPage = pathname === "/" || pathname === "/help"
+    || pathname === "/legal" || pathname.startsWith("/legal/")
+    || marketingPages.some(page => page.href === pathname);
+  if (dismissed || !informationalPage) return null;
 
   function dismiss() {
     dismissedThisVisit = true;

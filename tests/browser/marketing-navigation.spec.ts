@@ -55,3 +55,18 @@ test("compact cookie notice fits mobile and preserves an explicit language choic
   await page.goto("/pret");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
 });
+
+test("cookie notice never overlaps booking or account forms on mobile", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  await expect(page.locator(".cookie-notice")).toBeVisible();
+  await page.goto("/book/clinica-centru");
+  await expect(page.locator(".cookie-notice")).toHaveCount(0);
+  await page.getByRole("button", { name: /Consultație inițială/ }).click();
+  await page.getByRole("button", { name: /Continuă/ }).click();
+  await expect(page.getByRole("button", { name: /Primul medic disponibil/ })).toBeVisible();
+  await page.goto("/login");
+  await expect(page.locator(".cookie-notice")).toHaveCount(0);
+  await page.goto("/");
+  await expect(page.locator(".cookie-notice")).toBeVisible();
+});
