@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireClinic } from "@/features/auth/access";
 import { calendarAppointments } from "@/features/calendar/data";
 import { calendarFiltersSchema } from "@/features/calendar/model";
+import { whatsappRemindersSchema } from "@/features/calendar/whatsapp-reminders-model";
 
 const dashboardSchema = z.object({
   date: z.string(),
@@ -29,10 +30,6 @@ const dashboardSchema = z.object({
     code: z.string(), label: z.string(), count: z.number(), tone: z.string(),
   })),
 });
-const reminderSchema = z.array(z.object({
-  id: z.uuid(), patient_id: z.uuid(), start_at: z.string(), end_at: z.string(), status: z.string(),
-  patient_name: z.string(), patient_phone: z.string(), service_name: z.string(), doctor_name: z.string().nullable(),
-}));
 
 export type OperationalDashboard = z.infer<typeof dashboardSchema>;
 
@@ -53,6 +50,6 @@ export async function loadOperationalDashboard(clinicId: string, localDay: strin
   return {
     ...parsed.data,
     upcoming: calendar?.appointments.filter((item) => item.status !== "CANCELLED") ?? [],
-    tomorrow_reminders: reminderSchema.parse(reminders.data),
+    tomorrow_reminders: whatsappRemindersSchema.parse(reminders.data),
   };
 }

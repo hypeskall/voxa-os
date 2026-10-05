@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireClinic } from "@/features/auth/access";
 import { localToInstant } from "@/features/core-clinic/validation";
 import { optionsFor } from "@/features/core-clinic/data";
+import { whatsappRemindersSchema } from "./whatsapp-reminders-model";
 import {
   appointmentDetailSchema,
   calendarAppointmentSchema,
@@ -50,6 +51,13 @@ export async function calendarOptions(clinicId: string) {
   if (links.error) throw new Error("Eligibilitatea medicilor nu a putut fi încărcată.");
   const eligibility=(links.data??[]) as {doctor_location_id:string;service_id:string}[];
   return { doctors: doctors.map((doctor) => ({ ...doctor, service_ids: eligibility.filter((link) => link.doctor_location_id === doctor.id).map((link) => link.service_id) })), specialities, services, rooms, equipment };
+}
+
+export async function tomorrowWhatsappReminders(clinicId: string, today: string) {
+  const { client } = await requireClinic(clinicId, "appointments.manage");
+  const { data, error } = await client.rpc("tomorrow_whatsapp_reminders", { cid: clinicId, local_day: today });
+  if (error) throw new Error("Reminderele WhatsApp nu au putut fi încărcate.");
+  return whatsappRemindersSchema.parse(data);
 }
 
 export async function appointmentDetail(clinicId: string, appointmentId: string) {

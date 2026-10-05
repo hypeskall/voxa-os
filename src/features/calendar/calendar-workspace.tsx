@@ -30,6 +30,8 @@ import { AppointmentComposer } from "./appointment-composer";
 import { calendarScale, minutesToClock, snapToIncrement, type CalendarTimeConfig } from "./time-grid";
 import { appointmentEventLabels, appointmentSourceLabels, appointmentStatusLabels, formatRomanianDate } from "@/lib/locale/ro";
 import { WhatsappReminderButton } from "./whatsapp-reminder-button";
+import { TomorrowReminders } from "./tomorrow-reminders";
+import type { WhatsappReminder } from "./whatsapp-reminders-model";
 
 type View = "day" | "week" | "month" | "agenda";
 type Options = Record<"doctors" | "specialities" | "services" | "rooms" | "equipment", Option[]>;
@@ -64,9 +66,10 @@ function dateList(start: string, end: string) {
   return values;
 }
 
-export function CalendarWorkspace({ clinicId, clinicName, clinicAddress, clinicPhone, whatsappTemplate, appointments, range, timeZone, view, date, filters, options, canManage, canOverride, initialAppointment, incrementMinutes, visibleStart, visibleEnd }: {
+export function CalendarWorkspace({ clinicId, clinicName, clinicAddress, clinicPhone, whatsappTemplate, tomorrowReminders, tomorrowDate, appointments, range, timeZone, view, date, filters, options, canManage, canOverride, initialAppointment, incrementMinutes, visibleStart, visibleEnd }: {
   clinicId: string; clinicName: string; appointments: CalendarAppointment[]; range: { start: string; end: string }; timeZone: string;
   clinicAddress: string; clinicPhone: string; whatsappTemplate: string;
+  tomorrowReminders: WhatsappReminder[]; tomorrowDate: string;
   view: View; date: string; filters: CalendarFilters; options: Options; canManage: boolean; canOverride: boolean; initialAppointment: string | null;
   incrementMinutes: number; visibleStart: string; visibleEnd: string;
 }) {
@@ -167,6 +170,7 @@ export function CalendarWorkspace({ clinicId, clinicName, clinicAddress, clinicP
     <PageHeading eyebrow={clinicName.toUpperCase()} title="Calendar" description="Programări și disponibilitate operațională în timp real." action={canManage ? <AppointmentComposer key={date} clinicId={clinicId} timeZone={timeZone} services={options.services} doctors={options.doctors} rooms={options.rooms} equipment={options.equipment} initialDate={date} incrementMinutes={incrementMinutes} visibleStart={visibleStart} visibleEnd={visibleEnd} canOverride={canOverride} prefill={createPrefill} onCreated={(message) => { setNotice(message); router.refresh(); }} onOpenAppointment={openAppointment} /> : undefined} />
     <section className="calendar-shell" aria-busy={isPending}>
       <div className="calendar-toolbar">
+        {canManage && <TomorrowReminders clinicId={clinicId} clinicName={clinicName} clinicAddress={clinicAddress} clinicPhone={clinicPhone} template={whatsappTemplate} timeZone={timeZone} date={tomorrowDate} reminders={tomorrowReminders} />}
         <div className="calendar-nav"><Button variant="outline" onClick={() => navigate(view, new Intl.DateTimeFormat("sv-SE", { timeZone }).format(new Date()))}><T>{"Astăzi"}</T></Button><Button variant="outline" size="icon" aria-label="Perioada anterioară" onClick={() => move(-1)}><ChevronLeft size={17} /></Button><Button variant="outline" size="icon" aria-label="Perioada următoare" onClick={() => move(1)}><ChevronRight size={17} /></Button><strong>{dayLabel(range.start,timeZone,true,locale)} – {dayLabel(addCalendarDays(range.end, -1),timeZone,true,locale)}</strong></div>
         <LocalizedElement as="div" className="calendar-view-switch" aria-label="Vizualizare calendar">{(["day", "week", "month", "agenda"] as const).map((value) => <Button key={value} size="sm" variant={view === value ? "default" : "ghost"} onClick={() => navigate(value)}>{({ day: "Zi", week: "Săptămână", month: "Lună", agenda: "Agendă" })[value]}</Button>)}</LocalizedElement>
       </div>

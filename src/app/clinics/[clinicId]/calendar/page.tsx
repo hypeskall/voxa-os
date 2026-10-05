@@ -1,8 +1,8 @@
 import { localDate } from "@/lib/time";
 import { can } from "@/lib/permissions";
 import { requireClinic, workspace } from "@/features/auth/access";
-import { calendarAppointments, calendarOptions } from "@/features/calendar/data";
-import { calendarFiltersSchema, calendarViewSchema } from "@/features/calendar/model";
+import { calendarAppointments, calendarOptions, tomorrowWhatsappReminders } from "@/features/calendar/data";
+import { addCalendarDays, calendarFiltersSchema, calendarViewSchema } from "@/features/calendar/model";
 import { CalendarWorkspace } from "@/features/calendar/calendar-workspace";
 import { z } from "zod";
 
@@ -34,9 +34,11 @@ export default async function CalendarPage({
         .map((key) => [key, query[key]]),
     ),
   });
-  const [calendar, options] = await Promise.all([
+  const canManage = can(context.permissions, "appointments.manage");
+  const [calendar, options, reminders] = await Promise.all([
     calendarAppointments(clinicId, view, date, filters),
     calendarOptions(clinicId),
+    canManage ? tomorrowWhatsappReminders(clinicId, today) : Promise.resolve([]),
   ]);
   return (
     <CalendarWorkspace
@@ -45,6 +47,8 @@ export default async function CalendarPage({
       clinicAddress={context.clinic.address}
       clinicPhone={context.clinic.phone}
       whatsappTemplate={context.clinic.whatsapp_reminder_template}
+      tomorrowReminders={reminders}
+      tomorrowDate={addCalendarDays(today, 1)}
       appointments={calendar.appointments}
       range={calendar.range}
       timeZone={calendar.timeZone}
@@ -52,7 +56,7 @@ export default async function CalendarPage({
       date={date}
       filters={filters}
       options={options}
-      canManage={can(context.permissions, "appointments.manage")}
+      canManage={canManage}
       canOverride={can(context.permissions, "appointments.override")}
       initialAppointment={z.uuid().safeParse(query.appointment).success ? String(query.appointment) : null}
       incrementMinutes={context.clinic.scheduling_increment_minutes}
