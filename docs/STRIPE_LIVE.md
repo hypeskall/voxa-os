@@ -1,5 +1,7 @@
 # Voxa-OS live billing — 5 October 2026
 
+> Update, 5 October 2026: billing now supports EUR 19.99/month and EUR 149.99/year. The annual plan uses `STRIPE_ANNUAL_PRICE_ID`, migration 042 and `scripts/stripe-annual-setup.mjs configure [staging]`. Existing monthly subscriptions and manual licenses remain supported. Checkout uses the explicitly selected interval; paid yearly access requires the configured yearly price and a verified EUR 149.99 Stripe collection. See [languages and annual release](LANGUAGES_ANNUAL_STRIPE_2026-10-05.md). References to monthly billing below describe the monthly option.
+
 The owner explicitly requested real payments and supplied a live server key privately in `.env.stripe-live.local`. Live account verification, the 19.99 EUR/month price, customer portal and dedicated production webhook are configured and deployed. Production database migrations 036–039 were applied forward after an encrypted, decrypt-verified snapshot and verified private EU upload; all 1,459 schema checks pass. Live production acceptance passed on 5 October 2026.
 
 ## Configuration

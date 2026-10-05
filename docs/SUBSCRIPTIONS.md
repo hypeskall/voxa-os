@@ -1,5 +1,7 @@
 # Voxa-OS subscription operations
 
+> Update, 5 October 2026: billing now supports EUR 19.99/month and EUR 149.99/year. The annual plan uses `STRIPE_ANNUAL_PRICE_ID`, migration 042 and `scripts/stripe-annual-setup.mjs configure [staging]`. Existing monthly subscriptions and manual licenses remain supported. Checkout uses the explicitly selected interval; paid yearly access requires the configured yearly price and a verified EUR 149.99 Stripe collection. See [languages and annual release](LANGUAGES_ANNUAL_STRIPE_2026-10-05.md). References to monthly billing below describe the monthly option.
+
 The public homepage is `/`. Login and account registration remain `/login` and `/register`. Successful clinic authentication resolves the workspace through `/dashboard`. Existing clinic routes, memberships and onboarding are retained.
 
 ## Deploying the schema

@@ -22,3 +22,10 @@
 - Migrarea 42 a fost aplicată și verificată pe staging, apoi pe producție după un backup criptat și verificat prin decriptare (80 tabele și 2 fișiere Storage).
 
 Publicarea și commitul final sunt consemnate în manifestul de producție și în istoricul Git.
+
+## Publicare finală
+
+- Commit implementare: `3e6c62069b51e99649f80d71ec6e2a928d3a5706`, push efectuat pe `codex/stripe-sandbox`.
+- Producție: `dpl_CBhKPzZvCScwMok1qwawLqkivCuS`, READY.
+- Manifest: 397 fișiere ale sursei corespund versiunii publicate; zero diferențe runtime și zero chei detectate în surse.
+- Pagina publică a fost verificată prin răspunsurile HTML reale în toate cele șapte limbi, inclusiv prețul anual și prioritatea alegerii persistente față de limba browserului.
