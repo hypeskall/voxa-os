@@ -21,7 +21,7 @@ export const authenticatedUser = cache(async () => {
 });
 export const requireUser = cache(async (next = "/dashboard") => {
   const session = await authenticatedUser();
-  if (await mfaRequired(session.client))
+  if (await mfaRequired(session.client, session.user))
     redirect(`/auth/mfa?next=${encodeURIComponent(safeMfaDestination(next))}`);
   return session;
 });
@@ -75,8 +75,10 @@ export type Preferences = {
   visible_columns: import("@/types/database").Json;
   dashboard_modules: string[];
 };
-export const requireClinic = cache(
-  async (id: string, permission: Permission = "clinic.read") => {
+// This cache lives only for the current React server request. Layouts, pages
+// and option loaders share the clinic lookup while checking each permission.
+const clinicContext = cache(
+  async (id: string) => {
     if (!z.uuid().safeParse(id).success) notFound();
     const { client, user } = await requireUser();
     const [clinic, grants, membership] = await Promise.all([
@@ -100,17 +102,24 @@ export const requireClinic = cache(
       grants.error
     )
       notFound();
-    await requireSubscription(clinic.data.organization_id);
-    if (!can(grants.data ?? [], permission)) notFound();
-    const organization = await client.from("organizations").select("onboarding_completed").eq("id", clinic.data.organization_id).single();
+    const [, organization] = await Promise.all([
+      requireSubscription(clinic.data.organization_id),
+      client.from("organizations").select("onboarding_completed").eq("id", clinic.data.organization_id).single(),
+    ]);
     if (organization.error) throw new Error("Starea organizației nu a putut fi verificată.");
-    if (!organization.data.onboarding_completed) redirect(`/onboarding?organization=${clinic.data.organization_id}`);
     return {
       client,
       user,
       clinic: clinic.data,
       permissions: grants.data,
       role: membership.data.role,
+      onboardingCompleted: organization.data.onboarding_completed,
     };
   },
 );
+export const requireClinic = cache(async (id: string, permission: Permission = "clinic.read") => {
+  const { onboardingCompleted, ...context } = await clinicContext(id);
+  if (!can(context.permissions ?? [], permission)) notFound();
+  if (!onboardingCompleted) redirect(`/onboarding?organization=${context.clinic.organization_id}`);
+  return context;
+});

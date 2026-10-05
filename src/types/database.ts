@@ -344,6 +344,7 @@ export type Database = {
       finish_notification_job: { Args: { job_id: string; final_status: NotificationStatus; provider_id: string; error_text?: string }; Returns: undefined };
       link_patient_identity: { Args: { cid: string; pid: string; uid: string }; Returns: string };
       list_patient_documents: { Args: { cid: string; pid: string }; Returns: Json };
+      list_patient_result_uploads: { Args: { cid: string; pid: string }; Returns: Json };
       save_patient_document: { Args: { cid: string; pid: string; aid: string | null; type_id: string; document_title: string; path: string; file_label: string; mime: string; bytes: number; patient_visible: boolean }; Returns: string };
       authorize_document_download: { Args: { cid: string; document_id: string }; Returns: Json };
       list_medical_results: { Args: { cid: string; pid?: string | null }; Returns: Json };

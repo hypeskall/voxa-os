@@ -58,6 +58,8 @@ export function AppointmentComposer({
   const [open, setOpen] = useState(false);
   const [patientQuery, setPatientQuery] = useState("");
   const [patients, setPatients] = useState<Patient[]>([]);
+  const [patientLoading, setPatientLoading] = useState(false);
+  const [patientError, setPatientError] = useState("");
   const [patient, setPatient] = useState<Patient | null>(null);
   const [newPatient, setNewPatient] = useState(false);
   const [serviceId, setServiceId] = useState("");
@@ -92,9 +94,13 @@ export function AppointmentComposer({
           body: JSON.stringify({ query: patientQuery, state: "active", sort_key: "name", descending: false, page_number: 1, filter_id: null }),
           signal: controller.signal,
         });
-        if (response.ok) setPatients((await response.json()).items as Patient[]);
-      } catch (error) {
-        if (!(error instanceof DOMException && error.name === "AbortError")) throw error;
+        if (!response.ok) throw new Error("Patient search failed");
+        const result = await response.json();
+        if (!controller.signal.aborted) setPatients(result.items as Patient[]);
+      } catch {
+        if (!controller.signal.aborted) setPatientError("Căutarea nu a reușit. Modificați termenul pentru a reîncerca.");
+      } finally {
+        if (!controller.signal.aborted) setPatientLoading(false);
       }
     }, 220);
     return () => {
@@ -111,7 +117,7 @@ export function AppointmentComposer({
 
   function reset() {
     setDate(initialDate); preferredTime.current = ""; slotRequest.current++;
-    setPatientQuery(""); setPatients([]); setPatient(null); setNewPatient(false);
+    setPatientQuery(""); setPatients([]); setPatientLoading(false); setPatientError(""); setPatient(null); setNewPatient(false);
     setServiceId(""); setDoctorId(""); setSlots([]); setSlot(null); setSlotsLoaded(false); setCustomizeResources(false); setManualRoomId(""); setManualEquipmentIds([]); setNotes(""); setError(""); setDuplicate(null);
   }
   function close() { setOpen(false); reset(); }
@@ -196,10 +202,10 @@ export function AppointmentComposer({
             <InlinePatient clinicId={clinicId} onCancel={() => setNewPatient(false)} onCreated={(created) => { setPatient(created); setNewPatient(false); }} />
           ) : (
             <>
-              <div className="patient-search-combobox"><label className="search-field"><Search size={16} /><Input role="combobox" aria-expanded={patientQuery.trim().length >= 2 && patients.length > 0} aria-controls="patient-search-results" aria-label="Caută pacient" placeholder="Nume, telefon, email sau identificator" value={patientQuery} onChange={(event) => { setPatientQuery(event.target.value); setPatients([]); }} /></label>
+              <div className="patient-search-combobox"><label className="search-field"><Search size={16} /><Input role="combobox" aria-expanded={patientQuery.trim().length >= 2} aria-controls="patient-search-results" aria-label="Caută pacient" placeholder="Nume, telefon, email sau identificator" value={patientQuery} onChange={(event) => { setPatientQuery(event.target.value); setPatients([]); setPatientError(""); setPatientLoading(event.target.value.trim().length >= 2); }} /></label>
               {patientQuery.trim().length >= 2 && <div className="search-results" id="patient-search-results" role="listbox">
                 {patients.map((item) => <button type="button" key={item.id} onClick={() => setPatient(item)}><strong>{item.name}</strong><span>{[item.phone,item.email,item.internal_id].filter(Boolean).join(" · ")}</span></button>)}
-                {!patients.length&&<span className="search-pending">Se caută...</span>}
+                {!patients.length&&<span className="search-pending" role="status">{patientLoading ? "Se caută..." : patientError || "Nu există pacienți care corespund căutării."}</span>}
               </div>}</div>
               <Button variant="outline" size="sm" onClick={() => setNewPatient(true)}><Plus size={15} />Pacient nou</Button>
             </>
@@ -217,7 +223,7 @@ export function AppointmentComposer({
         </section>
         {slot && <section className="allocation-summary"><strong>Alocare propusă</strong><span>{slot.assignment.doctor_id ? doctors.find((item) => item.id === slot.assignment.doctor_id)?.name : "Fără medic"}</span><span>{slot.assignment.room_id ? roomNames.get(slot.assignment.room_id) : "Fără cabinet"}</span>{slot.assignment.equipment.map((item) => <span key={item.id}>{equipmentNames.get(item.id) ?? "Echipament alocat"}</span>)}<Button variant="ghost" size="sm" onClick={() => setCustomizeResources((value) => !value)}>{customizeResources ? "Păstrează alocarea propusă" : "Schimbă resursele"}</Button>{customizeResources && <div className="resource-customizer"><Field label="Cabinet"><Select value={manualRoomId} onChange={(event) => setManualRoomId(event.target.value)}><option value="">Alocare automată</option>{rooms.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</Select></Field><fieldset><legend>Echipamente</legend><label><input type="checkbox" checked={manualEquipmentIds.length === 0} onChange={() => setManualEquipmentIds([])} /> Alocare automată</label>{equipment.map((item) => <label key={item.id}><input type="checkbox" checked={manualEquipmentIds.includes(item.id)} onChange={(event) => setManualEquipmentIds((values) => event.target.checked ? [...values, item.id] : values.filter((id) => id !== item.id))} /> {item.name}</label>)}</fieldset><small>Motorul verifică eligibilitatea și disponibilitatea selecției înainte de salvare.</small></div>}</section>}
         <Field label="Note"><textarea className="input textarea" rows={3} maxLength={5000} value={notes} onChange={(event) => setNotes(event.target.value)} /></Field>
-        {duplicate && <div className="warning-box"><strong>Posibilă programare duplicată</strong><p>Există deja o programare apropiată pentru același pacient și serviciu.</p><div className="dialog-actions">{duplicate.warnings?.[0]?.appointment_id && <Button variant="outline" onClick={() => onOpenAppointment(duplicate.warnings![0].appointment_id!)}>Vezi programarea</Button>}<Button variant="ghost" onClick={() => setDuplicate(null)}>Renunță</Button>{canOverride && <Button onClick={() => submit(true)}>Continuă oricum</Button>}</div></div>}
+        {duplicate && <div className="warning-box"><strong>Posibilă programare duplicată</strong><p>Există deja o programare apropiată pentru același pacient și serviciu.</p><div className="dialog-actions">{duplicate.warnings?.[0]?.appointment_id && <Button variant="outline" onClick={() => { const id = duplicate.warnings![0].appointment_id!; close(); onOpenAppointment(id); }}>Vezi programarea</Button>}<Button variant="ghost" onClick={() => setDuplicate(null)}>Renunță</Button>{canOverride && <Button disabled={isPending} onClick={() => startTransition(() => submit(true))}>Continuă oricum</Button>}</div></div>}
         {error && <p className="form-error" role="alert">{error}</p>}
         {!duplicate && <div className="dialog-actions"><Button variant="ghost" onClick={close}>Renunță</Button><Button disabled={isPending || !patient || !slot} onClick={() => startTransition(() => submit())}>Creează programarea</Button></div>}
       </div>

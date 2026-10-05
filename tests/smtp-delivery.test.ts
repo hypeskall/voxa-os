@@ -13,6 +13,14 @@ beforeEach(()=>{
 afterEach(()=>{vi.unstubAllEnvs();vi.unstubAllGlobals();});
 const message={to:"staff@example.ro",subject:"Invitație",text:"Conținut privat",key:"invite-unique"};
 describe("SMTP delivery security and uncertainty",()=>{
+  it("blocks reserved demonstration addresses before SMTP or ledger access",async()=>{
+    vi.stubEnv("NOTIFICATION_PROVIDER","smtp");
+    for(const recipient of ["demo@voxa.test","demo@users.voxa.invalid","demo@example.com","demo@clinic.example.org","invalid"]){
+      await expect(notificationProvider().send({channel:"EMAIL",recipient,subject:"Programare",body:"Test",idempotencyKey:"synthetic"})).rejects.toThrow();
+    }
+    expect(mocks.create).not.toHaveBeenCalled();
+    expect(mocks.rpc).not.toHaveBeenCalled();
+  });
   it("requires verified TLS, closes the connection, and records confirmed acceptance",async()=>{
     mocks.rpc.mockResolvedValueOnce({data:"claimed",error:null}).mockResolvedValueOnce({error:null});
     mocks.send.mockResolvedValue({accepted:[message.to]});

@@ -1,5 +1,7 @@
 # Voxa SaaS implementation report — 2 October 2026
 
+**Historical local baseline.** The later [live acceptance](STRIPE_LIVE.md) and [5 October audit](DEEP_AUDIT_2026-10-05.md) document hosted deployment, automated staff/patient email, billing enforcement, MFA, restored Auth/private/Storage and reception results. The limitations/test counts below describe 2 October, not the current release. Voice integrations remain excluded.
+
 Follow-up staging work and current verification/access blockers are recorded in [HOSTED_STAGING_REPORT.md](HOSTED_STAGING_REPORT.md). The implementation/test counts below describe the preceding local baseline; the new report includes migration 028 and the latest checks.
 
 The repository now implements self-service clinic setup and tenant-scoped clinical workflows using its existing Next.js/Supabase architecture. No hosted migrations, email deliveries, or deployment were performed. Local verification is distinguished below from the hosted checks that the clinic must still run.

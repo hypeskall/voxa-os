@@ -1,5 +1,6 @@
 import "server-only";
 import { sendTransactionalEmail } from "@/lib/email/smtp";
+import { z } from "zod";
 
 export type NotificationMessage = { channel: "SMS" | "EMAIL"; recipient: string; subject: string; body: string; idempotencyKey: string };
 export type Delivery = { status: "SENT" | "DELIVERED"; providerMessageId: string };
@@ -30,6 +31,10 @@ class WebhookProvider implements NotificationProvider {
 class SmtpProvider implements NotificationProvider {
   async send(message: NotificationMessage): Promise<Delivery> {
     if (message.channel !== "EMAIL") throw new Error("SMS nu este configurat. Folosiți canalul email.");
+    const recipient = z.email().max(254).parse(message.recipient);
+    const domain = recipient.split("@")[1].toLowerCase();
+    if (["test", "invalid", "localhost", "example", "example.com", "example.org", "example.net"].some(reserved => domain === reserved || domain.endsWith(`.${reserved}`)))
+      throw new Error("Adresa demonstrativă nu poate primi emailuri reale.");
     const result = await sendTransactionalEmail({ to: message.recipient, subject: message.subject,
       text: message.body, key: `patient-notification:${message.idempotencyKey}` });
     return { status: "SENT", providerMessageId: result.messageId };

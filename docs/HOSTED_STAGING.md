@@ -1,5 +1,7 @@
 # Hosted staging execution guide
 
+**Current release note, 5 October:** staging now has 40 migrations and 1,460 catalog checks; production has the corresponding verified schema while preserving historical migration IDs. See [current audit](DEEP_AUDIT_2026-10-05.md) and [Stripe live](STRIPE_LIVE.md). The 31-migration inventory and original acceptance observations below are historical. Staging still uses development notifications and sandbox billing; that is distinct from active production email/live billing.
+
 On 3 October 2026 the dedicated infrastructure, all 31 migrations and 1,254 catalog checks passed. Both owners are confirmed, both saved passwords work, and both clinics have real synthetic fixtures. Hosted onboarding, appointments, WhatsApp preparation, bidirectional database/Storage isolation, orphan recovery, invitations, role boundaries and genuine session expiry passed. A fresh recovery email reached the new-password form through the explicit confirmation step. The owner completed the final A rotation. The protected Preview includes the login hydration safeguard. See `HOSTED_STAGING_REPORT.md` for deployment, 16 hosted checks, 39 local browser checks and trial scope limits; this guide alone is not a production-readiness claim.
 
 ## Access required from the owner

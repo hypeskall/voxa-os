@@ -96,7 +96,8 @@
 }
 .catalog-toolbar .search-field { margin: 0; }
 .catalog-count { color: var(--muted); font-size: 12px; text-align: right; }
-.cell-clamp { max-width: 300px; color: var(--muted); line-height: 1.45; }
+.cell-clamp { min-width: 180px; max-width: 300px; color: var(--muted); line-height: 1.45; white-space: normal; overflow-wrap: anywhere; }
+.catalog-workspace td:last-child { white-space: nowrap; overflow-wrap: normal; }
 .schedule-state { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; }
 .schedule-state.ready { color: var(--accent); }
 .demo-label { display: block; margin-top: 2px; color: #8a6115; font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
@@ -677,6 +678,8 @@ td {
 }
 td {
   font-size: 12px;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 tr:last-child td {
   border-bottom: 0;
@@ -741,7 +744,6 @@ tbody tr:hover {
   inset: 0;
   background: #15291d55;
   z-index: 60;
-  animation: fade-in var(--motion);
 }
 .dialog-content {
   position: fixed;
@@ -757,7 +759,6 @@ tbody tr:hover {
   border-radius: 8px;
   box-shadow: var(--shadow);
   z-index: 61;
-  animation: fade-in var(--motion);
 }
 .dialog-content.drawer {
   left: auto;
@@ -1030,15 +1031,17 @@ tbody tr:hover {
 
 /* Product polish — shared motion, surfaces and scheduling interactions. */
 @keyframes voxa-fade-in { from { opacity: 0; } to { opacity: 1; } }
-@keyframes voxa-dialog-in { from { opacity: 0; transform: translateY(5px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes voxa-dialog-in { from { opacity: 0; transform: translate(-50%, calc(-50% + 5px)) scale(.985); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
 @keyframes voxa-drawer-in { from { opacity: .75; transform: translateX(18px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes voxa-pulse { 0%,100% { opacity: .48; } 50% { opacity: .9; } }
 
 .dialog-overlay[data-state="open"] { animation: voxa-fade-in var(--motion) var(--ease-standard); }
 .dialog-content[data-state="open"] { animation: voxa-dialog-in var(--motion) var(--ease-standard); }
 .dialog-content.drawer[data-state="open"] { animation: voxa-drawer-in var(--motion-slow) var(--ease-standard); }
+.dialog-overlay[data-state="closed"], .dialog-content[data-state="closed"] { animation: none; }
 .dialog-content { box-shadow: 0 20px 60px #17241c20; }
 .dialog-body { scrollbar-gutter: stable; }
+.workspace-loading { display: grid; gap: 16px; padding-top: 12px; }
 
 .sidebar nav a,
 .module-tabs a,
@@ -1330,12 +1333,13 @@ tbody tr:hover {
 .message-preview { padding:12px; border-left:3px solid #4c7564; background:#fff; }
 .message-preview small { color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.5px; }
 .message-preview p { margin-top:5px; font-size:12px; line-height:1.55; }
-.whatsapp-reminder-action { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+.whatsapp-reminder-action { display:flex; flex-wrap:wrap; align-items:center; gap:8px; min-width:0; max-width:100%; }
+.whatsapp-reminder-action .button { max-width:100%; white-space:normal; height:auto; min-height:30px; }
 .whatsapp-reminder-action .button svg { color:#1f8f52; }
 .whatsapp-reminder-action small { color:var(--muted); font-size:10px; }
 .reminder-list { display:grid; }
-.reminder-row { display:flex; justify-content:space-between; align-items:center; gap:14px; padding:11px 0; border-bottom:1px solid var(--border); }
-.reminder-row>div:first-child { display:grid; gap:3px; }
+.reminder-row { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:14px; padding:11px 0; border-bottom:1px solid var(--border); }
+.reminder-row>div:first-child { display:grid; gap:3px; min-width:0; max-width:100%; overflow-wrap:anywhere; }
 .reminder-row small { color:var(--muted); font-size:11px; }
 .allocation-summary { display: flex; flex-wrap: wrap; gap: 7px; padding: 11px; border: 1px solid #cbd8d0; background: #f2f6f3; font-size: 11px; }
 .allocation-summary strong { width: 100%; }

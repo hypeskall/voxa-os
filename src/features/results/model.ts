@@ -4,3 +4,4 @@ export const resultListItemSchema = z.object({ id: z.uuid(), patient_id: z.uuid(
 export const resultDetailSchema = resultListItemSchema.extend({ organization_id: z.uuid(), clinic_id: z.uuid(), content: z.string(), patient_internal_id: z.string(), birth_date: z.string().nullable(), professional_code: z.string(), clinic_name: z.string(), clinic_address: z.string(), clinic_phone: z.string(), timezone: z.string(), created_by: z.uuid(), validated_by: z.string().nullable(), released_by: z.string().nullable() });
 export const resultOptionSchema = z.object({ id: z.uuid(), patient_id: z.uuid(), patient_name: z.string(), patient_internal_id: z.string(), service_id: z.uuid(), service_name: z.string(), doctor_id: z.uuid(), doctor_name: z.string(), start_at: z.string(), status: z.string() });
 export type ResultDetail = z.infer<typeof resultDetailSchema>;
+export type ResultOption = z.infer<typeof resultOptionSchema>;

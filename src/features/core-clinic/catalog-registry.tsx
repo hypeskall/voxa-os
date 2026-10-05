@@ -96,7 +96,7 @@ export function CatalogRegistry({
         <Select aria-label="Status" value={input.state} onChange={(event) => update({ state: event.target.value as ListInput["state"] })}>
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>
-          <option value="all">Toate</option>
+          <option value="all">Toate, fără cele arhivate</option>
           <option value="archived">Arhivate</option>
         </Select>
         <span className="catalog-count" aria-live="polite">{busy ? "Se actualizează…" : `${result.total} rezultate`}</span>
@@ -117,7 +117,7 @@ export function CatalogRegistry({
               <td>{text(row,"speciality_names") || "Neconfigurată"}</td>
               <td className="cell-clamp">{text(row,"service_names") || "Niciun serviciu asociat"}</td>
               <td>{Number(row.availability_count ?? 0) > 0 ? <span className="schedule-state ready"><Clock3 size={14}/>Configurat</span> : <span className="schedule-state"><Clock3 size={14}/>Neconfigurat</span>}</td>
-              <td><span className={`status ${row.active && !row.archived_at ? "" : "inactive"}`}>{row.active && !row.archived_at ? "Activ" : "Inactiv"}</span></td>
+              <td><span className={`status ${row.active && !row.archived_at ? "" : "inactive"}`}>{row.archived_at ? "Arhivat" : row.active ? "Activ" : "Inactiv"}</span></td>
               <td><Link className="text-link" href={`/clinics/${cid}/doctors/${row.id}`}>Profil</Link></td>
             </tr>
           ) : (
@@ -127,7 +127,7 @@ export function CatalogRegistry({
               <td><strong>{text(row,"duration_minutes")} min</strong>{row.duration_is_demo_default === true && <small className="demo-label">valoare demo</small>}</td>
               <td className="cell-clamp">{[text(row,"room_names"), text(row,"equipment_names")].filter(Boolean).join(" · ") || "Neconfigurate"}</td>
               <td className="cell-clamp">{text(row,"doctor_names") || "Neasociați"}</td>
-              <td><span className={`status ${row.active && !row.archived_at ? "" : "inactive"}`}>{row.active && !row.archived_at ? "Activ" : "Inactiv"}</span></td>
+              <td><span className={`status ${row.active && !row.archived_at ? "" : "inactive"}`}>{row.archived_at ? "Arhivat" : row.active ? "Activ" : "Inactiv"}</span></td>
               <td><Link className="text-link" href={`/clinics/${cid}/services/${row.id}`}>Configurează</Link></td>
             </tr>
           ))}

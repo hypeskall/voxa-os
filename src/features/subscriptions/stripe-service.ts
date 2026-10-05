@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import type Stripe from "stripe";
 import { adminDb } from "@/lib/supabase/admin";
 import { subscriptionSnapshot, objectId, type StripeBilling } from "./stripe-model";
+import { stripeLiveMode } from "./stripe-client";
 
 export async function billingLock(organizationId: string) {
   const { data, error } = await adminDb().rpc("stripe_billing_lock", { oid: organizationId });
@@ -26,7 +27,8 @@ export async function latestSubscription(stripe: Stripe, billing: StripeBilling)
 export async function reconcileBilling(stripe: Stripe, billing: StripeBilling, eventId = `sync_${randomUUID()}`, kind = "server_reconciliation") {
   const subscription = await latestSubscription(stripe, billing);
   if (!subscription) return null;
-  const snapshot = subscriptionSnapshot(subscription, process.env.STRIPE_PRICE_ID!, billing.organization_id);
+  const livemode = stripeLiveMode();
+  const snapshot = subscriptionSnapshot(subscription, process.env.STRIPE_PRICE_ID!, billing.organization_id, livemode);
   // A paid invoice alone also includes payments recorded outside Stripe. Require
   // an actual successful, unrefunded Stripe charge before granting paid access.
   if (snapshot.paid && typeof subscription.latest_invoice === "object" && subscription.latest_invoice) {
@@ -41,9 +43,9 @@ export async function reconcileBilling(stripe: Stripe, billing: StripeBilling, e
         const intent = await stripe.paymentIntents.retrieve(intentId, { expand: ["latest_charge"] });
         if (intent.status === "succeeded" && typeof intent.latest_charge === "object") charge = intent.latest_charge;
       } else if (chargeId) charge = await stripe.charges.retrieve(chargeId);
-      if (charge && !charge.livemode && charge.paid && charge.captured && !charge.disputed &&
+      if (charge && charge.livemode === livemode && charge.paid && charge.captured && !charge.disputed &&
         !charge.refunded && charge.amount_refunded === 0 && charge.currency === "eur" &&
-        objectId(charge.customer) === billing.customer_id && !payment.livemode && payment.currency === "eur") collected += payment.amount_paid ?? 0;
+        objectId(charge.customer) === billing.customer_id && payment.livemode === livemode && payment.currency === "eur") collected += payment.amount_paid ?? 0;
     }
     snapshot.paid = collected >= 1999;
   }

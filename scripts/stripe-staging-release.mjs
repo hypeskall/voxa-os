@@ -34,6 +34,9 @@ try{
    fs.mkdirSync(path.dirname(to),{recursive:true});fs.copyFileSync(from,to);
   }
   fs.mkdirSync(path.join(folder,".vercel"),{recursive:true});fs.writeFileSync(path.join(folder,".vercel","project.json"),JSON.stringify(project));
+  const hosting=JSON.parse(fs.readFileSync(path.join(folder,"vercel.json"),"utf8"));
+  hosting.regions=["fra1"]; // Staging database is in eu-central-1; production is in eu-west-1.
+  fs.writeFileSync(path.join(folder,"vercel.json"),JSON.stringify(hosting,null,2));
   const output=cli(["deploy",releaseRelative,"--yes","--scope","voxa6","--no-clipboard"]);
   const url=output.match(/https:\/\/voxa-os-staging-[a-z0-9-]+-voxa6\.vercel\.app/)?.[0];
   if(!url)throw Error("Deployment URL not acknowledged");

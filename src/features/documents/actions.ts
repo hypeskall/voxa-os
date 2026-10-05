@@ -22,5 +22,16 @@ export async function uploadPatientDocument(cid: string, pid: string, _: ActionS
   const { error } = await client.rpc("save_patient_document", { cid, pid, aid: parsed.data.appointment_id || null, type_id: parsed.data.document_type_id, document_title: parsed.data.title, path, file_label: file.name, mime, bytes: file.size, patient_visible: form.get("visible_to_patient") === "on" });
   if (error) { const cleanup = await cleanupUploads(client, "voxa-medical", [path]); return { error: "Documentul nu a putut fi înregistrat." + cleanup }; }
   revalidatePath(`/clinics/${cid}/patients/${pid}`);
+  revalidatePath(`/clinics/${cid}/clinical-patients/${pid}`);
+  revalidatePath("/portal");
   return { success: "Documentul a fost încărcat în spațiul privat." };
+}
+
+export async function uploadPatientResult(cid: string, pid: string, state: ActionState, form: FormData): Promise<ActionState> {
+  const { client } = await requireClinic(cid, "documents.manage");
+  const { data: type, error } = await client.from("document_types").select("id").eq("clinic_id", cid).eq("code", "result").eq("active", true).single();
+  if (error || !type) return { error: "Tipul de document pentru rezultate nu este activ în această clinică." };
+  form.set("document_type_id", type.id);
+  const response = await uploadPatientDocument(cid, pid, state, form);
+  return response.error ? response : { success: form.get("visible_to_patient") === "on" ? "Rezultatul a fost încărcat și este disponibil în portalul pacientului, dacă accesul său este activat." : "Rezultatul a fost încărcat pentru echipa clinicii." };
 }

@@ -142,6 +142,7 @@ describe("Real PostgreSQL policies against migrated schema", () => {
                 "notifications.read",
                 "documents.read",
                 "documents.manage",
+                "results.read",
               ]
             : uid === doctor
               ? ["clinic.read", "catalog.read", "availability.read", "documents.read", "documents.manage", "results.read", "results.manage", "results.release", "credentials.manage"]

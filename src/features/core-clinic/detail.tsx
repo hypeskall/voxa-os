@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { can } from "@/lib/permissions";
+import { can, type Permission } from "@/lib/permissions";
 import { requireClinic } from "@/features/auth/access";
 import { PageHeading, Section, Table } from "@/components/ui/page";
 import { Panel } from "@/components/ui/dialog";
@@ -51,11 +51,16 @@ export async function CoreDetail({
     ["communications", "Comunicări"],
     ["history", "Istoric"],
   ];
+  const tabPermissions: Record<string, Permission> = {
+    appointments: "appointments.read", documents: "documents.read",
+    results: "results.read", communications: "notifications.read",
+  };
   const doctorTabs = [["details", "Detalii"], ["services", "Servicii"], ["schedule", "Program"], ["unavailability", "Indisponibilități"]];
   const serviceTabs = [["general", "General"], ["doctors", "Medici"], ["resources", "Resurse"], ["preparation", "Pregătire și documente"], ["scheduling", "Programare"]];
   const tabs = module === "patients" ? patientTabs : module === "doctors" ? doctorTabs : module === "services" ? serviceTabs : [];
   const defaultTab = module === "doctors" ? "details" : module === "services" ? "general" : "overview";
   const activeTab = tabs.some(([key]) => key === tab) ? tab : defaultTab;
+  const deniedTab = module === "patients" && tabPermissions[activeTab] && !can(permissions, tabPermissions[activeTab]);
   const history =
     module === "patients" && activeTab === "history"
       ? await patientHistory(cid, id)
@@ -115,7 +120,7 @@ export async function CoreDetail({
       </div>
       {tabs.length > 0 && (
         <nav className="profile-tabs" aria-label={module === "patients" ? "Secțiuni profil pacient" : "Secțiuni configurare"}>
-          {tabs.map(([key, label]) => (
+          {tabs.filter(([key]) => module !== "patients" || !tabPermissions[key] || can(permissions, tabPermissions[key])).map(([key, label]) => (
             <Link
               key={key}
               aria-current={activeTab === key ? "page" : undefined}
@@ -127,7 +132,11 @@ export async function CoreDetail({
           ))}
         </nav>
       )}
-      {module !== "patients" || activeTab === "overview" ? (
+      {deniedTab ? (
+        <Section title={tabs.find(([key]) => key === activeTab)?.[1] ?? "Acces restricționat"}>
+          <p className="muted">Rolul dumneavoastră nu permite accesul la această secțiune.</p>
+        </Section>
+      ) : module !== "patients" || activeTab === "overview" ? (
         <>
           {!(module === "doctors" && scheduleModule) && <Section
             title={module === "patients" ? "Date administrative" : tabs.find(([key]) => key === activeTab)?.[1] ?? "Detalii"}
@@ -160,6 +169,8 @@ export async function CoreDetail({
                   text = valueIds(row, field.key).join("\n");
                 else if (field.options)
                   text = field.options.find(([v]) => v === text)?.[1] ?? text;
+                else if (typeof row[field.key] === "boolean")
+                  text = row[field.key] ? "Da" : "Nu";
                 else if (field.kind === "datetime" && text)
                   text = formatInTimeZone(text, clinic.timezone);
                 return (
@@ -213,7 +224,7 @@ export async function CoreDetail({
                   {scheduleRows.items.map((item) => <tr key={item.id}>
                     <td><strong>{item.name}</strong></td>
                     <td>{scheduleModule === "availability" ? `${["", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă", "Duminică"][Number(item.weekday)]} · ${valueText(item, "start_time").slice(0, 5)}–${valueText(item, "end_time").slice(0, 5)}` : `${formatInTimeZone(valueText(item, "starts_at"), clinic.timezone)} – ${formatInTimeZone(valueText(item, "ends_at"), clinic.timezone)}`}</td>
-                    <td>{valueText(item, scheduleModule === "availability" ? "interval_kind" : "exception_kind")}</td>
+                    <td>{moduleSpecs[scheduleModule].fields.find(field => field.key === (scheduleModule === "availability" ? "interval_kind" : "exception_kind"))?.options?.find(([key]) => key === valueText(item, scheduleModule === "availability" ? "interval_kind" : "exception_kind"))?.[1] ?? "Necompletat"}</td>
                     <td><Link className="text-link" href={`/clinics/${cid}/${scheduleModule}/${item.id}`}>Editează</Link></td>
                   </tr>)}
                   {!scheduleRows.items.length && <tr><td colSpan={4} className="table-empty">Nu există intervale configurate.</td></tr>}

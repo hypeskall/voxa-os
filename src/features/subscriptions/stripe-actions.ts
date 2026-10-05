@@ -5,7 +5,7 @@ import { requireOrganization } from "@/features/organizations/access";
 import type { ActionState } from "@/features/auth/actions";
 import { appOrigin } from "@/lib/app-origin";
 import { assertMonthlyPrice, type StripeBilling } from "./stripe-model";
-import { verifiedStripe } from "./stripe-client";
+import { verifiedStripe, stripeLiveMode } from "./stripe-client";
 import { billingLock, billingSave, latestSubscription, reconcileBilling } from "./stripe-service";
 
 function safeStripeRedirect(value: string | null, portal = false) {
@@ -15,19 +15,20 @@ function safeStripeRedirect(value: string | null, portal = false) {
 }
 export async function startStripeCheckout(organizationId: string, _: ActionState, form: FormData): Promise<ActionState> {
   const { organization } = await requireOrganization(organizationId, true);
-  if (form.get("billing_consent") !== "on") return { error: "Confirmați reînnoirea automată a abonamentului de test." };
+  if (form.get("billing_consent") !== "on") return { error: "Confirmați reînnoirea automată a abonamentului." };
   let billing: StripeBilling | undefined;
   let destination: string | undefined;
   try {
     const stripe = await verifiedStripe();
     const price = await stripe.prices.retrieve(process.env.STRIPE_PRICE_ID!);
-    assertMonthlyPrice(price);
+    const livemode = stripeLiveMode();
+    assertMonthlyPrice(price, livemode);
     billing = await billingLock(organizationId);
     if (billing.license_active) return { error: "Licența este încă activă. Păstrați accesul existent până la expirarea ei." };
     if (!billing.customer_id) {
       const customer = await stripe.customers.create({ name: organization.name, metadata: { organization_id: organizationId, app: "voxa-os" } },
         { idempotencyKey: `voxa-customer-${organizationId}` });
-      if (customer.livemode) throw new Error("Live customer rejected");
+      if (customer.livemode !== livemode) throw new Error("Customer mode mismatch");
       await billingSave(billing, { customer_id: customer.id });
       billing.customer_id = customer.id;
     }
@@ -78,12 +79,12 @@ export async function startStripeCheckout(organizationId: string, _: ActionState
           trial_settings: { end_behavior: { missing_payment_method: "cancel" } } },
         success_url: `${base}?checkout=received`, cancel_url: `${base}?checkout=canceled`,
       }, { idempotencyKey: `voxa-checkout-${billing.checkout_attempt}` });
-      if (session.livemode || session.customer !== billing.customer_id) throw new Error("Checkout mismatch");
+      if (session.livemode !== livemode || session.customer !== billing.customer_id) throw new Error("Checkout mismatch");
       await billingSave(billing, { checkout_id: session.id, checkout_expires_at: new Date(session.expires_at*1000).toISOString() });
       destination = safeStripeRedirect(session.url);
     }
   } catch {
-    return { error: "Facturarea de test nu este disponibilă momentan. Reîncercați; solicitarea nu activează accesul fără confirmarea plății." };
+    return { error: "Facturarea nu este disponibilă momentan. Reîncercați; solicitarea nu activează accesul fără confirmarea plății." };
   } finally {
     if (billing) await billingSave(billing, { release: true }).catch(() => {});
   }

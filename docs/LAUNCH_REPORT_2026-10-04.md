@@ -1,6 +1,6 @@
 # Release evidence — 4 October 2026
 
-This report's earlier release evidence is preserved below. The later [technical acceptance report](ACCEPTANCE_1_4_2026-10-04.md) records migration 034, enforced app MFA, full private-runner restoration, the new synthetic clinic pilot and current backup/email acceptance.
+This report's earlier release evidence is preserved below. The [4 October acceptance](ACCEPTANCE_1_4_2026-10-04.md) records later MFA/full restoration/pilot. The [5 October live acceptance](STRIPE_LIVE.md) and [extended audit](DEEP_AUDIT_2026-10-05.md) record the current release through migration 040, active production email, Stripe live and reception results. Earlier Zoho/disabled-delivery statements describe their original phase.
 
 The broken authenticated dashboard entry originated from schema drift: production matched migration 021 while the application needed later organization/onboarding/subscription schema. After an encrypted snapshot, forward migrations 022–033 were applied, preserving old migration IDs and existing records. Both backends match 1,379 catalog checks. Existing sessions now have a safe POST account-switch escape at public Auth entry.
 

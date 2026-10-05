@@ -41,6 +41,18 @@ test.describe.serial("internal calendar and public booking", () => {
     await expect(card).toContainText(internalTime);
   });
 
+  test("choosing a reschedule time does not refetch availability or flash the slot list", async ({ page }) => {
+    await login(page);
+    await page.goto(`/clinics/${clinic}/calendar?view=week&date=${bookingDate}`);
+    await page.getByRole("button",{name:/Andrei Popescu/}).click();
+    const slots=page.getByRole("dialog").locator(".reschedule-form .slot-picker button");
+    await expect(slots.nth(1)).toBeVisible();
+    let actions=0;page.on("request",request=>{if(request.method()==="POST"&&request.headers()["next-action"])actions++;});
+    await slots.nth(1).click();await page.waitForTimeout(700);
+    expect(actions).toBe(0);await expect(slots.nth(1)).toHaveClass("selected");
+    await page.keyboard.press("Escape");
+  });
+
   test("reception resizes an appointment to 45 minutes from the calendar", async ({ page }) => {
     await login(page);
     await page.goto(`/clinics/${clinic}/calendar?view=week&date=${bookingDate}`);

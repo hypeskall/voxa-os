@@ -53,6 +53,9 @@ export function Shell({
     ...(can(permissions, modulePermission("patients", "read"))
       ? [{ href: `${base}/patients`, label: "Pacienți", icon: ContactRound }]
       : []),
+    ...(can(permissions, "results.read")
+      ? [{ href: `${base}/results`, label: "Rezultate", icon: ClipboardList }]
+      : []),
     ...(can(permissions, modulePermission("doctors", "read"))
       ? [{ href: `${base}/doctors`, label: "Medici", icon: Stethoscope }]
       : []),

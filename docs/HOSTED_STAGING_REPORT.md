@@ -1,6 +1,6 @@
 # Hosted staging verification — 3 October 2026
 
-Historical evidence from the earlier pass. The later [acceptance report](ACCEPTANCE_1_4_2026-10-04.md) documents current MFA, full recovery, the new clinic pilot and updated configuration.
+Historical evidence from the 3 October pass. The [4 October acceptance](ACCEPTANCE_1_4_2026-10-04.md) documents later MFA/full recovery/pilot; the [5 October audit](DEEP_AUDIT_2026-10-05.md) records the current 40-migration release, production email, Stripe live and reception results. Original staging observations are preserved below.
 
 **Hosted functional and security checks pass for the implemented staging scope.** Both real accounts are confirmed and their saved passwords authenticate successfully. The owner verified a fresh recovery email; its explicit confirmation reached the real new-password form. The latest protected Preview includes recovery safeguards and the login hydration fix. After an earlier test exposed account A's password in a native GET login URL, the owner completed the final password rotation; the application displayed its password-updated confirmation and both saved credentials were independently rechecked through normal Supabase Auth. Production deployment, database and data were untouched. A real clinic trial still requires the retention/privacy and operational decisions below.
 

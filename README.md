@@ -1,10 +1,10 @@
 # Voxa
 
-Hosted staging: [ghid de configurare](docs/HOSTED_STAGING.md) · [acceptanța curentă: restaurare, MFA și pilot](docs/ACCEPTANCE_1_4_2026-10-04.md). Pilotul cu date fictive a trecut verificările reale; lansarea comercială și datele medicale cer deciziile rămase din [checklist](PRODUCTION_CHECKLIST.md).
+Release curent: [auditul din 5 octombrie](docs/DEEP_AUDIT_2026-10-05.md) · [reconcilierea cu Git](docs/RELEASE_RECONCILIATION_2026-10-05.md) · [manifestul sursei publicate](docs/PRODUCTION_SOURCE_MANIFEST_2026-10-05.json). Hosted staging: [ghid](docs/HOSTED_STAGING.md); restaurarea, MFA și pilotul fictiv au [dovezi istorice separate](docs/ACCEPTANCE_1_4_2026-10-04.md). Lansarea comercială și datele medicale păstrează deciziile proprietarului din [checklist](PRODUCTION_CHECKLIST.md).
 
 Aplicație B2B pentru administrarea clinicilor. Implementarea include fundația multi-tenant, programările, booking-ul public, comunicările, documentele medicale private, rezultatele versionate și portalul pacientului. Documentul original este păstrat intact, iar interfața este în română.
 
-Pagina publică Voxa-OS este la `/`, iar intrarea în aplicație este la `/dashboard`. Planul unic costă **19,99 EUR/lună**, cu **30 de zile gratuit**, fără debitare automată. Migrarea `202610030032_subscriptions_and_licenses.sql` adaugă abonamente, licențe și blocarea accesului operațional după expirare. Plata online nu este integrată. [Ghid de operare și activare](docs/SUBSCRIPTIONS.md) · [Raport de implementare](docs/SUBSCRIPTIONS_IMPLEMENTATION_REPORT.md).
+Pagina publică Voxa-OS este la `/`, iar intrarea în aplicație este la `/dashboard`. Planul unic costă **19,99 EUR/lună**, cu **30 de zile gratuit**, fără card la înscriere. Migrarea `202610030032_subscriptions_and_licenses.sql` adaugă abonamente, licențe și blocarea accesului operațional după expirare. Stripe Checkout, portalul și webhookurile semnate sunt integrate; abonarea explicită activează reînnoirea automată. Staging folosește exclusiv sandbox, iar producția cere modul live și chei live distincte. [Ghid de operare și activare](docs/SUBSCRIPTIONS.md) · [Stripe live](docs/STRIPE_LIVE.md).
 
 ## Cerințe și instalare
 
@@ -32,7 +32,7 @@ npm run dev
 | `CRON_SECRET`                           | Autorizarea workerului de notificări                   |
 | `APP_ORIGIN`                            | Originea canonică pentru linkuri                       |
 | `BOOKING_EMBED_ORIGINS`                 | Origini HTTPS permise pentru widget-ul iframe          |
-| `NOTIFICATION_PROVIDER`                 | `development` sau `webhook`                            |
+| `NOTIFICATION_PROVIDER`                 | `development`, `smtp` sau `webhook`                    |
 | `NOTIFICATION_PROVIDER_URL/TOKEN`       | Adapter webhook de producție, opțional                 |
 
 Cheia `service_role` este importată numai din module `server-only` sau scripturi administrative locale. Nu adăugați chei private cu prefixul `NEXT_PUBLIC_`.
@@ -62,7 +62,7 @@ Conturile noi folosesc `/register` (nume, email și parolă de minimum 12 caract
 
 ## Configurarea SaaS
 
-Primul login fără membership deschide `/onboarding`: identitate, locații, program, servicii, medici, cabinete opționale, echipă opțională și verificare finală. Fiecare pas salvat rămâne în PostgreSQL cu control pentru modificări concurente. Finalizarea creează resursele și relațiile într-o tranzacție. Organizația nouă primește o probă de 30 de zile, fără integrare de plăți sau blocare automată. Migration 023 marchează organizațiile existente drept configurate.
+Primul login fără membership deschide `/onboarding`: identitate, locații, program, servicii, medici, cabinete opționale, echipă opțională și verificare finală. Fiecare pas salvat rămâne în PostgreSQL cu control pentru modificări concurente. Finalizarea creează resursele și relațiile într-o tranzacție. Organizația nouă primește o probă de 30 de zile fără card. După expirare, accesul operațional cere un abonament plătit verificat sau o licență validă. Migration 023 marchează organizațiile existente drept configurate.
 
 Invitațiile sunt linkuri reale pentru ADMIN/RECEPTION/DOCTOR în locația aleasă, valabile șapte zile. Baza păstrează doar hash-ul tokenului; acceptarea cere email Auth verificat identic. Producția folosește Brevo cu confirmare durabilă de acceptare SMTP; staging folosește implicit livrare manuală. Contul poate avea mai multe organizații/locații prin invitații. Contul DOCTOR trebuie asociat separat resursei profesionale din profilul medicului.
 
@@ -111,4 +111,4 @@ Documentele publice sunt la `/legal`: termeni, confidențialitate, cookies, DPA 
 
 `src/app`: rute și compoziție server. `src/features/auth`: autentificare și autorizare. `src/features/core-clinic`: registre. `src/features/dashboard` și `reports`: operațiuni și agregări server-side. `src/features/scheduling` și `calendar`: motorul și interfața programărilor. `src/features/confirmations`: tokenuri publice semnate. `src/features/notifications`: contract provider, adaptere și worker. `src/features/documents`: storage privat. `src/features/results`: workflow și PDF A4. `src/features/patient-portal`: identitate separată și experiența pacientului. `supabase`: schema, RLS, RPC-uri, audit și seed. Detalii: [ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-Fișierele sunt păstrate în bucket-ul privat `voxa-medical`; descărcările trec prin autorizare server-side și URL-uri semnate pentru 60 de secunde. Rezultatele parcurg `DRAFT → VALIDATED → RELEASED`, păstrează versiuni și devin vizibile pacientului numai după publicare. Adapterul `development` înregistrează doar metadate mascate; livrarea reală cere configurarea adapterului webhook cu acreditările furnizorului ales.
+Fișierele sunt păstrate în bucket-ul privat `voxa-medical`; descărcările trec prin autorizare server-side și URL-uri semnate pentru 60 de secunde. Rapoartele redactate în clinică parcurg `DRAFT → VALIDATED → RELEASED`, păstrează versiuni și devin vizibile pacientului numai după publicare. Recepția poate citi inclusiv rapoartele în lucru și poate încărca rezultate PDF/imagine din Pacienți → profil → Rezultate → Încarcă rezultat. Fișierele bifate „Vizibil în portalul pacientului” apar în secțiunea Rezultate a portalului; accesul pacientului trebuie activat din profil. Recepția nu validează și nu publică rapoartele redactate de medic. Adapterul `development` înregistrează doar metadate mascate; trimiterea reală folosește furnizorul configurat. Audit și verificări: `docs/DEEP_AUDIT_2026-10-05.md`.

@@ -1,5 +1,7 @@
 # Acceptanță Stripe sandbox — 4 octombrie 2026
 
+**Raport istoric.** Limitarea CAPTCHA/3DS de mai jos descrie proba inițială. Checkout cu card și 3DS a fost verificat ulterior, iar configurația live a fost activată pe 5 octombrie; vezi [acceptanța ulterioară](STRIPE_LIVE.md). Dovezile originale nu sunt rescrise ca și când proba inițială ar fi demonstrat aceste etape.
+
 Integrare pentru abonamentele organizațiilor Voxa-OS, 19,99 EUR/lună, în aplicația existentă. Planificatorul pluginului Stripe este disponibil în sesiunea nouă; planul a fost generat și acceptat. [Plan și operare](STRIPE_SANDBOX.md).
 
 Mediu verificat: [staging protejat](https://voxa-os-staging-voxa6.vercel.app), Supabase dedicat `wlnrfjrjkyywqyvsngps`, cont Stripe „Voxa Tech sandbox”, test. Producția nu a fost migrată sau publicată în această etapă. Cheile și credentialul webhook-ului sunt în fișiere ignorate și variabile sensibile pe server; scanarea fișierelor pentru Git nu a găsit chei Stripe reale.

@@ -7,11 +7,13 @@ import { localDate } from "@/lib/time";
 export function LiveRefresh({ timeZone, selectedDate }: { timeZone?: string; selectedDate?: string }) {
   const router = useRouter();
   const previousDay = useRef<string | null>(null);
+  const lastRefresh = useRef(0);
   const [pending, startTransition] = useTransition();
   useEffect(() => {
     if (timeZone && previousDay.current === null) previousDay.current = localDate(timeZone);
     const refresh = () => {
-      if (document.visibilityState === "visible" && !pending) {
+      if (document.visibilityState === "visible" && !pending && !document.querySelector('[role="dialog"][data-state="open"]') && Date.now() - lastRefresh.current > 1000) {
+        lastRefresh.current = Date.now();
         const day = timeZone ? localDate(timeZone) : null;
         if (day && day !== previousDay.current && selectedDate === previousDay.current) {
           const url = new URL(window.location.href);

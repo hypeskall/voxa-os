@@ -1,5 +1,7 @@
 # Scheduler notifications — Supabase
 
+Production email delivery was activated on 5 October 2026 using the existing Brevo SMTP sender. The actual five-minute Supabase scheduler sent the isolated acceptance message at 01:10 Bucharest time on its first attempt; the job, communication log and durable email ledger agree on SMTP acceptance. Reserved demonstration email domains are blocked before SMTP. SMS remains unavailable without a separate provider. Current evidence: [STRIPE_LIVE.md](STRIPE_LIVE.md).
+
 Vercel has no cron jobs (`vercel.json` explicitly declares an empty list).
 Migration `202609300020_supabase_notification_scheduler.sql` installs available
 `pg_cron`, `pg_net` and Supabase Vault extensions and registers one initially

@@ -1,5 +1,7 @@
 # Voxa-OS public site and subscriptions — 3 October 2026
 
+**Historical implementation report.** Later hosted/live migrations, Stripe and reception/portal acceptance are in [STRIPE_LIVE.md](STRIPE_LIVE.md) and [DEEP_AUDIT_2026-10-05.md](DEEP_AUDIT_2026-10-05.md). Local counts and the absence of deployment in this pass remain historical evidence.
+
 Implemented in the existing Next.js/Supabase repository. Existing organization/location architecture, onboarding, role grants and clinical workflows are retained. Pre-existing working-tree changes were preserved. No hosted migration or deployment was performed.
 
 ## Public website visual second pass

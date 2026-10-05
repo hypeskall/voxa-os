@@ -34,11 +34,11 @@ const faqs = [
   ],
   [
     "Ce se întâmplă după cele 30 de zile?",
-    "Dacă nu ai un abonament activ, accesul operațional este suspendat. Datele clinicii sunt păstrate. Proprietarul poate activa o licență din pagina de abonament pentru a continua.",
+    "Dacă nu ai un abonament activ, accesul operațional este suspendat. Datele clinicii sunt păstrate. Proprietarul poate activa abonamentul prin plata online sau printr-o licență, din pagina Abonament.",
   ],
   [
     "Cum activez abonamentul?",
-    "Abonamentul este de 19,99 EUR pe lună. Contactezi echipa Voxa-OS și introduci licența primită în pagina Abonament. Plata online nu este disponibilă încă, iar perioada de testare nu se transformă automat într-un abonament cu plată.",
+    "Abonamentul este de 19,99 EUR pe lună. Proprietarul îl activează din pagina Abonament, prin plata online securizată cu Stripe sau cu o licență primită de la echipa Voxa-OS. Perioada de testare nu se transformă automat într-un abonament cu plată. Abonamentul plătit online se reînnoiește lunar și poate fi anulat din cont.",
   ],
   [
     "Este nevoie de instalare?",
@@ -536,7 +536,7 @@ export function LandingPage({
                     Fără trecere automată la un abonament cu plată.
                   </p>
                   <span className="pricing-activation">
-                    Activare prin licență, din contul organizației.
+                    Activare prin plata online sau licență, din contul organizației.
                   </span>
                 </div>
               </div>

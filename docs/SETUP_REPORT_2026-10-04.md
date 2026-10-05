@@ -1,5 +1,7 @@
 # Operational setup — 4 October 2026
 
+**Historical report.** This pass preceded production Stripe live and patient email activation on 5 October. The later [live acceptance](STRIPE_LIVE.md) and [extended audit](DEEP_AUDIT_2026-10-05.md) supersede its deferred/unverified items. Original observations and test counts are preserved below.
+
 Production remains https://voxa-os.vercel.app. Stripe and patient notification delivery remain deferred. No paid upgrade or hosting migration was performed.
 
 ## Configured in this pass

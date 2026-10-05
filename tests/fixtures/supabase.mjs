@@ -61,6 +61,8 @@ const rpcArgs = {
   issue_appointment_confirmation: ["cid", "aid", "token_digest", "token_public_id", "expires"],
   list_patient_documents: ["cid", "pid"],
   list_medical_results: ["cid", "pid"],
+  list_patient_result_uploads: ["cid", "pid"],
+  result_appointment_options: ["cid"],
   read_doctor_credentials: ["cid", "did"],
   operational_dashboard: ["cid", "local_day"],
   tomorrow_whatsapp_reminders: ["cid", "local_day"],
@@ -306,9 +308,10 @@ http
         "select doctor_location_id,service_id from public.doctor_services where clinic_id=$1", [eq("clinic_id")]);
       return rows(result.rows);
     }
-    if (["organizations","organization_members","onboarding_drafts","organization_invites","patient_notes","privacy_requests","organization_settings","organization_subscriptions","subscription_events","license_keys"].includes(table)) {
+    if (["organizations","organization_members","onboarding_drafts","organization_invites","patient_notes","privacy_requests","organization_settings","organization_subscriptions","subscription_events","license_keys","document_types","patient_identities","appointments","manual_patient_communications","communication_logs","clinic_notification_settings","communication_templates"].includes(table)) {
       const values=[];let sql=`select ${table==="organization_invites"?"id,organization_id,clinic_id,email,role,expires_at,accepted_at,revoked_at,invited_by,created_at":table==="license_keys"?"id,organization_id,code_hint,status,plan,expires_at,activated_at,created_at,updated_at":"*"} from public.${table} where true`;
-      for(const key of ["id","organization_id","user_id","clinic_id","patient_id"])if(eq(key)){values.push(eq(key));sql+=` and ${key}=$${values.length}`;}
+      for(const key of ["id","organization_id","user_id","clinic_id","patient_id","code","active"])if(eq(key)){values.push(eq(key));sql+=` and ${key}=$${values.length}`;}
+      if(table==="patient_identities"&&url.searchParams.get("revoked_at")==="is.null")sql+=" and revoked_at is null";
       return rows((await callerQuery(database,uid,sql,values)).rows);
     }
     if (table === "user_preferences") {

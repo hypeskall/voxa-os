@@ -107,6 +107,9 @@ for (const width of [1440, 1024, 768, 390, 320])
   test(`responsive shell at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await login(page);
+    if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)) {
+      console.log(JSON.stringify(await page.evaluate(() => [...document.querySelectorAll('.topbar *, .main-content *')].map(e => ({tag:e.tagName,classes:e.className,right:Math.round(e.getBoundingClientRect().right),width:Math.round(e.getBoundingClientRect().width)})).filter(e=>e.right>innerWidth && e.width>0).slice(0,12))));
+    }
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= window.innerWidth,

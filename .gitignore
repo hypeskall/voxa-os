@@ -6,6 +6,7 @@ node_modules/
 !.env.staging.example
 !.env.backup.example
 !.env.mail.example
+!.env.stripe-live.example
 coverage/
 test-results/
 playwright-report/

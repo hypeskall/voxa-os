@@ -2,7 +2,7 @@
 import { LiveRefresh } from "@/components/live-refresh";
 import { addCalendarMonths } from "./model";
 import Link from "next/link";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, RotateCcw, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -33,12 +33,26 @@ import { WhatsappReminderButton } from "./whatsapp-reminder-button";
 type View = "day" | "week" | "month" | "agenda";
 type Options = Record<"doctors" | "specialities" | "services" | "rooms" | "equipment", Option[]>;
 type CalendarSlot = { start_at:string; end_at:string; assignment:{doctor_id:string|null;room_id:string|null;equipment:{id:string}[]} };
+// Intl formatters are expensive to construct, especially for a week of cards.
+// Cache only formatting configuration, never clinic or patient data.
+const localFormatters = new Map<string, Intl.DateTimeFormat>();
+const clockFormatters = new Map<string, Intl.DateTimeFormat>();
 function localParts(value: string, timeZone: string) {
-  const parts = new Intl.DateTimeFormat("sv-SE", { timeZone, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(value));
+  let formatter = localFormatters.get(timeZone);
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat("sv-SE", { timeZone, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+    localFormatters.set(timeZone, formatter);
+  }
+  const parts = formatter.format(new Date(value));
   return { date: parts.slice(0, 10), time: parts.slice(11, 16) };
 }
 function timeLabel(value: string, timeZone: string) {
-  return new Intl.DateTimeFormat("ro-RO", { timeZone, hour: "2-digit", minute: "2-digit" }).format(new Date(value));
+  let formatter = clockFormatters.get(timeZone);
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat("ro-RO", { timeZone, hour: "2-digit", minute: "2-digit" });
+    clockFormatters.set(timeZone, formatter);
+  }
+  return formatter.format(new Date(value));
 }
 function dayLabel(date: string, timeZone: string, wide = false) {
   return new Intl.DateTimeFormat("ro-RO", { timeZone, weekday: wide ? "long" : "short", day: "2-digit", month: wide ? "long" : "short" }).format(new Date(`${date}T12:00:00Z`));
@@ -63,23 +77,42 @@ export function CalendarWorkspace({ clinicId, clinicName, clinicAddress, clinicP
   const [dragging, setDragging] = useState<string | null>(null);
   const [createPrefill, setCreatePrefill] = useState<{ key: number; date: string; time: string } | null>(null);
   const [isPending, startTransition] = useTransition();
+  const preferenceValue = JSON.stringify({ view, filters });
+  const savedPreference = useRef(preferenceValue);
   const days = useMemo(() => dateList(range.start, range.end), [range]);
   useEffect(() => {
     queueMicrotask(() => setItems(appointments));
   }, [appointments]);
   useEffect(() => {
     if (!selectedId) return;
+    let active = true;
     startTransition(async () => {
       const response = await appointmentDetailAction(clinicId, selectedId);
-      if (response.ok) setDetail(response.data as AppointmentDetail); else setNotice(response.error);
+      if (!active) return;
+      if (response.ok) setDetail(response.data as AppointmentDetail);
+      else { setNotice(response.error); setSelectedId(null); }
     });
+    return () => { active = false; };
   }, [clinicId, selectedId]);
 
+  useEffect(() => {
+    if (savedPreference.current === preferenceValue) return;
+    // Persist only view/filter changes after navigation, never every date move.
+    const timer = setTimeout(() => {
+      savedPreference.current = preferenceValue;
+      void saveCalendarPreferencesAction(clinicId, JSON.parse(preferenceValue)).then(result => {
+        if (!result.ok) setNotice("Vizualizarea este deschisă, dar preferințele nu au putut fi salvate.");
+      });
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [clinicId, preferenceValue]);
+
   function navigate(nextView: View, nextDate = date, nextFilters = filters) {
+    setCreatePrefill(null);
     const params = new URLSearchParams({ view: nextView, date: nextDate });
-    Object.entries(nextFilters).forEach(([key, value]) => { if (value) params.set(key, value); });
-    startTransition(async () => {
-      await saveCalendarPreferencesAction(clinicId, { view: nextView, filters: nextFilters });
+    // Include empty filters so Reset cannot restore older saved filters.
+    Object.entries(nextFilters).forEach(([key, value]) => params.set(key, value));
+    startTransition(() => {
       router.push(`/clinics/${clinicId}/calendar?${params}`);
     });
   }
@@ -134,7 +167,7 @@ export function CalendarWorkspace({ clinicId, clinicName, clinicAddress, clinicP
         <div className="calendar-nav"><Button variant="outline" onClick={() => navigate(view, new Intl.DateTimeFormat("sv-SE", { timeZone }).format(new Date()))}>Astăzi</Button><Button variant="outline" size="icon" aria-label="Perioada anterioară" onClick={() => move(-1)}><ChevronLeft size={17} /></Button><Button variant="outline" size="icon" aria-label="Perioada următoare" onClick={() => move(1)}><ChevronRight size={17} /></Button><strong>{dayLabel(range.start, timeZone, true)} – {dayLabel(addCalendarDays(range.end, -1), timeZone, true)}</strong></div>
         <div className="calendar-view-switch" aria-label="Vizualizare calendar">{(["day", "week", "month", "agenda"] as const).map((value) => <Button key={value} size="sm" variant={view === value ? "default" : "ghost"} onClick={() => navigate(value)}>{({ day: "Zi", week: "Săptămână", month: "Lună", agenda: "Agendă" })[value]}</Button>)}</div>
       </div>
-      <CalendarFiltersBar filters={filters} options={options} onApply={(next) => navigate(view, date, next)} />
+      <CalendarFiltersBar key={JSON.stringify(filters)} filters={filters} options={options} onApply={(next) => navigate(view, date, next)} />
       {notice && <div className="calendar-notice" role="status"><span>{notice}</span><button type="button" onClick={() => setNotice("")} aria-label="Închide mesajul">×</button></div>}
       {view === "month" ? <MonthView days={days} items={items} timeZone={timeZone} onOpen={openAppointment} /> : view === "agenda" ? <AgendaView items={items} timeZone={timeZone} onOpen={openAppointment} /> : <TimeGrid days={view === "day" ? [date] : days} items={items} timeZone={timeZone} canManage={canManage} dragging={dragging} setDragging={setDragging} onDrop={dropAppointment} onResize={resizeCalendarAppointment} onOpen={openAppointment} onCreate={(day,time) => setCreatePrefill({ key: Date.now(), date: day, time })} config={{ incrementMinutes, visibleStart, visibleEnd }} />}
     </section>
@@ -262,6 +295,6 @@ function QuickActions({detail,clinicId,onChanged,onError}:{detail:AppointmentDet
 
 function RescheduleEditor({detail,clinicId,timeZone,doctors,incrementMinutes,visibleStart,visibleEnd,onChanged,onError}:{detail:AppointmentDetail;clinicId:string;timeZone:string;doctors:Option[];incrementMinutes:number;visibleStart:string;visibleEnd:string;onChanged:(m:string)=>void;onError:(m:string)=>void}) {
   const local=localParts(detail.start_at,timeZone);const [date,setDate]=useState(local.date);const [selectedStart,setSelectedStart]=useState(detail.start_at);const [doctor,setDoctor]=useState(detail.doctor_location_id??"");const [slots,setSlots]=useState<CalendarSlot[]>([]);const [pending,startTransition]=useTransition();
-  useEffect(()=>{let active=true;const timer=setTimeout(()=>{startTransition(async()=>{try{const window_start=localToInstant(`${date}T${visibleStart.slice(0,5)}`,timeZone);const window_end=localToInstant(`${date}T${visibleEnd.slice(0,5)}`,timeZone);const response=await calendarRescheduleSlotsAction(clinicId,detail.id,{window_start,window_end,doctor_id:doctor||null,step_minutes:incrementMinutes});if(!active)return;if(response.ok){const available=response.data as CalendarSlot[];setSlots(available);if(!available.some((item)=>item.start_at===selectedStart))setSelectedStart(available[0]?.start_at??"");}else onError(response.error);}catch{if(active)onError("Data selectată nu este validă în fusul clinicii.");}});},180);return()=>{active=false;clearTimeout(timer);};},[clinicId,date,detail.id,doctor,incrementMinutes,onError,selectedStart,timeZone,visibleEnd,visibleStart]);
+  useEffect(()=>{let active=true;const timer=setTimeout(()=>{startTransition(async()=>{try{const window_start=localToInstant(`${date}T${visibleStart.slice(0,5)}`,timeZone);const window_end=localToInstant(`${date}T${visibleEnd.slice(0,5)}`,timeZone);const response=await calendarRescheduleSlotsAction(clinicId,detail.id,{window_start,window_end,doctor_id:doctor||null,step_minutes:incrementMinutes});if(!active)return;if(response.ok){const available=response.data as CalendarSlot[];setSlots(available);setSelectedStart(current=>available.some((item)=>item.start_at===current)?current:available[0]?.start_at??"");}else onError(response.error);}catch{if(active)onError("Data selectată nu este validă în fusul clinicii.");}});},180);return()=>{active=false;clearTimeout(timer);};},[clinicId,date,detail.id,doctor,incrementMinutes,onError,timeZone,visibleEnd,visibleStart]);
   return <div className="reschedule-form"><div className="inline-fields"><Field label="Data"><DateFieldRo value={date} onChange={(value)=>{setDate(value);setSelectedStart("");}}/></Field><Field label="Medic"><Select value={doctor} onChange={(e)=>{setDoctor(e.target.value);setSelectedStart("");}}><option value="">Alocare automată</option>{doctors.map((item)=><option key={item.id} value={item.id}>{item.name}</option>)}</Select></Field></div><div className="compact-slot-select"><span>Ora disponibilă</span>{pending?<small>Se verifică disponibilitatea...</small>:slots.length?<div className="slot-picker" aria-label="Ore disponibile">{slots.map((item)=><button type="button" className={selectedStart===item.start_at?"selected":""} key={item.start_at} onClick={()=>setSelectedStart(item.start_at)}>{timeLabel(item.start_at,timeZone)}</button>)}</div>:<small>Nu există intervale disponibile pentru această zi.</small>}</div><Button variant="outline" size="sm" disabled={pending||!selectedStart} onClick={()=>startTransition(async()=>{const result=await rescheduleAppointmentAction(clinicId,detail.id,{start_at:selectedStart,doctor_id:doctor||null,room_id:null,equipment_ids:[],expected_updated_at:detail.updated_at});if(result.ok)onChanged("Programarea a fost mutată și resursele au fost realocate.");else onError(result.error);})}>Mută în intervalul selectat</Button></div>;
 }

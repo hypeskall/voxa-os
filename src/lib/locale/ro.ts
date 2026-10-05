@@ -27,6 +27,16 @@ export const appointmentEventLabels: Record<string, string> = {
   DUPLICATE_OVERRIDE: "Avertisment confirmat",
 };
 
+export const notificationEventLabels: Record<string, string> = {
+  APPOINTMENT_CREATED: "Programare creată", CONFIRMATION_REQUESTED: "Solicitare confirmare",
+  APPOINTMENT_CONFIRMED: "Confirmare", APPOINTMENT_CHANGED: "Modificare",
+  APPOINTMENT_CANCELLED: "Anulare", APPOINTMENT_REMINDER: "Reamintire", RESULT_AVAILABLE: "Rezultat disponibil",
+};
+export const notificationStatusLabels: Record<string, string> = {
+  QUEUED: "În așteptare", SENDING: "Se trimite", SENT: "Acceptat de furnizor",
+  DELIVERED: "Livrat", FAILED: "Eșuat",
+};
+
 export function formatRomanianDate(isoDate: string, options: Intl.DateTimeFormatOptions = {}) {
   return new Intl.DateTimeFormat("ro-RO", {
     day: "2-digit",

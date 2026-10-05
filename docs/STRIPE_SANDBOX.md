@@ -1,5 +1,7 @@
 # Abonamente Voxa-OS — Stripe sandbox
 
+Actualizare 5 octombrie: aplicația include și configurație live separată, cerută explicit de proprietar. Checkout cu introducerea cardului și autentificare 3DS reușită au fost confirmate ulterior, înainte de activarea live. [Operare și acceptanță live](STRIPE_LIVE.md). Acest ghid descrie contul și testele sandbox; limitările probei inițiale de mai jos sunt păstrate ca istoric.
+
 Plan generat și acceptat cu pluginul Stripe (`stripe_implementation_planner`) în 4 octombrie 2026, ghid `iguide_61VWH7PtMtA4bbT0C41BMgXVxmUfp`. Cont: Voxa Tech sandbox, `acct_1Tvn7oBMgXVxmUfp`, `livemode=false`. Nu a fost necesar fallbackul skills.
 
 ## Planul integrării
@@ -20,7 +22,7 @@ SDK oficial `stripe@23.0.0`, verificat în registry; versiunea API inclusă și 
 
 Doar OWNER poate iniția Checkout și portal, conform regulii existente. `requireOrganization` verifică utilizatorul, organizația și MFA înainte de orice operație Stripe. ADMIN/RECEPTION/DOCTOR nu primesc acces suplimentar la facturare.
 
-Cheia trebuie să fie test, contul verificat trebuie să coincidă, iar `APP_ENVIRONMENT` trebuie să fie `staging`. În producție integrarea rămâne dezactivată, inclusiv dacă cineva setează accidental flagul. Nu există cheie publică în browser: Checkout este găzduit, iar toate apelurile folosesc serverul.
+Pentru sandbox cheia trebuie să fie test, contul verificat trebuie să coincidă, iar `APP_ENVIRONMENT` trebuie să fie `staging`. Producția acceptă numai configurația live explicită, cu chei și obiecte live distincte; un flag activat accidental cu credentiale sandbox nu permite plăți în producție. Nu există cheie publică în browser: Checkout este găzduit, iar toate apelurile folosesc serverul.
 
 Mappingul customer–organizație este creat de server, unic și protejat prin RLS/MFA; metadata primită singură nu autorizează o organizație. Lease-urile și RPC-urile de sincronizare sunt accesibile numai `service_role`. Licențele existente rămân funcționale; abonarea este blocată cât timp o licență este activă, iar un webhook nu îi suprascrie accesul.
 
@@ -48,7 +50,7 @@ Testul suplimentar a confirmat refuzul plății inițiale (`pm_card_chargeCustom
 
 Emiterea, activarea și revocarea unei licențe manuale au fost verificate suplimentar prin Auth/PostgREST real pe aceeași organizație sintetică, după anularea Stripe. Migrația de compatibilitate citește rolul server din `request.jwt.claims` pentru RPC-urile administrative de licență, păstrând și fallbackul vechi; nu modifică regulile comerciale. Licența de probă a fost revocată.
 
-Introducerea cardului în pagina Stripe găzduită nu a putut fi verificată automat deoarece Stripe a prezentat CAPTCHA în cadrele sale securizate. Nu s-a ocolit această verificare. Testul folosește numai inițierea Checkout în browser; sesiunea este expirată înainte de plata separată prin API. Introducerea cardului, 3DS și finalizarea Checkout rămân de verificat manual înainte de live. Această limitare este înregistrată separat de testele backend reușite.
+**Evidență istorică — proba inițială din 4 octombrie:** introducerea cardului în pagina Stripe găzduită nu a putut fi verificată automat deoarece Stripe a prezentat CAPTCHA în cadrele sale securizate. Nu s-a ocolit această verificare. Testul folosea numai inițierea Checkout în browser; sesiunea a fost expirată înainte de plata separată prin API. La acea etapă, introducerea cardului, 3DS și finalizarea Checkout nu erau demonstrate. Proba ulterioară din 5 octombrie a trecut și este consemnată în [acceptanța live](STRIPE_LIVE.md), fără a schimba această evidență istorică.
 
 Fixture-ul de acceptanță este o organizație sintetică separată, fără pacienți/documente medicale. Abonamentele sale sunt închise la finalul testelor, iar credentialele și chitanțele tehnice sunt numai în `.staging-deploy`, ignorat de Git.
 

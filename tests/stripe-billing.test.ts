@@ -92,3 +92,13 @@ it("caps scheduled cancellation and verifies webhook signatures and timestamps",
   expect(()=>stripe.webhooks.constructEvent(payload+" ",signature,secret)).toThrow();
   expect(()=>stripe.webhooks.constructEvent(payload,stripe.webhooks.generateTestHeaderString({payload,secret,timestamp:1}),secret)).toThrow();
 });
+it("accepts live paid subscriptions only when every billing object belongs to live mode",()=>{
+  const s=fixture();s.livemode=true;s.items.data[0].price.livemode=true;
+  const invoice=s.latest_invoice as Stripe.Invoice;invoice.livemode=true;
+  expect(subscriptionSnapshot(s,"price_test",ids.org,true).paid).toBe(true);
+  expect(()=>subscriptionSnapshot(s,"price_test",ids.org)).toThrow();
+  invoice.livemode=false;expect(subscriptionSnapshot(s,"price_test",ids.org,true).paid).toBe(false);
+  invoice.livemode=true;s.items.data[0].price.livemode=false;
+  expect(()=>subscriptionSnapshot(s,"price_test",ids.org,true)).toThrow();
+  s.livemode=false;expect(()=>subscriptionSnapshot(s,"price_test",ids.org,true)).toThrow();
+});

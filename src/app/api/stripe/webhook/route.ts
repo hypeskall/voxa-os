@@ -1,6 +1,6 @@
 import type Stripe from "stripe";
 import { adminDb } from "@/lib/supabase/admin";
-import { stripeClient, stripeConfigured, verifiedStripe } from "@/features/subscriptions/stripe-client";
+import { stripeClient, stripeConfigured, stripeLiveMode, verifiedStripe } from "@/features/subscriptions/stripe-client";
 import { STRIPE_EVENTS, objectId } from "@/features/subscriptions/stripe-model";
 import { billingLock, billingSave, reconcileBilling } from "@/features/subscriptions/stripe-service";
 export const runtime = "nodejs";
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     const body = await request.text();
     if (Buffer.byteLength(body) > 1048576) throw new Error("Payload too large");
     event = stripeClient().webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!);
-    if (event.livemode || event.account) throw new Error("Unsupported account or mode");
+    if (event.livemode !== stripeLiveMode() || event.account) throw new Error("Unsupported account or mode");
   } catch { return Response.json({ error: "Invalid signature or event" }, { status: 400 }); }
   if (!(STRIPE_EVENTS as readonly string[]).includes(event.type)) return Response.json({ received: true });
   const object = event.data.object;

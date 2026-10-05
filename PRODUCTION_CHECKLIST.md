@@ -1,13 +1,23 @@
-# Voxa — release readiness, 4 October 2026
+# Voxa — release readiness, 5 October 2026
 
-Current release supports controlled product testing. Commercial and real medical-data launch require the open gates below. Stripe is deferred; the existing trial/license workflow remains active.
+Current technical work covers notification delivery, Stripe live activation, the Voxa favicon and the requested performance/interaction audit. The owner handles company/offer and commercial hosting separately; backup follow-up is deferred to 6 October, and the clinic pilot is outside this work. These items are removed from the active technical list, not marked complete.
+
+## Current technical list
+
+- [x] Published release reconciled into the existing Git branch without executable changes or production mutations. All 373 executable/asset/test/configuration files match the verified production snapshot, including 265 application/schema/configuration files. Source fingerprints are versioned in docs/PRODUCTION_SOURCE_MANIFEST_2026-10-05.json; documentation-only differences and exact file inventory are in docs/RELEASE_RECONCILIATION_2026-10-05.md. Private credentials, release snapshots and test actors remain ignored. Current-session public readiness passed 6/6; historical acceptance counts are kept separate.
+- [x] Extended audit and reception → results → patient portal published on production (READY `dpl_9Bq6VhBjB2LT8NHJ2onmaWC6zgM2`, dub1, 5 October 03:12 RO). Catalog text stays inside cells at 320–1440px. Reception reads draft/validated reports and uploads patient-visible PDF/images; only the linked patient can download originals. 245 internal tests, 62 local browser scenarios, 29 hosted scenarios passed, plus final targeted regressions. Migration 040 applied; 1,460 schema checks match. Existing reported account's patient Results tab and upload control verified live without modifying patient data. Guarded deployment compared all files with the prior published snapshot; staging automation access revoked. See docs/DEEP_AUDIT_2026-10-05.md.
+- [x] Email notification delivery enabled in production. The actual five-minute scheduler sent one controlled synthetic email on its first attempt; SMTP ledger and communication log confirm acceptance. Owner Inbox confirmation remains separate.
+- [x] Voxa logo added as SVG, six-size favicon and Apple touch icon, and deployed on production.
+- [x] Full sandbox Checkout card entry and successful 3DS authentication verified; paid webhook activated the isolated test organization.
+- [x] Publish and verify Stripe live: live account, EUR 19.99/month catalog, portal and production webhook are configured and deployed. Live signed events are accepted; signed sandbox events and invalid signatures are rejected. All six public readiness checks pass. No real customer was charged during setup.
+- [x] Performance and interaction audit published and verified on production: EU compute near the database, fewer duplicate access requests, immediate calendar navigation, clean appointment dialog dismissal, obsolete search/availability response protection and 320px reminder layout. 242 internal tests passed; all 54 distinct local browser scenarios are covered (53 in the complete run, then 20 calendar/shell regressions passed after correcting the detected overflow); final hosted suite: 28 passed, no skips. Production build, EU region, all six readiness checks, Stripe isolation and icons verified. Staging response medians improved by 66–88%; details and measurement limits: docs/PERFORMANCE_AUDIT_2026-10-05.md.
 
 ## Completed and evidenced
 
 - [x] Separate staging/production Supabase projects; staging tools reject production.
-- [x] Production baseline matched migration 021; forward migrations through 035 applied without reset, seed or historical-ID rewrite. Both environments match 1,430 current catalog checks.
+- [x] Historical upgrade: production baseline matched migration 021; forward migrations through 035 passed 1,430 catalog checks. Later upgrades through 040 now match 1,460 checks in both environments, without reset, seed or historical-ID rewrite.
 - [x] Public login/register work; an existing session can continue or switch accounts using POST. Signup preserves invitation context. Dashboard requires a valid session.
-- [x] Authorized production transactional SMTP, verified STARTTLS, mandatory email confirmation, 12-character new-password policy and bounded callback URLs. Brevo replaced the earlier Zoho setup; staff invitation SMTP configured and patient delivery disabled.
+- [x] Authorized production transactional SMTP, verified STARTTLS, mandatory email confirmation, 12-character new-password policy and bounded callback URLs. Brevo replaced the earlier Zoho setup; staff invitation SMTP and production patient email delivery are active. Delivery was disabled only during the earlier setup phase.
 - [x] Legacy production signup prohibition found and removed with explicit authorization; normal controlled signup succeeds with email confirmation still required.
 - [x] Controlled production confirmation received/completed; confirmed account authenticates normally and a new account reaches organization setup. Owner completed password recovery from the received email and confirmed normal login with the new password.
 - [x] Durable email acknowledgement ledger prevents automatic resend after accepted/uncertain delivery. SMTP acceptance does not prove inbox delivery.
@@ -21,7 +31,7 @@ Current release supports controlled product testing. Commercial and real medical
 - [x] Complete isolated Auth/application/private/Storage restoration passed: 77 data tables matched, two files recovered and normal recovered account login/tenant isolation passed. Provider migration metadata retained for the disposable runtime.
 - [x] Support contact and /help guide configured. Company details not invented; existing Vercel URL retained.
 
-## Open owner/clinic gates
+## Owner decisions tracked separately — outside current technical work
 
 - [x] Replaced ordinary Zoho Mail for production transactional email with Brevo Free. Subdomain DNS/authentication, verified sender, dedicated SMTP key and explicitly approved Supabase/Vercel settings are configured and deployed. The owner confirmed recovery, staff-invitation and deliberate operator-alert Inbox delivery. Auth pilot quota is 10/hour; provider capacity still needs review before growth. Procedure: docs/TRANSACTIONAL_EMAIL_SETUP.md.
 - [ ] Activate the owner's selected commercial Vercel plan. The owner chose Vercel and will purchase the plan personally. Activation has not been verified; no paid upgrade was made by the agent.
@@ -32,7 +42,7 @@ Current release supports controlled product testing. Commercial and real medical
 - [ ] Agree medical-original retention/deletion and identity checks. Archiving and privacy review attestations do not physically erase data/files.
 - [x] Owner reported personal MFA activation. Enforced app MFA and independent synthetic enrollment/challenge/removal are verified.
 - [ ] Finalize clinic ownership/operations and review optional leaked-password controls before the real-data pilot. Staff/doctor permissions and synthetic pilot are verified.
-- [ ] Verify provider/inbox, consent/content and scheduler before patient delivery. SMTP supports email only; SMS needs another provider. Delivery flag stays false.
-- [ ] Decide business costs, support commitments and billing/tax treatment; integrate Stripe at the requested final stage.
+- [ ] Owner confirms the controlled notification Inbox receipt and clinic-specific communication policies. Production email delivery and the actual scheduler are now verified. SMTP supports email only; SMS needs another provider.
+- [ ] Owner handles business costs, support commitments and billing/tax treatment separately. Stripe live activation is completed; tax/fiscal and contractual decisions are not inferred from technical acceptance.
 
 See docs/LAUNCH_OPERATIONS.md and docs/LAUNCH_REPORT_2026-10-04.md for procedures and evidence.
