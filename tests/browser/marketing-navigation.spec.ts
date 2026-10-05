@@ -53,7 +53,8 @@ test("compact cookie notice fits mobile and preserves an explicit language choic
   expect(noticeBox.x).toBeGreaterThanOrEqual(0);
   expect(noticeBox.x + noticeBox.width).toBeLessThanOrEqual(320);
   expect(noticeBox.y + noticeBox.height).toBeLessThan(languageBox.y);
-  await page.getByRole("combobox", { name: "Language", exact: true }).selectOption("en");
+  await page.getByRole("combobox", { name: "Language", exact: true }).click();
+  await page.getByRole("option", { name: "English", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await page.goto("/pret");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");

@@ -1,18 +1,11 @@
 "use client";
 import { createContext, createElement, useContext, type ReactNode, type JSX, type HTMLAttributes, type ChangeEventHandler } from "react";
-import { languages, LOCALE_COOKIE, translateText, isLocale, type Locale } from "@/lib/locale/config";
+import { translateText, type Locale } from "@/lib/locale/config";
+import { LanguageSelector } from "./language-selector";
 
 const LocaleContext = createContext<{ locale: Locale; dictionary: Record<string, string> }>({ locale: "ro", dictionary: {} });
 export function LocaleProvider({ locale, dictionary, children }: { locale: Locale; dictionary: Record<string, string>; children: ReactNode }) {
-  return <LocaleContext.Provider value={{ locale, dictionary }}>{children}<label className="language-selector">
-    <span aria-hidden="true">🌐</span>
-    <select aria-label="Language" value={locale} onChange={event => {
-      const value = event.target.value;
-      if (!isLocale(value)) return;
-      document.cookie = `${LOCALE_COOKIE}=${value}; Path=/; Max-Age=31536000; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
-      location.reload();
-    }}>{languages.map(language => <option key={language.code} value={language.code} lang={language.code}>{language.name}</option>)}</select>
-  </label></LocaleContext.Provider>;
+  return <LocaleContext.Provider value={{ locale, dictionary }}>{children}<LanguageSelector locale={locale} /></LocaleContext.Provider>;
 }
 export function useLocale() {
   const { locale, dictionary } = useContext(LocaleContext);
