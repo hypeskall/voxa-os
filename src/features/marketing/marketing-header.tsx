@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { marketingPages } from "./navigation";
 
-const links = marketingPages.filter(item => item.page !== "prezentare");
+const links = marketingPages.filter((item) => item.page !== "prezentare");
 
 export function Brand() {
   return (
@@ -17,8 +17,14 @@ export function Brand() {
       className="marketing-brand"
       aria-label="Voxa-OS — pagina principală"
     >
-      <span className="marketing-brand-mark"><T>{"V"}</T></span>
-      <span><T>{"VOXA"}</T><span className="marketing-os"><T>{"-OS"}</T></span>
+      <span className="marketing-brand-mark">
+        <T>{"V"}</T>
+      </span>
+      <span>
+        <T>{"VOXA"}</T>
+        <span className="marketing-os">
+          <T>{"-OS"}</T>
+        </span>
       </span>
     </Link>
   );
@@ -53,9 +59,17 @@ export function MarketingHeader({ authenticated }: { authenticated: boolean }) {
       <header className={`marketing-header ${scrolled ? "is-scrolled" : ""}`}>
         <div className="marketing-container marketing-nav">
           <Brand />
-          <LocalizedElement as="nav" className="marketing-desktop-nav" aria-label="Navigație website">
-            {links.map(({href, label}) => (
-              <Link key={href} href={href} aria-current={pathname === href ? "page" : undefined}>
+          <LocalizedElement
+            as="nav"
+            className="marketing-desktop-nav"
+            aria-label="Navigație website"
+          >
+            {links.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                aria-current={pathname === href ? "page" : undefined}
+              >
                 <T>{label}</T>
               </Link>
             ))}
@@ -74,7 +88,8 @@ export function MarketingHeader({ authenticated }: { authenticated: boolean }) {
             >
               <T>{authenticated ? "Dashboard" : "Începe gratuit"}</T>
             </Link>
-            <LocalizedElement as="button"
+            <LocalizedElement
+              as="button"
               className="marketing-menu-toggle"
               type="button"
               aria-label="Deschide meniul"
@@ -94,8 +109,11 @@ export function MarketingHeader({ authenticated }: { authenticated: boolean }) {
           }}
         >
           <div className="marketing-mobile-menu-head">
-            <span id="mobile-menu-title"><T>{"Voxa-OS"}</T></span>
-            <LocalizedElement as="button"
+            <span id="mobile-menu-title">
+              <T>{"Voxa-OS"}</T>
+            </span>
+            <LocalizedElement
+              as="button"
               type="button"
               aria-label="Închide meniul"
               onClick={() => dialog.current?.close()}
@@ -104,14 +122,27 @@ export function MarketingHeader({ authenticated }: { authenticated: boolean }) {
             </LocalizedElement>
           </div>
           <LocalizedElement as="nav" aria-label="Navigație mobilă">
-            {links.map(({href, label}, index) => (
-              <Link key={href} href={href} aria-current={pathname === href ? "page" : undefined} onClick={() => dialog.current?.close()}>
+            {links.map(({ href, label }, index) => (
+              <Link
+                key={href}
+                href={href}
+                aria-current={pathname === href ? "page" : undefined}
+                onClick={() => dialog.current?.close()}
+              >
                 <span aria-hidden="true">0{index + 1}</span>
                 <T>{label}</T>
                 <ArrowUpRight size={20} />
               </Link>
             ))}
           </LocalizedElement>
+          <Link
+            href={destination}
+            onClick={() => dialog.current?.close()}
+            className="marketing-button is-primary"
+          >
+            <T>{authenticated ? "Deschide platforma" : "Începe gratuit"}</T>
+            <ArrowUpRight size={16} />
+          </Link>
           <Link
             href={authenticated ? "/dashboard" : "/login"}
             onClick={() => dialog.current?.close()}
@@ -120,8 +151,20 @@ export function MarketingHeader({ authenticated }: { authenticated: boolean }) {
             <T>{authenticated ? "Platforma mea" : "Autentificare"}</T>
             <ArrowUpRight size={16} />
           </Link>
-          {authenticated && <Link href="/login?switch=1" onClick={() => dialog.current?.close()} className="marketing-text-link"><T>{"Schimbă contul"}</T></Link>}
-          <p><T>{"30 de zile gratuit. Apoi 19,99 EUR / lună sau 149,99 EUR / an."}</T></p>
+          {authenticated && (
+            <Link
+              href="/login?switch=1"
+              onClick={() => dialog.current?.close()}
+              className="marketing-text-link"
+            >
+              <T>{"Schimbă contul"}</T>
+            </Link>
+          )}
+          <p>
+            <T>
+              {"30 de zile gratuit. Apoi 19,99 EUR / lună sau 149,99 EUR / an."}
+            </T>
+          </p>
         </dialog>
       </header>
     </>

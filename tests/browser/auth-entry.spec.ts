@@ -14,6 +14,7 @@ test("public account entry and switching an existing session never trap the user
   await expect(page.getByRole("heading",{name:"Spațiul de lucru"})).toBeVisible();
   await page.goto("/");
   await page.getByRole("link",{name:"Schimbă contul",exact:true}).click();
+  await expect(page).toHaveURL(/\/login\?switch=1$/);
   await expect(page.getByRole("status")).toContainText("Ai deja o sesiune conectată");
   await page.getByRole("button",{name:"Deconectează-te și schimbă contul"}).click();
   await expect(page.getByLabel("Utilizator")).toBeVisible();

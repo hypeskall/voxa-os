@@ -3,6 +3,7 @@ import { hasSupabaseConfig } from "@/lib/supabase/config";
 import { LandingPage } from "./landing-page";
 import type { MarketingPage } from "./navigation";
 import "@/app/marketing.css";
+import "@/app/marketing-premium.css";
 
 export async function renderMarketingPage(page: MarketingPage = "home") {
   let authenticated = false;

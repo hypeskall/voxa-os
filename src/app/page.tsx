@@ -6,12 +6,20 @@ import { translateText } from "@/lib/locale/config";
 const pageMetadata: Metadata = {
   title: "Voxa-OS · Platforma de administrare pentru clinici",
   description:
-    "Programări, pacienți, medici și locații într-o singură platformă. Încearcă Voxa-OS gratuit 30 de zile. Apoi 19,99 EUR pe lună sau 149,99 EUR pe an.",
+    "Mai puțină administrare. Mai mult timp pentru pacienți. Voxa-OS conectează programările, pacienții și echipa clinicii. 30 de zile gratuit, apoi 19,99 EUR/lună sau 149,99 EUR/an.",
   robots: { index: true, follow: true },
 };
 export async function generateMetadata(): Promise<Metadata> {
   const dictionary = await getDictionary(await getLocale());
-  return { ...pageMetadata, title: translateText(String(pageMetadata.title), dictionary), description: translateText(pageMetadata.description!, dictionary) };
+  const title = translateText(String(pageMetadata.title), dictionary);
+  const description = translateText(pageMetadata.description!, dictionary);
+  return {
+    ...pageMetadata,
+    title,
+    description,
+    openGraph: { title, description, siteName: "Voxa-OS", type: "website" },
+    twitter: { card: "summary", title, description },
+  };
 }
 export default async function Home() {
   return renderMarketingPage();

@@ -6,7 +6,10 @@ test("website languages persist and platform language changes retain the session
     await page.getByRole("combobox", { name: "Language", exact: true }).selectOption(locale);
     await expect(page.locator("html")).toHaveAttribute("lang", locale);
     await expect(page.getByRole("banner").getByRole("link", { name: label, exact: true })).toBeVisible();
-    await expect(page.locator(".plan-picker")).toContainText("149,99 EUR");
+    await expect(page.locator(".premium-price-amount")).toContainText("19,99 EUR");
+    await page.locator(".premium-billing-toggle label").nth(1).click();
+    await expect(page.locator(".premium-price-amount")).toContainText("149,99 EUR");
+    await page.locator(".premium-billing-toggle label").first().click();
   }
   await page.goto("/login");
   await page.getByLabel("Utilizator").fill("owner@voxa.test");

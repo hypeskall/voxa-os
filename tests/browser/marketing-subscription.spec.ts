@@ -22,7 +22,7 @@ test("public homepage, pricing, functional walkthrough and mobile layout", async
     )
     .toBeGreaterThan(0);
   await expect(
-    page.getByRole("heading", { name: "Mai mult control. Mai puțin haos." }),
+    page.getByRole("heading", { name: "Mai puțină administrare. Mai mult timp pentru pacienți." }),
   ).toBeVisible();
   await expect(
     page

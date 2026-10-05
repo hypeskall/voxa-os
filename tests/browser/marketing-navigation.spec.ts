@@ -5,7 +5,7 @@ test.use({ locale: "en-US" });
 test("Romanian default, separate destinations, home logo and remembered cookie notice", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("html")).toHaveAttribute("lang", "ro");
-  await expect(page.locator("#pret, #functionalitati, #platforma, #intrebari")).toHaveCount(0);
+  await expect(page.locator("#pret, #functionalitati, #platforma, #intrebari")).toHaveCount(4);
   const notice = page.locator(".cookie-notice");
   await expect(notice).toBeVisible();
   const box = await notice.boundingBox();
