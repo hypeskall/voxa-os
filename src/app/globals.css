@@ -314,6 +314,10 @@ small {
 }
 .input:hover:not(:disabled) { border-color: #aeb9b0; }
 .input:focus-visible { outline: 0; border-color: #6f9183; box-shadow: 0 0 0 3px #39776618; }
+.password-input-wrap { position: relative; display: block; }
+.password-input-wrap .input { padding-right: 72px; }
+.password-visibility-toggle { position: absolute; inset: 0 10px 0 auto; display: flex; align-items: center; border: 0; padding: 0 4px; color: var(--secondary); background: transparent; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+.password-visibility-toggle:focus-visible { outline: 2px solid #6f9183; outline-offset: 2px; border-radius: 3px; }
 .input[aria-invalid="true"] {
   border-color: #9c5147;
 }

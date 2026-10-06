@@ -5,6 +5,7 @@ import { db } from "@/lib/supabase/server";
 import { hasSupabaseConfig } from "@/lib/supabase/config";
 import { SessionNotice } from "@/features/auth/session-notice";
 export const metadata = { title: "Înregistrare" };
+export const maxDuration = 60;
 export default async function Register({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   const search = await searchParams;
   if (hasSupabaseConfig()) {

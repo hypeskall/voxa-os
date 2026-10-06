@@ -7,6 +7,7 @@ import { loginSchema } from "@/lib/validation";
 import { login } from "./actions";
 import { Field, Input } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
+import { PasswordField } from "./password-input";
 const subscribeToHydration = () => () => {};
 const clientReady = () => true;
 const serverReady = () => false;
@@ -42,15 +43,13 @@ export function LoginForm({ next = "/" }: { next?: string }) {
           aria-invalid={!!errors.identifier}
         />
       </Field>
-      <Field label="Parolă">
-        <Input
-          type="password"
-          autoComplete="current-password"
-          disabled={!ready || pending}
-          {...register("password")}
-          aria-invalid={!!errors.password}
-        />
-      </Field>
+      <PasswordField
+        label="Parolă"
+        autoComplete="current-password"
+        disabled={!ready || pending}
+        {...register("password")}
+        aria-invalid={!!errors.password}
+      />
       <p className="muted"><T>{"Puteți folosi și adresa de email a contului existent."}</T></p>
       {(errors.identifier || errors.password) && (
         <p role="alert" className="message error"><T>{"Completați un utilizator valid și parola."}</T></p>
