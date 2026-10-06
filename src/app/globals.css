@@ -1656,6 +1656,8 @@ tbody tr:hover {
 .setup-progress li button[aria-current] span { color:white; background:var(--primary); border-color:var(--primary); }
 .setup-content { padding:28px; min-width:0; }
 .setup-content h1 { font-size:28px; margin:4px 0 24px; }
+.setup-location-section { margin-top:28px; padding-top:24px; border-top:1px solid var(--border); }
+.setup-location-section h2 { margin:0 0 8px; }
 .setup-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
 .setup-fields .field { min-width:0; }
 .setup-record { border-bottom:1px solid var(--border); padding:18px 0; margin-bottom:12px; }
