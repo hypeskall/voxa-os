@@ -5,7 +5,7 @@ import type { MarketingPage } from "./navigation";
 import "@/app/marketing.css";
 import "@/app/marketing-premium.css";
 
-export async function renderMarketingPage(page: MarketingPage = "home") {
+export async function marketingContext() {
   let authenticated = false;
   if (hasSupabaseConfig()) {
     const client = await db();
@@ -24,6 +24,11 @@ export async function renderMarketingPage(page: MarketingPage = "home") {
   const contact = process.env.VOXA_SUPPORT_EMAIL?.trim();
   const supportEmail =
     contact && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact) ? contact : undefined;
+  return { authenticated, videoSrc, supportEmail };
+}
+
+export async function renderMarketingPage(page: MarketingPage = "home") {
+  const { authenticated, videoSrc, supportEmail } = await marketingContext();
   return (
     <LandingPage
       page={page}

@@ -10,6 +10,7 @@ import { marketingPages } from "./navigation";
 
 const links = [
   ...marketingPages.filter((item) => item.page !== "prezentare"),
+  { href: "/solutii-custom", label: "Soluții custom" },
   { href: "/#contact", label: "Contact" },
 ];
 
@@ -33,7 +34,13 @@ export function Brand() {
   );
 }
 
-export function MarketingHeader({ authenticated }: { authenticated: boolean }) {
+export function MarketingHeader({
+  authenticated,
+  primaryAction,
+}: {
+  authenticated: boolean;
+  primaryAction?: { href: string; label: string };
+}) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const sentinel = useRef<HTMLDivElement>(null);
@@ -51,7 +58,8 @@ export function MarketingHeader({ authenticated }: { authenticated: boolean }) {
     breakpoint.addEventListener("change", close);
     return () => breakpoint.removeEventListener("change", close);
   }, []);
-  const destination = authenticated ? "/dashboard" : "/register";
+  const destination =
+    primaryAction?.href ?? (authenticated ? "/dashboard" : "/register");
   return (
     <>
       <div
@@ -89,7 +97,10 @@ export function MarketingHeader({ authenticated }: { authenticated: boolean }) {
               className="marketing-button is-primary is-small"
               href={destination}
             >
-              <T>{authenticated ? "Dashboard" : "Începe gratuit"}</T>
+              <T>
+                {primaryAction?.label ??
+                  (authenticated ? "Dashboard" : "Începe gratuit")}
+              </T>
             </Link>
             <LocalizedElement
               as="button"
@@ -143,7 +154,10 @@ export function MarketingHeader({ authenticated }: { authenticated: boolean }) {
             onClick={() => dialog.current?.close()}
             className="marketing-button is-primary"
           >
-            <T>{authenticated ? "Deschide platforma" : "Începe gratuit"}</T>
+            <T>
+              {primaryAction?.label ??
+                (authenticated ? "Deschide platforma" : "Începe gratuit")}
+            </T>
             <ArrowUpRight size={16} />
           </Link>
           <Link

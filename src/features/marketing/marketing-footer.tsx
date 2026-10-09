@@ -23,6 +23,7 @@ export function MarketingFooter({
             <Link href="/produs">
               <T>{"Produs"}</T>
             </Link>
+            <Link href="/solutii-custom">Soluții custom</Link>
             <Link href="/pret">
               <T>{"Preț"}</T>
             </Link>
