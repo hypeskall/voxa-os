@@ -1,4 +1,6 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect as baseExpect, type Page } from "@playwright/test";
+// PGlite's WebAssembly cryptography is slower on the larger screenshot fixture.
+const expect = baseExpect.configure({ timeout: 20000 });
 import { mkdirSync } from "node:fs";
 const clinic = "30000000-0000-4000-8000-000000000001";
 const organization = "20000000-0000-4000-8000-000000000001";

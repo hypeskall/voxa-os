@@ -34,3 +34,39 @@ test("hosted encryption protects old/new fields, import and missing-key access",
   expect(related.error).toBeNull();
   await owner.auth.signOut({ scope: "local" });
 });
+
+test("public booking writes encrypted patient and appointment data through the hosted server", async ({ request }) => {
+  const headers = { "x-vercel-protection-bypass": config.env.STAGING_PREVIEW_BYPASS_SECRET };
+  const admin = createClient(config.env.NEXT_PUBLIC_SUPABASE_URL, config.env.SUPABASE_SERVICE_ROLE_KEY, options);
+  const previous = await admin.from("clinics").select("public_booking_enabled,booking_slug").eq("id", actor.clinicId).single();
+  expect(previous.error).toBeNull();
+  const slug = `encryption-acceptance-${Date.now()}`;
+  expect((await admin.from("clinics").update({ public_booking_enabled: true, booking_slug: slug }).eq("id", actor.clinicId)).error).toBeNull();
+  const clinics = [{ slug }];
+  try {
+  let booking: { slug: string; service: string; slot: { start_at: string; doctor_id: string | null } } | undefined;
+  for (const clinic of clinics.slice(0, 2)) {
+    const catalogResponse = await request.get(`${config.origin}/api/public/catalog?clinic=${clinic.slug}`, { headers });
+    expect(catalogResponse.status()).toBe(200); const catalog = await catalogResponse.json();
+    for (let offset = 1; offset <= 10 && !booking; offset++) {
+      const date = new Date(); date.setUTCDate(date.getUTCDate() + offset);
+      if ([0, 6].includes(date.getUTCDay())) continue;
+      const service = catalog.services[0]; if (!service) continue;
+      const available = await request.get(`${config.origin}/api/public/availability?clinic=${clinic.slug}&service=${service.id}&date=${date.toISOString().slice(0, 10)}`, { headers });
+      expect(available.status()).toBe(200); const slots = await available.json();
+      if (slots.length) booking = { slug: clinic.slug, service: service.id, slot: slots[0] };
+    }
+    if (booking) break;
+  }
+  expect(Boolean(booking)).toBe(true);
+  const note = "Notă complet fictivă pentru acceptarea criptării";
+  const booked = await request.post(`${config.origin}/api/public/appointments`, { headers, data: { clinic: booking!.slug, service_id: booking!.service, doctor_id: booking!.slot.doctor_id, start_at: booking!.slot.start_at, name: "Pacient Fictiv Programare Criptată", email: `booking-encryption-${Date.now()}@voxa-qa.invalid`, phone: "", notes: note, consent: true, website: "", started_at: Date.now() - 2000 } });
+  expect(booked.status()).toBe(201); const result = await booked.json();
+  const read = await admin.from("appointments").select("patient_id,notes").eq("id", result.appointment_id).single();
+  expect(read.error).toBeNull(); expect(read.data!.notes === note).toBe(true);
+  const name = await admin.from("patients").select("name").eq("id", read.data!.patient_id).single();
+  expect(name.error).toBeNull(); expect(name.data!.name === "Pacient Fictiv Programare Criptată").toBe(true);
+  } finally {
+    expect((await admin.from("clinics").update(previous.data!).eq("id", actor.clinicId)).error).toBeNull();
+  }
+});

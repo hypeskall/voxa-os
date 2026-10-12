@@ -66,7 +66,9 @@ test("real reception upload appears only in the linked patient's portal and down
     const dialog = page.getByRole("dialog");
     await dialog.getByLabel("Titlu rezultat", { exact: true }).fill(title);
     await dialog.getByLabel("Fișier rezultat", { exact: true }).setInputFiles(".staging-deploy/fixtures/voxa-synthetic-b.pdf");
-    await expect(dialog.getByRole("checkbox", { name: "Vizibil în portalul pacientului", exact: true })).toBeChecked();
+    await expect(dialog.getByRole("checkbox", { name: "Vizibil în portalul pacientului", exact: true })).not.toBeChecked();
+    await dialog.getByRole("checkbox", { name: "Vizibil în portalul pacientului", exact: true }).check();
+    await dialog.getByRole("checkbox", { name: "Am verificat pacientul, fișierul și vizibilitatea în portal.", exact: true }).check();
     await dialog.getByRole("button", { name: "Încarcă rezultatul", exact: true }).click();
     await expect(page.getByText(title, { exact: true })).toBeVisible();
     const docs = await owner.rpc("list_patient_result_uploads", { cid: actor.clinicId, pid: pilot.patientId });

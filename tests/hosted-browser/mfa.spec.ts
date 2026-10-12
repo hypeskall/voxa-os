@@ -3,9 +3,11 @@ import { createClient } from "@supabase/supabase-js";
 import { expect, test } from "@playwright/test";
 import { stagingEnv } from "../../scripts/staging-env.mjs";
 import { totp } from "../support/totp";
+import { patientEncryptionFetch } from "../../src/lib/patient-encryption-config";
 const config = stagingEnv();
+if (config.env.PATIENT_ENCRYPTION_KEYRING) process.env.PATIENT_ENCRYPTION_KEYRING = config.env.PATIENT_ENCRYPTION_KEYRING;
 const actors = JSON.parse(fs.readFileSync(".staging-actors.local.json", "utf8"));
-const options = { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } };
+const options = { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }, global: { fetch: patientEncryptionFetch(config.env.NEXT_PUBLIC_SUPABASE_URL) } };
 
 test("real TOTP enrollment, stale AAL1 denial, wrong code, recovery gate, re-login and removal", async ({ page, context, request }) => {
   test.setTimeout(180000);
@@ -56,7 +58,7 @@ test("real TOTP enrollment, stale AAL1 denial, wrong code, recovery gate, re-log
     await page.getByLabel("Cod de verificare").fill(totp(secret)); await page.getByRole("button",{name:"Verifică codul",exact:true}).click();
     await expect(page).toHaveURL(`${config.origin}/reset-password`);
     await page.goto("/account/security");
-    await page.getByRole("checkbox").check(); await page.getByRole("button",{name:"Dezactivează verificarea",exact:true}).click();
+    await page.getByRole("checkbox", { name: /Confirm dezactivarea/ }).check(); await page.getByRole("button",{name:"Dezactivează verificarea",exact:true}).click();
     await expect(page.getByRole("status")).toContainText("a fost dezactivată");
     await page.goto(`/clinics/${actors.b.clinicId}`); await expect(page.locator(".app-shell")).toBeVisible();
     const remaining = await admin.auth.admin.mfa.listFactors({userId});
