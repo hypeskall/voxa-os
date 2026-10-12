@@ -25,7 +25,8 @@ describe("full isolated restore planning", () => {
     const env={GITHUB_ACTIONS:"true",GITHUB_REPOSITORY:"hypeskall/voxa-backup-runner",GITHUB_EVENT_NAME:"workflow_dispatch",PRIVATE_BACKUP_RUNNER_APPROVED:"true",STAGING_BACKUP_ENCRYPTION_KEY:"a".repeat(64),STAGING_SNAPSHOT_SHA256:"b".repeat(64),STAGING_SNAPSHOT_OBJECT_KEY:`voxa/wlnrfjrjkyywqyvsngps/2026-10-04/${"b".repeat(64)}.voxa`,R2_ACCESS_KEY_ID:"c".repeat(32),R2_SECRET_ACCESS_KEY:"d".repeat(64),CLOUDFLARE_API_TOKEN:"e".repeat(40)};
     const repo={full_name:env.GITHUB_REPOSITORY,private:true};
     expect(isolatedRestoreConfiguration(env,repo).objectKey).toBe(env.STAGING_SNAPSHOT_OBJECT_KEY);
-    for(const changed of [{GITHUB_REPOSITORY:"hypeskall/voxa-os"},{GITHUB_EVENT_NAME:"schedule"},{STAGING_SNAPSHOT_OBJECT_KEY:env.STAGING_SNAPSHOT_OBJECT_KEY.replace("wlnrfjrjkyywqyvsngps","fibcbsdattoqiyizzeda")},{STAGING_BACKUP_ENCRYPTION_KEY:"wrong"}])expect(()=>isolatedRestoreConfiguration({...env,...changed},repo)).toThrow();
+    expect(isolatedRestoreConfiguration({...env,GITHUB_EVENT_NAME:"schedule"},repo).objectKey).toBe(env.STAGING_SNAPSHOT_OBJECT_KEY);
+    for(const changed of [{GITHUB_REPOSITORY:"hypeskall/voxa-os"},{GITHUB_EVENT_NAME:"pull_request"},{STAGING_SNAPSHOT_OBJECT_KEY:env.STAGING_SNAPSHOT_OBJECT_KEY.replace("wlnrfjrjkyywqyvsngps","fibcbsdattoqiyizzeda")},{STAGING_BACKUP_ENCRYPTION_KEY:"wrong"}])expect(()=>isolatedRestoreConfiguration({...env,...changed},repo)).toThrow();
     expect(()=>isolatedRestoreConfiguration(env,{...repo,private:false})).toThrow();
   });
 });

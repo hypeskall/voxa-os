@@ -27,8 +27,9 @@ jobs:
           sudo freshclam --quiet
           sudo mkdir -p /run/clamav /tmp/clamav
           sudo chown clamav:clamav /run/clamav /tmp/clamav
-          sudo cp services/medical-scanner/clamd.conf /etc/clamav/voxa-acceptance.conf
-          sudo clamd --config-file=/etc/clamav/voxa-acceptance.conf > /tmp/clamav-acceptance.log 2>&1 &
+          sudo cp services/medical-scanner/clamd.conf /etc/clamav/clamd.conf
+          sudo chmod 644 /etc/clamav/clamd.conf
+          sudo clamd --config-file=/etc/clamav/clamd.conf > /tmp/clamav-acceptance.log 2>&1 &
           sudo --preserve-env=MEDICAL_SCANNER_SECRET "$(command -v node)" services/medical-scanner/server.mjs > /tmp/scanner-acceptance.log 2>&1 &
           node scripts/scanner-acceptance.mjs
       - name: Show synthetic daemon diagnostics on failure

@@ -14,7 +14,7 @@ export const stagingRestoreRef = "wlnrfjrjkyywqyvsngps";
 export function isolatedRestoreConfiguration(env, repository) {
   if (env.GITHUB_ACTIONS !== "true" || env.GITHUB_REPOSITORY !== backupRunnerRepository
     || repository.full_name !== backupRunnerRepository || repository.private !== true
-    || env.GITHUB_EVENT_NAME !== "workflow_dispatch" || env.PRIVATE_BACKUP_RUNNER_APPROVED !== "true"
+    || !["workflow_dispatch", "schedule"].includes(env.GITHUB_EVENT_NAME) || env.PRIVATE_BACKUP_RUNNER_APPROVED !== "true"
     || !/^[a-f0-9]{64}$/.test(env.STAGING_BACKUP_ENCRYPTION_KEY || "")
     || !/^[a-f0-9]{64}$/.test(env.STAGING_SNAPSHOT_SHA256 || "")
     || !new RegExp(`^voxa/${stagingRestoreRef}/\\d{4}-\\d{2}-\\d{2}/${env.STAGING_SNAPSHOT_SHA256}\\.voxa$`).test(env.STAGING_SNAPSHOT_OBJECT_KEY || ""))
