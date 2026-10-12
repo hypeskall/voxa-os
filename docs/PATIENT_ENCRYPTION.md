@@ -1,6 +1,6 @@
 # Patient encryption — implementation and rollout
 
-Status: prepared locally on 12 October 2026. Production has **not** been migrated or deployed by this change. Applying migration 049 installs the tooling; it does not encrypt existing records until the separately authorized activation runs. No promise of “100% safe” or end-to-end encryption is made.
+Status: production encryption activated and deployed on 12 October 2026, following the owner's explicit push/deployment authorization. Migration 049 installs the tooling; migration 050 adds the predicate required by the hosted safe-update guard. Activation and existing-file conversion were completed under verified application maintenance. No promise of “100% safe” or end-to-end encryption is made.
 
 ## Coverage
 
@@ -53,4 +53,16 @@ Sources: [PostgreSQL pgcrypto](https://www.postgresql.org/docs/current/pgcrypto.
 - Full suite with encrypted fixtures: 49 files, 305 tests passed. A subsequent added database key-rotation check also passed; the final focused encryption run passed all 16 checks.
 - Browser checks against encrypted synthetic storage/database: 27 passed, including imports, patient edits, bookings, role isolation, ciphertext upload and a download exactly matching the original file.
 - TypeScript, lint and optimized production build passed. The encrypted schema catalog was generated and checked locally (1,796 entries).
-- Existing-record backfill, preserved audit counts, restoration of physical ciphertext and authenticated plaintext recovery passed locally. No hosted migration, hosted recovery run, production key installation or production deployment is claimed.
+- Existing-record backfill, preserved audit counts, restoration of physical ciphertext and authenticated plaintext recovery passed locally before the hosted rollout below.
+
+## Hosted rollout evidence, 12 October 2026
+
+- Independent staging and production keys were generated and installed only in their corresponding private Vercel environments. Locally held recovery copies are protected with the Windows owner's DPAPI. Patient keys are excluded from database/Storage snapshot archives; the private backup job receives no production patient key.
+- Staging: 50 migrations and 1,796 encrypted catalog checks matched. All 75 existing protected rows and 11 medical objects were encrypted. New patient edits, imports, real PostgREST relationships, public booking, encrypted upload and byte-exact authorized download, patient portal access, foreign-clinic denial, sessions and MFA were verified on the hosted application. Legacy reads are disabled.
+- An encrypted post-conversion staging archive was externally transferred and verified. The staging-only recovery key was supplied to the explicitly approved private runner. [Recovery run 38267467703](https://github.com/hypeskall/voxa-backup-runner/actions/runs/38267467703) succeeded: physical records and files restored, patient/file decryption worked, account logins worked, and tenant/Storage isolation passed. The runner was pinned to reviewed source, rather than tracking main.
+- Production: a fresh authenticated archive and external hash verification preceded the upgrade. Eight forward migrations applied atomically; historical migration IDs were preserved. Activation encrypted 266 existing protected rows across twelve tables. Both existing medical objects were replaced with authenticated ciphertext after byte-exact decryption verification, then the originals were removed.
+- Every protected field of all 266 pre-upgrade records was compared against the final recovery snapshot and matched exactly. All twelve physical tables had ciphertext for every row. Reads without the patient key failed. The production encrypted catalog matched all 1,796 checks, and legacy plaintext file reads were disabled before reopening.
+- Live login and browser assets passed acceptance; neither the server keyring nor its individual data/index keys were present in rendered HTML or browser JavaScript. Both medical objects passed authenticated decryption verification on production. A fresh post-migration archive was authenticated and externally downloaded with the same SHA-256.
+- The isolated release passed 302 database/unit checks, TypeScript, lint and production build. The applicable browser cases were verified across the full run and focused reruns; the larger local WebAssembly fixtures required more than the previous five-second assertion timeout. The separate unpublished SEO crawler case was excluded from this encryption release. Other local marketing and artifact edits were preserved outside the release.
+
+The deployment and server-held keys enforce encryption for future sensitive patient writes and registered medical uploads. Operational identifiers, timestamps/statuses, staff/Auth data and authorized recipient/export copies retain the boundaries described above. Keep owner recovery copies independent of the running application; the local DPAPI copy is tied to that Windows account.
