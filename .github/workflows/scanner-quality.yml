@@ -1,0 +1,37 @@
+name: Synthetic private-scanner acceptance
+on:
+  push:
+    paths: ['services/medical-scanner/**', 'scripts/scanner-acceptance.mjs', '.github/workflows/scanner-quality.yml']
+  pull_request:
+    paths: ['services/medical-scanner/**', 'scripts/scanner-acceptance.mjs', '.github/workflows/scanner-quality.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  clamav:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      MEDICAL_SCANNER_URL: http://127.0.0.1:8080/scan
+      MEDICAL_SCANNER_SECRET: synthetic-scanner-acceptance-only-not-production
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24
+      - name: Start real antivirus with current definitions, without patient data
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq clamav clamav-daemon
+          sudo systemctl stop clamav-freshclam clamav-daemon || true
+          sudo freshclam --quiet
+          sudo mkdir -p /run/clamav /tmp/clamav
+          sudo chown clamav:clamav /run/clamav /tmp/clamav
+          sudo clamd --config-file=services/medical-scanner/clamd.conf > /tmp/clamav-acceptance.log 2>&1 &
+          node services/medical-scanner/server.mjs > /tmp/scanner-acceptance.log 2>&1 &
+          node scripts/scanner-acceptance.mjs
+      - name: Remove ephemeral scanner processes
+        if: always()
+        run: |
+          sudo pkill -x clamd || true
+          pkill -f 'node services/medical-scanner/server.mjs' || true

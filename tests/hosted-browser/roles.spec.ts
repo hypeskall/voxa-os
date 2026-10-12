@@ -18,6 +18,8 @@ test("hosted invitations, role boundaries, doctor schedule and organization swit
  const a=createClient(config.env.NEXT_PUBLIC_SUPABASE_URL,config.publicKey,options),b=createClient(config.env.NEXT_PUBLIC_SUPABASE_URL,config.publicKey,options);
  const admin=createClient(config.env.NEXT_PUBLIC_SUPABASE_URL,config.env.SUPABASE_SERVICE_ROLE_KEY,options);
  const aLogin=await a.auth.signInWithPassword(actors.a),bLogin=await b.auth.signInWithPassword(actors.b);
+ expect((await a.rpc("session_status", { activity: false })).data.allowed).toBe(true);
+ expect((await b.rpc("session_status", { activity: false })).data.allowed).toBe(true);
  expect(Boolean(aLogin.error||bLogin.error),"Both normal password logins must succeed").toBe(false);
  const uid=bLogin.data.user!.id;
  const original=await admin.from("clinic_memberships").select("id").eq("clinic_id",actors.a.clinicId).eq("user_id",uid);

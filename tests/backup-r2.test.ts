@@ -27,6 +27,7 @@ function storage({ publicDomain = false, corrupt = false, badMetadata = false, o
     const url = new URL(typeof input === "string" ? input : input.url);
     if (url.hostname === "api.cloudflare.com") {
       expect(init?.redirect).toBe("error");
+      if (url.pathname.endsWith("/lock")) return responseJSON({rules:[{id:"test-lock",enabled:true,prefix:"voxa/",condition:{type:"Age",maxAgeSeconds:30*86400}}]});
       expect(init?.headers).toEqual({ Authorization: `Bearer ${env.CLOUDFLARE_API_TOKEN}`, "cf-r2-jurisdiction": "eu" });
       return responseJSON(url.pathname.endsWith("managed") ? { enabled: false } : { domains: [{ enabled: publicDomain }] });
     }

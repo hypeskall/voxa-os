@@ -6,7 +6,7 @@ import { managementQuery } from "../../scripts/staging-schema.mjs";
 import { patientEncryptionFetch } from "../../src/lib/patient-encryption-config";
 const config = stagingEnv();
 process.env.PATIENT_ENCRYPTION_KEYRING = config.env.PATIENT_ENCRYPTION_KEYRING;
-const actor = JSON.parse(fs.readFileSync(".staging-deploy/pilot-actor.local.json", "utf8"));
+const actor = JSON.parse(fs.readFileSync(process.env.STAGING_PILOT_ACTOR_FILE || ".staging-deploy/pilot-actor.local.json", "utf8"));
 if (actor.ref !== config.ref) throw new Error("Synthetic staging actor required.");
 const options = { auth: { persistSession: false, autoRefreshToken: false }, global: { fetch: patientEncryptionFetch(config.env.NEXT_PUBLIC_SUPABASE_URL) } };
 
@@ -14,6 +14,7 @@ test("hosted encryption protects old/new fields, import and missing-key access",
   const admin = createClient(config.env.NEXT_PUBLIC_SUPABASE_URL, config.env.SUPABASE_SERVICE_ROLE_KEY, options);
   const owner = createClient(config.env.NEXT_PUBLIC_SUPABASE_URL, config.publicKey, options);
   expect((await owner.auth.signInWithPassword({ email: actor.email, password: actor.password })).error).toBeNull();
+  expect((await owner.rpc("session_status", { activity: false })).data.allowed).toBe(true);
   const marker = Date.now();
   const payload = { name: "Pacient Fictiv Criptare", internal_id: `ENC-${marker}`, email: `encryption-${marker}@voxa-qa.invalid`, administrative_notes: "Notă fictivă criptată" };
   const created = await owner.rpc("save_core", { cid: actor.clinicId, module: "patients", entity_id: null, payload, expected_updated_at: null });

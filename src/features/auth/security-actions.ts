@@ -3,11 +3,13 @@ import { revalidatePath } from "next/cache";
 import { authenticatedUser, requireClinic } from "./access";
 import { mfaRequired } from "./mfa";
 import type { ActionState } from "./actions";
+import { requireFreshSession } from "./session";
 export async function revokeOtherSessions(
   _: ActionState,
   form: FormData,
 ): Promise<ActionState> {
   const { client } = await authenticatedUser();
+  await requireFreshSession(client, "/account/security");
   if (await mfaRequired(client))
     return { error: "Confirmați mai întâi codul de verificare." };
   if (form.get("confirm") !== "on")
@@ -25,6 +27,7 @@ export async function saveMfaPolicy(
   form: FormData,
 ): Promise<ActionState> {
   const { client } = await requireClinic(cid, "organization.manage");
+  await requireFreshSession(client, `/clinics/${cid}/settings/organization`);
   const { error } = await client.rpc("set_organization_mfa_policy", {
     cid,
     required: form.get("required") === "on",

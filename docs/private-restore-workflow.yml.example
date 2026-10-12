@@ -2,6 +2,8 @@
 # the explicitly approved staging decryption key. Production keys are not loaded.
 name: Private Voxa isolated restoration
 on:
+  schedule:
+    - cron: '29 1 1 * *'
   workflow_dispatch:
 permissions:
   contents: read

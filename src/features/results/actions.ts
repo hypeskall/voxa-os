@@ -8,6 +8,7 @@ import { medicalResult } from "./data";
 import { resultPdf } from "./pdf";
 import { cleanupUploads } from "@/lib/storage-cleanup";
 import { decryptMedicalBytes, encryptMedicalBytes } from "@/lib/medical-file-crypto";
+import { scanMedicalBytes, recordCleanMedicalObject, MedicalScanError } from "@/lib/medical-malware-scan";
 
 export async function saveResult(cid: string, resultId: string | null, _: ActionState, form: FormData): Promise<ActionState> {
   const { client } = await requireClinic(cid, "results.manage");
@@ -38,10 +39,13 @@ export async function releaseResult(cid: string, id: string, state: ActionState,
   catch { return { error: "Semnătura sau parafa nu poate fi inclusă în PDF. Verificați imaginile configurate înainte de publicare." }; }
   const path = `${cid}/${result.patient_id}/results/${id}/v${result.version + 1}.enc`;
   let encrypted: Uint8Array;
-  try { encrypted = encryptMedicalBytes(bytes, path); }
-  catch { return { error: "Criptarea rezultatului nu este disponibilă. Contactați administratorul." }; }
+  let verdict: Awaited<ReturnType<typeof scanMedicalBytes>>;
+  try { verdict = await scanMedicalBytes(bytes); encrypted = encryptMedicalBytes(bytes, path); }
+  catch (error) { return { error: error instanceof MedicalScanError ? error.message : "Criptarea rezultatului nu este disponibilă. Contactați administratorul." }; }
   const { error: uploadError } = await client.storage.from("voxa-medical").upload(path, encrypted, { contentType: "application/octet-stream", upsert: false });
   if (uploadError) { const cleanup = await cleanupUploads(client, "voxa-medical", [path]); return { error: "PDF-ul nu a putut fi stocat în siguranță." + cleanup }; }
+  try { await recordCleanMedicalObject(path, encrypted, verdict); }
+  catch { const cleanup = await cleanupUploads(client, "voxa-medical", [path]); return { error: "Verificarea antivirus nu a putut fi înregistrată." + cleanup }; }
   const { error } = await client.rpc("transition_medical_result", { cid, result_id: id, next_status: "RELEASED", pdf_path: path });
   if (error) { const cleanup = await cleanupUploads(client, "voxa-medical", [path]); return { error: "Rezultatul nu a putut fi publicat." + cleanup }; }
   revalidatePath(`/clinics/${cid}/results/${id}`); return { success: "Rezultatul a fost publicat în portalul pacientului." };

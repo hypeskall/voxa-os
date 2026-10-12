@@ -1,8 +1,13 @@
 -- FICTITIOUS development records only. Applied after seed.sql by local db reset.
 -- Uses the same authenticated workflows as the application.
 begin;
+-- Synthetic development seed only: its fixed actor still passes the live
+-- session gate. This script is never applied to hosted patient databases.
+insert into auth.sessions(id,user_id,created_at) values('10000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000001',now()) on conflict do nothing;
 set local role authenticated;
 select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000001',true);
+select set_config('request.jwt.claims','{"session_id":"10000000-0000-4000-8000-000000000001"}',true);
+do $$ begin if to_regprocedure('public.session_status(boolean)') is not null then perform public.session_status(false); end if; end $$;
 do $$
 declare
  a uuid='30000000-0000-4000-8000-000000000001';

@@ -20,10 +20,13 @@ async function asUser<T>(
 ) {
   await db.exec("begin");
   try {
+    if (uid) await db.query("insert into auth.sessions(id,user_id) select id,id from auth.users where id=$1 on conflict do nothing", [uid]);
     await db.exec(`set local role ${role}`);
     await db.query("select set_config('request.jwt.claim.sub',$1,true)", [
       uid ?? "",
     ]);
+    await db.query("select set_config('request.jwt.claims',$1,true)", [JSON.stringify({ session_id: uid })]);
+    if (uid && role === "authenticated") await db.query("select public.session_status(false)");
     return await fn();
   } finally {
     await db.exec("rollback");
@@ -33,6 +36,7 @@ beforeAll(async () => {
   await db.exec(`create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls; create schema auth;
  create table auth.users(id uuid primary key,email text,raw_user_meta_data jsonb default '{}');
  create table auth.mfa_factors(id uuid primary key default gen_random_uuid(),user_id uuid references auth.users(id),status text not null);
+ create table auth.sessions(id uuid primary key,user_id uuid references auth.users(id),created_at timestamptz not null default now(),not_after timestamptz);
  create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
  grant usage on schema auth to authenticated,anon; grant execute on function auth.uid() to authenticated,anon;`);
   for (const file of readdirSync("supabase/migrations").sort())

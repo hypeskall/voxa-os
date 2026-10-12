@@ -8,6 +8,7 @@ import { LocaleProvider } from "@/components/locale-provider";
 import { CookieNotice } from "@/components/cookie-notice";
 import { getLocale, getDictionary } from "@/lib/locale/server";
 import { translateText } from "@/lib/locale/config";
+import { SessionLock } from "@/features/auth/session-lock";
 export const dynamic = "force-dynamic";
 const siteMetadata: Metadata = {
   title: { default: "Voxa", template: "%s · Voxa" },
@@ -27,7 +28,7 @@ export default async function RootLayout({
   const dictionary = await getDictionary(locale);
   return (
     <html lang={locale}>
-      <body><LocaleProvider locale={locale} dictionary={dictionary}>{children}<CookieNotice /></LocaleProvider></body>
+      <body><LocaleProvider locale={locale} dictionary={dictionary}>{children}<CookieNotice /><SessionLock /></LocaleProvider></body>
     </html>
   );
 }

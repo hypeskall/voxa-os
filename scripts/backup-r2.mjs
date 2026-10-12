@@ -5,6 +5,7 @@ import { createHash } from "node:crypto";
 import { AwsClient } from "aws4fetch";
 import { readEnv, stagingEnv } from "./staging-env.mjs";
 import { snapshotCodec, snapshotHash } from "./snapshot-codec.mjs";
+import { assertBackupRetention } from "./backup-retention.mjs";
 
 export function r2Settings(env) {
   if (!/^[a-f0-9]{32}$/.test(env.R2_ACCOUNT_ID || "")
@@ -49,6 +50,7 @@ export async function uploadEncryptedSnapshot(settings, bytes, codec, { fetcher 
   const sha256 = snapshotHash(bytes);
   const objectKey = `voxa/${snapshot.ref}/${new Date(snapshot.createdAt).toISOString().slice(0, 10)}/${sha256}.voxa`;
   await assertPrivateBucket(settings, fetcher);
+  await assertBackupRetention(settings, objectKey, fetcher);
   const aws = new AwsClient({ accessKeyId: settings.accessKeyId, secretAccessKey: settings.secretAccessKey, service: "s3", region: "auto", retries: 0 });
   const url = `${settings.endpoint}/${settings.bucket}/${objectKey}`;
   async function request(method, headers = {}, body) {
@@ -87,6 +89,7 @@ export async function uploadEncryptedSnapshot(settings, bytes, codec, { fetcher 
   } finally { await reader.cancel().catch(() => {}); reader.releaseLock(); }
   if (length !== bytes.length || digest.digest("hex") !== sha256)
     throw new Error("Downloaded backup integrity failed.");
+  await assertBackupRetention(settings, objectKey, fetcher);
   return { provider: "cloudflare-r2", account: settings.account, bucket: settings.bucket, jurisdiction: "eu", ref: snapshot.ref, objectKey, sha256, bytes: bytes.length, verifiedAt: new Date().toISOString(), verified: true };
 }
 

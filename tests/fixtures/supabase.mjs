@@ -1,10 +1,10 @@
 // Test-only auth/Phase 1 protocol fixture. Phase 2 RPCs execute real migrations
 // in PostgreSQL with the authenticated role. Never imported by production.
 import http from "node:http";
-import { randomUUID, randomBytes, createHash } from "node:crypto";
+import { randomUUID, randomBytes, createHash, createHmac } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { migratedDatabase, callerQuery } from "../support/database.ts";
-const database = await migratedDatabase();
+const database = await migratedDatabase(true);
 const authRequestCounts = { recover: 0, verify: 0 };
 const signedUploads = new Map();
 const storedUploads = new Map();
@@ -17,6 +17,7 @@ const accounts = new Map([
   ["reception@voxa.test", { id: "10000000-0000-4000-8000-000000000003", password: "VoxaDev!2026", name: "Maria Pop" }],
 ]);
 const rpcArgs = {
+  session_status: ["activity"],
   authorize_document_download:["cid","document_id"],
   authorize_result_download:["cid","result_id"],
   save_patient_document:["cid","pid","aid","type_id","document_title","path","file_label","mime","bytes","patient_visible"],
@@ -154,6 +155,7 @@ function token(id) {
     Buffer.from(
       JSON.stringify({
         sub: id,
+        session_id: id,
         role: "authenticated",
         aud: "authenticated",
         exp: Math.floor(Date.now() / 1000) + 3600,
@@ -182,7 +184,26 @@ http
       res.end(JSON.stringify(data));
     };
     if (url.pathname === "/health") return send({ ok: true });
+    // Protocol-only synthetic scanner. Real ClamAV acceptance is separate.
+    if (url.pathname === "/test/scan" && req.method === "POST") {
+      if (req.headers.authorization !== "Bearer test-only-scanner-secret-never-production") return send({},401);
+      const nonce=req.headers['x-scan-nonce'],sha256=createHash('sha256').update(rawBody).digest('hex');
+      const status=rawBody.includes(Buffer.from('EICAR-STANDARD-ANTIVIRUS-TEST-FILE'))?'infected':'clean';
+      const definitionsUpdatedAt=new Date().toISOString();
+      const signature=createHmac('sha256','test-only-scanner-secret-never-production').update(`voxa:scan:v1:${nonce}:${sha256}:${status}:${definitionsUpdatedAt}`).digest('hex');
+      return send({nonce,sha256,status,definitionsUpdatedAt,signature});
+    }
+    if (url.pathname === "/rest/v1/rpc/record_medical_file_scan" && req.headers.authorization === "Bearer test-only-service-key") {
+      try { await database.transaction(async tx=>{await tx.exec('set local role service_role');await tx.query('select public.record_medical_file_scan($1,$2,$3,$4)',[input.object_name,input.plaintext_sha256,input.ciphertext_sha256,input.definitions_updated_at]);});return send(null); }
+      catch{return send({message:'Synthetic scan attestation failed'},400);}
+    }
     if (url.pathname === "/test/auth-request-counts") return send(authRequestCounts);
+    if (url.pathname === "/test/session-age" && req.method === "POST") {
+      const idle=Math.max(0,Math.min(601,Number(input.idleSeconds)||0));
+      const started=Math.max(0,Math.min(28801,Number(input.startedSeconds)||0));
+      await database.query("update private.session_activity set last_activity_at=now()-$1*interval '1 second',started_at=now()-$2*interval '1 second' where session_id=$3",[idle,started,owner]);
+      return send({ok:true});
+    }
     if (url.pathname === "/test/storage-integrity") return send({ objects: [...storedUploads.values()].map(file => ({ encrypted: file.bytes.subarray(0,15).toString() === "VOXA-MEDICAL-1\n", mime: file.type, sha256: createHash("sha256").update(file.bytes).digest("hex") })) });
     if (url.pathname === "/test/product-demo" && req.method === "POST") {
       const cid="30000000-0000-4000-8000-000000000001",oid="20000000-0000-4000-8000-000000000001";
@@ -238,7 +259,9 @@ http
       const token=url.searchParams.get("token");const receipt=signedUploads.get(token);
       if(req.method!=="PUT"||!receipt||receipt.path!==path||storedUploads.has(path))return send({message:"Invalid or consumed upload token"},403);
       const form=await new Request(`http://localhost${url.pathname}`,{method:"PUT",headers:{"content-type":req.headers["content-type"]},body:rawBody}).formData();const file=form.get("");if(!(file instanceof File))return send({message:"Missing file"},400);
-      storedUploads.set(path,{uid:receipt.uid,bytes:Buffer.from(await file.arrayBuffer()),type:file.type});signedUploads.delete(token);return send({Key:path});
+      storedUploads.set(path,{uid:receipt.uid,bytes:Buffer.from(await file.arrayBuffer()),type:file.type});
+      await database.query("insert into storage.objects(bucket_id,name) values('voxa-medical',$1) on conflict(bucket_id,name) do nothing",[path.replace(/^voxa-medical\//,'')]);
+      signedUploads.delete(token);return send({Key:path});
     }
     if(url.pathname.startsWith("/storage/v1/object/")){
       const path=decodeURIComponent(url.pathname.replace("/storage/v1/object/",""));const stored=storedUploads.get(path);if(!uid||!stored||stored.uid!==uid)return send({message:"Object not available"},404);res.writeHead(200,{"Content-Type":stored.type});res.end(stored.bytes);return;
@@ -251,6 +274,8 @@ http
           400,
         );
       const id = account.id;
+      await database.query("insert into auth.sessions(id,user_id,created_at) values($1,$1,now()) on conflict(id) do update set created_at=now()",[id]);
+      await database.query("delete from private.session_activity where session_id=$1",[id]);
       return send({
         access_token: token(id),
         refresh_token: "test-refresh",

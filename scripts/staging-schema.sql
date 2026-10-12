@@ -1,7 +1,7 @@
 -- Read-only catalog inventory. No patient/user rows, tokens or SQL settings values.
 with relations as (
  select c.oid,n.nspname||'.'||c.relname name from pg_class c join pg_namespace n on n.oid=c.relnamespace
- where n.nspname='public' or (n.nspname='private' and c.relname in ('patients','patient_notes','medical_results','medical_result_versions','patient_documents','appointments','appointment_history','notification_jobs','communication_logs','manual_patient_communications','privacy_requests','reception_work'))
+ where n.nspname='public' or (n.nspname='private' and c.relname in ('patients','patient_notes','medical_results','medical_result_versions','patient_documents','appointments','appointment_history','notification_jobs','communication_logs','manual_patient_communications','privacy_requests','reception_work','session_activity','upload_security','medical_file_scans'))
 ), inventory as (
  select 'table' kind,n.nspname||'.'||c.relname key,jsonb_build_object('rls',c.relrowsecurity) definition
  from pg_class c join pg_namespace n on n.oid=c.relnamespace where c.oid in(select oid from relations) and c.relkind='r'

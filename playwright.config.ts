@@ -28,6 +28,8 @@ export default defineConfig({
         SUPABASE_SERVICE_ROLE_KEY: "test-only-service-key",
         PATIENT_ENCRYPTION_KEYRING: JSON.stringify({ active: "test-v1", keys: { "test-v1": "a1".repeat(32) }, index: "b2".repeat(32) }),
         PATIENT_ENCRYPTION_READ_LEGACY: "false",
+        MEDICAL_SCANNER_URL: "http://127.0.0.1:54329/test/scan",
+        MEDICAL_SCANNER_SECRET: "test-only-scanner-secret-never-production",
         BOOKING_RATE_LIMIT_SALT: "test-only-booking-salt-never-production",
         APP_ORIGIN: "http://localhost:3100",
       },

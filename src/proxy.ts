@@ -29,7 +29,21 @@ export async function proxy(request: NextRequest) {
   });
   // Refresh and verify the token here. Protected pages still fetch the current
   // user/factors from Auth; duplicating that remote lookup in Proxy adds latency.
-  await client.auth.getClaims();
+  const { data } = await client.auth.getClaims();
+  const protectedPath = /^\/(clinics|dashboard|account|onboarding|organizations|portal)(\/|$)/.test(request.nextUrl.pathname)
+    && request.nextUrl.pathname !== "/portal/login"
+    || request.nextUrl.pathname.startsWith("/api/clinics/");
+  if (data?.claims && protectedPath) {
+    const state = await client.rpc("session_status", { activity: false });
+    if (state.error || state.data?.allowed !== true) {
+      const denied = request.nextUrl.pathname.startsWith("/api/")
+        ? NextResponse.json({ error: "Sesiunea a expirat. Conectați-vă din nou." }, { status: 401 })
+        : NextResponse.redirect(new URL("/auth/locked", request.url), request.method === "POST" ? 303 : 307);
+      denied.headers.set("Cache-Control", "private, no-store");
+      response.cookies.getAll().forEach(cookie => denied.cookies.set(cookie));
+      return denied;
+    }
+  }
   response.headers.set("Cache-Control", "private, no-store");
   return response;
 }

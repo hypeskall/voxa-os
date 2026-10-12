@@ -3,11 +3,13 @@ import { redirect } from "next/navigation";
 import { authenticatedUser } from "./access";
 import { mfaRequired } from "./mfa";
 import { mfaCodeSchema, mfaFactorSchema, safeMfaDestination } from "./mfa-model";
+import { requireFreshSession } from "./session";
 
 export type MfaState = { error?: string; success?: string; enrollment?: { id: string; qrCode: string; secret: string } };
 
 export async function enrollMfa(): Promise<MfaState> {
   const { client } = await authenticatedUser();
+  await requireFreshSession(client, "/account/security");
   if (await mfaRequired(client)) redirect("/auth/mfa?next=%2Faccount%2Fsecurity");
   const factors = await client.auth.mfa.listFactors();
   if (factors.error) return { error: "Metodele de verificare nu au putut fi încărcate." };
@@ -41,6 +43,7 @@ export async function disableMfa(_: MfaState, form: FormData): Promise<MfaState>
   const factor = mfaFactorSchema.safeParse(form.get("factor_id"));
   if (!factor.success || form.get("confirm") !== "on") return { error: "Confirmați dezactivarea verificării în doi pași." };
   const { client } = await authenticatedUser();
+  await requireFreshSession(client, "/account/security");
   const {data:policy,error:policyError}=await client.rpc("my_mfa_policy_required");
   if(policyError||policy)return {error:"Organizația solicită verificarea în doi pași. Factorul nu poate fi dezactivat cât timp politica este activă."};
   if (await mfaRequired(client)) redirect("/auth/mfa?next=%2Faccount%2Fsecurity");

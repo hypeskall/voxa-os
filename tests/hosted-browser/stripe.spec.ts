@@ -77,6 +77,7 @@ test("annual sandbox Checkout, verified API payment, portal cancellation and ten
  const countAfter=await admin.from("subscription_events").select("id",{count:"exact",head:true}).eq("organization_id",fixture.organizationId);
  expect(countAfter.count).toBe(countBefore.count);
  const owner=createClient(config.env.NEXT_PUBLIC_SUPABASE_URL,config.publicKey,options);await owner.auth.signInWithPassword({email:fixture.email,password:fixture.password});
+ expect((await owner.rpc("session_status", { activity: false })).data.allowed).toBe(true);
  const foreign=await owner.from("organization_stripe_billing").select("customer_id").neq("organization_id",fixture.organizationId);expect(foreign.error).toBeNull();expect(foreign.data).toHaveLength(0);
  const mutation=await owner.rpc("stripe_billing_lock",{oid:fixture.organizationId});expect(mutation.error).toBeTruthy();
  await owner.auth.signOut({scope:"local"});
@@ -137,6 +138,7 @@ test("hosted manual licensing remains available after Stripe cancellation",async
  const issue=await admin.rpc("issue_license",{digest,hint:"ABCD",assigned_org:fixture.organizationId});
  expect(issue.error).toBeNull();expect(issue.data).toBeTruthy();
  const login=await owner.auth.signInWithPassword({email:fixture.email,password:fixture.password});expect(login.error).toBeNull();
+ expect((await owner.rpc("session_status", { activity: false })).data.allowed).toBe(true);
  try{
   const activate=await owner.rpc("activate_license",{oid:fixture.organizationId,digest});expect(activate.error).toBeNull();expect(activate.data).toBe(true);
   const allowed=await owner.rpc("organization_access",{oid:fixture.organizationId});expect(allowed.data).toBe(true);

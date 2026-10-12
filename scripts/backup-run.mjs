@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 import { readEnv, stagingEnv } from "./staging-env.mjs";
 import { r2Settings, assertPrivateBucket, uploadEncryptedSnapshot } from "./backup-r2.mjs";
 import { snapshotCodec, snapshotHash } from "./snapshot-codec.mjs";
+import { assertBackupRetention } from "./backup-retention.mjs";
 
 export function backupRunConfiguration(file, source, destination) {
   if (![".env.production.local", ".env.staging.local"].includes(file)) throw new Error("Use a named source.");
@@ -22,6 +23,7 @@ export async function executeBackup(config, io, now = () => Date.now()) {
   // Check destination privacy before capturing private database records, and
   // check it again in the upload routine immediately before transmission.
   await io.checkPrivacy(config.settings);
+  await io.checkRetention(config.settings, `voxa/${config.ref}/`);
   await io.capture();
   const receipt = await io.readReceipt();
   const age = now() - Date.parse(receipt.createdAt);
@@ -49,6 +51,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
     phase = "capture and encrypted external verification";
     await executeBackup(config, {
       checkPrivacy:assertPrivateBucket,
+      checkRetention:assertBackupRetention,
       capture:() => {
         const child=spawnSync(process.execPath,["scripts/recovery-snapshot.mjs","capture"],{
           cwd:process.cwd(),env:{...process.env,RECOVERY_ENV_FILE:file},timeout:240000,stdio:"ignore",windowsHide:true,

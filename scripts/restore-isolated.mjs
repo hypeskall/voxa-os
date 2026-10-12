@@ -162,6 +162,8 @@ async function run() {
       const client = createClient(runtime.API_URL, runtime.ANON_KEY, options);
       const login = await client.auth.signInWithPassword({ email: user.email, password });
       if (login.error || login.data.user.id !== member.user_id) throw new Error("Restored normal password login failed.");
+      const session = await client.rpc("session_status", { activity: false });
+      if (session.error || session.data?.allowed !== true) throw new Error("Restored live session gate failed.");
       const own = await client.from("clinics").select("id").eq("id", member.clinic_id);
       if (own.error || own.data.length !== 1) throw new Error("Restored own-clinic access failed.");
       const other = await client.from("clinics").select("id").eq("id", member === first ? second.clinic_id : first.clinic_id);

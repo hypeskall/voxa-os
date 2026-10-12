@@ -8,6 +8,7 @@ import { hasSupabaseConfig } from "@/lib/supabase/config";
 import { requireSubscription } from "@/features/subscriptions/access";
 import { mfaRequired, mfaEnrollmentRequired } from "./mfa";
 import { safeMfaDestination } from "./mfa-model";
+import { sessionStatus } from "./session";
 export const authenticatedUser = cache(async () => {
   if (!hasSupabaseConfig())
     redirect("/setup");
@@ -17,6 +18,7 @@ export const authenticatedUser = cache(async () => {
     error,
   } = await client.auth.getUser();
   if (error || !user) redirect("/login");
+  if (!(await sessionStatus(client)).allowed) redirect("/auth/locked");
   return { client, user };
 });
 export const requireUser = cache(async (next = "/dashboard") => {

@@ -6,7 +6,7 @@ import { totp } from "../support/totp";
 import { patientEncryptionFetch } from "../../src/lib/patient-encryption-config";
 const config = stagingEnv();
 if (config.env.PATIENT_ENCRYPTION_KEYRING) process.env.PATIENT_ENCRYPTION_KEYRING = config.env.PATIENT_ENCRYPTION_KEYRING;
-const actors = JSON.parse(fs.readFileSync(".staging-actors.local.json", "utf8"));
+const actors = JSON.parse(fs.readFileSync(process.env.STAGING_ACTORS_FILE || ".staging-actors.local.json", "utf8"));
 const options = { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }, global: { fetch: patientEncryptionFetch(config.env.NEXT_PUBLIC_SUPABASE_URL) } };
 
 test("real TOTP enrollment, stale AAL1 denial, wrong code, recovery gate, re-login and removal", async ({ page, context, request }) => {
@@ -20,6 +20,7 @@ test("real TOTP enrollment, stale AAL1 denial, wrong code, recovery gate, re-log
   const admin = createClient(config.env.NEXT_PUBLIC_SUPABASE_URL, config.env.SUPABASE_SERVICE_ROLE_KEY, options);
   const login = await client.auth.signInWithPassword({email:actors.b.email,password:actors.b.password});
   expect(Boolean(login.error)).toBe(false);
+  expect((await client.rpc("session_status", { activity: false })).data.allowed).toBe(true);
   const userId = login.data.user!.id;
   const original = await client.auth.mfa.listFactors();
   expect(original.error).toBeNull(); expect(original.data!.all.length, "Only enroll on an unfactored synthetic account").toBe(0);

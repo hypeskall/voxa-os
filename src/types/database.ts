@@ -194,6 +194,8 @@ export type Database = {
     };
     Views: Record<string, never>;
     Functions: {
+      session_status: { Args: { activity?: boolean }; Returns: Json };
+      record_medical_file_scan: { Args: { object_name: string; plaintext_sha256: string; ciphertext_sha256: string; definitions_updated_at: string }; Returns: undefined };
       notification_health: { Args: {cid:string}; Returns: Json };
       my_mfa_enrollment_required: { Args: Record<string,never>; Returns: boolean };
       my_mfa_policy_required: { Args: Record<string,never>; Returns: boolean };

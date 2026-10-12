@@ -7,7 +7,7 @@ import { safeAuthDestination } from "@/features/auth/account-model";
 import { hasSupabaseConfig } from "@/lib/supabase/config";
 import { SessionNotice } from "@/features/auth/session-notice";
 export const metadata = { title: "Conectare" };
-export default async function Login({ searchParams }: { searchParams: Promise<{ next?: string; error?: string; password?: string; switch?: string }> }) {
+export default async function Login({ searchParams }: { searchParams: Promise<{ next?: string; error?: string; password?: string; switch?: string; expired?: string }> }) {
   const search = await searchParams;
   const next = safeAuthDestination(search.next ?? "/");
   if (!hasSupabaseConfig())
@@ -38,6 +38,7 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
           <p className="muted"><T>{"Introduceți datele contului dumneavoastră."}</T></p>
           {search.error === "link" && <p className="message error" role="alert"><T>{"Linkul nu mai este valid. Solicitați un link nou în același browser."}</T></p>}
           {search.password === "updated" && <p className="message success" role="status"><T>{"Parola a fost actualizată. Conectați-vă din nou."}</T></p>}
+          {search.expired === "1" && <p className="message" role="status"><T>{"Sesiunea a expirat. Conectați-vă din nou pentru a continua."}</T></p>}
           {user ? <SessionNotice next={next}/> : <LoginForm next={next}/>}
           <p className="auth-note"><Link className="text-link" href="/forgot-password"><T>{"Ai uitat parola?"}</T></Link></p>
           <p className="auth-note"><T>{"O clinică nouă? "}</T><Link className="text-link" href={`/register?next=${encodeURIComponent(next)}`}><T>{"Creează un cont"}</T></Link></p>

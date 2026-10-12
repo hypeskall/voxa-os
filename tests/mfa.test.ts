@@ -27,7 +27,7 @@ describe("optional enrolled MFA protects every private entry point", () => {
     expect((await callerQuery(db, ids.owner, "select id from storage.objects")).rows).toHaveLength(0);
     await db.transaction(async tx => {
       await tx.exec("set local role authenticated");
-      await tx.query("select set_config('request.jwt.claim.sub',$1,true),set_config('request.jwt.claims',$2,true)", [ids.owner, JSON.stringify({aal:"aal2"})]);
+      await tx.query("select set_config('request.jwt.claim.sub',$1,true),set_config('request.jwt.claims',$2,true)", [ids.owner, JSON.stringify({aal:"aal2",session_id:ids.owner})]);
       expect((await tx.query("select id from public.clinics")).rows).toHaveLength(2);
       expect((await tx.query("select public.my_permissions($1)", [ids.a])).rows.length).toBeGreaterThan(0);
       expect((await tx.query("select public.record_login()")).rows).toHaveLength(1);
@@ -42,7 +42,9 @@ describe("optional enrolled MFA protects every private entry point", () => {
   it("requires a restrictive MFA policy on every application table and guards every authenticated PL/pgSQL RPC", async () => {
     const missing = await db.query(`select c.relname from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind='r' and c.relrowsecurity and not exists(select 1 from pg_policy p where p.polrelid=c.oid and p.polname='mfa_required' and not p.polpermissive)`);
     expect(missing.rows).toEqual([]);
-    const unguarded = await db.query(`select p.proname from pg_proc p join pg_namespace n on n.oid=p.pronamespace join pg_language l on l.oid=p.prolang where n.nspname='public' and l.lanname='plpgsql' and has_function_privilege('authenticated',p.oid,'execute') and position('perform private.require_mfa();' in p.prosrc)=0`);
+    // session_status bootstraps the session gate; it exposes only the caller's
+    // own deadlines, including while MFA enrollment/challenge is pending.
+    const unguarded = await db.query(`select p.proname from pg_proc p join pg_namespace n on n.oid=p.pronamespace join pg_language l on l.oid=p.prolang where n.nspname='public' and l.lanname='plpgsql' and p.proname<>'session_status' and has_function_privilege('authenticated',p.oid,'execute') and position('perform private.require_mfa();' in p.prosrc)=0`);
     expect(unguarded.rows).toEqual([]);
     const unguardedSql = await db.query(`select p.proname from pg_proc p join pg_namespace n on n.oid=p.pronamespace join pg_language l on l.oid=p.prolang where n.nspname='public' and l.lanname='sql' and p.prosecdef and has_function_privilege('authenticated',p.oid,'execute') and not has_function_privilege('anon',p.oid,'execute') and position('private.mfa_satisfied()' in p.prosrc)=0`);
     expect(unguardedSql.rows).toEqual([]);

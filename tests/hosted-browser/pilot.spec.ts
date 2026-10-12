@@ -36,6 +36,7 @@ test("synthetic clinic: eight-step setup, patient CRUD, private PDF, notes, appo
   const base=new URL(page.url()).pathname,clinicId=base.split("/")[2];
   expect(/^[a-f0-9-]{36}$/.test(clinicId)).toBe(true);
   expect(Boolean((await owner.auth.signInWithPassword({email,password})).error)).toBe(false);
+  expect((await owner.rpc("session_status", { activity: false })).data.allowed).toBe(true);
   const membership=await owner.from("clinic_memberships").select("organization_id,role").eq("clinic_id",clinicId);expect(membership.error).toBeNull();expect(membership.data?.length).toBe(1);
   const organizationId=membership.data![0].organization_id;
   fs.writeFileSync(".staging-deploy/pilot-actor.local.json",JSON.stringify({...actor,clinicId,organizationId}));
@@ -57,6 +58,7 @@ test("synthetic clinic: eight-step setup, patient CRUD, private PDF, notes, appo
   await expect(page.getByRole("button",{name:new RegExp(name)})).toBeVisible();await page.reload();await page.getByRole("button",{name:new RegExp(name)}).click();dialog=page.getByRole("dialog");await dialog.getByRole("button",{name:"Confirmă",exact:true}).click();await expect(page.getByText("Status actualizat: Confirmă.",{exact:true})).toBeVisible();
   console.log("Pilot: patient create/edit, clinical note, private PDF, appointment create/confirm and refresh");
   const actors=JSON.parse(fs.readFileSync(".staging-actors.local.json","utf8"));const outsider=createClient(config.env.NEXT_PUBLIC_SUPABASE_URL,config.publicKey,options);expect(Boolean((await outsider.auth.signInWithPassword(actors.a)).error)).toBe(false);
+  expect((await outsider.rpc("session_status", { activity: false })).data.allowed).toBe(true);
   const foreign=await outsider.from("patients").select("id").eq("id",patientId);expect(foreign.error).toBeNull();expect(foreign.data).toEqual([]);expect(Boolean((await outsider.storage.from("voxa-medical").download(document.object_path)).error)).toBe(true);expect(Boolean((await outsider.rpc("authorize_document_download",{cid:clinicId,document_id:document.id})).error)).toBe(true);
   await page.goto(profile);await page.getByRole("button",{name:"Arhivează",exact:true}).click();await page.getByRole("dialog").getByRole("button",{name:"Confirmă arhivarea",exact:true}).click();await expect(page).toHaveURL(`${config.origin}${base}/patients`);await page.goto(profile);await page.getByRole("button",{name:"Restaurează",exact:true}).click();await page.getByRole("dialog").getByRole("button",{name:"Confirmă restaurarea",exact:true}).click();await expect(page.getByRole("button",{name:"Editează",exact:true})).toBeVisible();
   await page.getByRole("button",{name:"Deconectare",exact:true}).click();await expect(page).toHaveURL(/\/login/);await signIn();await expect(page).not.toHaveURL(/\/login/);await page.goto(`${base}/calendar?view=day&date=${date}`);await expect(page.getByRole("button",{name:new RegExp(name)})).toBeVisible();

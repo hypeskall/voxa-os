@@ -19,6 +19,7 @@ export async function migratedDatabase(withStorage = false, throughMigration?: s
   await db.exec(`create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls; create schema auth;
     create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz default now(),raw_user_meta_data jsonb default '{}');
     create table auth.mfa_factors(id uuid primary key default gen_random_uuid(),user_id uuid references auth.users(id),status text not null);
+    create table auth.sessions(id uuid primary key,user_id uuid references auth.users(id),created_at timestamptz not null default now(),not_after timestamptz);
     create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
     grant usage on schema auth to authenticated,anon; grant execute on function auth.uid() to authenticated,anon;`);
   if(withStorage) await db.exec(`create schema storage;
@@ -66,6 +67,9 @@ export async function migratedDatabase(withStorage = false, throughMigration?: s
       await tx.query("select public.activate_patient_encryption()");
     });
   }
+  await db.exec("insert into auth.sessions(id,user_id) select id,id from auth.users on conflict do nothing");
+  if ((await db.query<{ present: boolean }>("select to_regclass('private.session_activity') is not null present")).rows[0].present)
+    await db.exec("insert into private.session_activity(session_id,user_id,started_at) select id,user_id,created_at from auth.sessions on conflict do nothing");
   return db;
 }
 // Every call commits or rolls back atomically and uses the actual authenticated
@@ -76,9 +80,13 @@ export async function callerQuery<T>(
   sql: string,
   args: unknown[] = [],
 ) {
+  await db.query("insert into auth.sessions(id,user_id) select id,id from auth.users where id=$1 on conflict do nothing", [uid]);
   return db.transaction(async (tx) => {
     await tx.exec("set local role authenticated");
     await tx.query("select set_config('request.jwt.claim.sub',$1,true)", [uid]);
+    await tx.query("select set_config('request.jwt.claims',$1,true)", [JSON.stringify({ session_id: uid, role: "authenticated" })]);
+    if ((await tx.query<{ present: boolean }>("select to_regprocedure('public.session_status(boolean)') is not null present")).rows[0].present)
+      await tx.query("select public.session_status(false)");
     return tx.query<T>(sql, args);
   });
 }

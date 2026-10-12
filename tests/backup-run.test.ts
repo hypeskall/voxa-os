@@ -12,7 +12,7 @@ const createdAt="2026-10-04T12:00:00.000Z";
 const bytes=config.codec.seal({format:1,ref,createdAt,tables:[],objects:[]});
 const hash=snapshotHash(bytes);
 const now=()=>Date.parse("2026-10-04T12:10:00.000Z");
-function io() { return {checkPrivacy:vi.fn().mockResolvedValue(undefined),capture:vi.fn().mockResolvedValue(undefined),
+function io() { return {checkPrivacy:vi.fn().mockResolvedValue(undefined),checkRetention:vi.fn().mockResolvedValue(undefined),capture:vi.fn().mockResolvedValue(undefined),
   readReceipt:vi.fn().mockResolvedValue({ref,createdAt,path:".backups/synthetic.voxa",verified:true,sha256:hash}),
   readArchive:vi.fn().mockResolvedValue(bytes),upload:vi.fn().mockResolvedValue({ref,sha256:hash,verified:true}),writeReceipt:vi.fn().mockResolvedValue(undefined)}; }
 

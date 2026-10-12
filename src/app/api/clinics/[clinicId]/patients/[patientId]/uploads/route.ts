@@ -6,6 +6,7 @@ import { validateMedicalFile } from "@/lib/file-validation";
 import { cleanupUploads } from "@/lib/storage-cleanup";
 import { decryptMedicalBytes, isEncryptedMedicalFile, prepareMedicalEncryption } from "@/lib/medical-file-crypto";
 import { MAX_MEDICAL_ENVELOPE_BYTES } from "@/lib/medical-file-format";
+import { scanMedicalBytes, recordCleanMedicalObject } from "@/lib/medical-malware-scan";
 import {
   uploadMetadata,
   signUploadReceipt,
@@ -117,6 +118,8 @@ export async function POST(
         "Fișier invalid sau incomplet. Documentul nu a fost înregistrat.",
       );
     }
+    try { const verdict = await scanMedicalBytes(plaintext); await recordCleanMedicalObject(meta.path, encrypted, verdict); }
+    catch (error) { await cleanupUploads(client, "voxa-medical", [meta.path]); throw error; }
     const { data, error } = await client.rpc("save_patient_document", {
       cid,
       pid,

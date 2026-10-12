@@ -7,8 +7,8 @@ import { patientEncryptionFetch } from "../../src/lib/patient-encryption-config"
 
 const config = stagingEnv();
 if (config.env.PATIENT_ENCRYPTION_KEYRING) process.env.PATIENT_ENCRYPTION_KEYRING = config.env.PATIENT_ENCRYPTION_KEYRING;
-const actor = JSON.parse(fs.readFileSync(".staging-deploy/pilot-actor.local.json", "utf8"));
-const pilot = JSON.parse(fs.readFileSync(".staging-deploy/pilot-acceptance.receipt.json", "utf8"));
+const actor = JSON.parse(fs.readFileSync(process.env.STAGING_PILOT_ACTOR_FILE || ".staging-deploy/pilot-actor.local.json", "utf8"));
+const pilot = JSON.parse(fs.readFileSync(process.env.STAGING_PILOT_RECEIPT_FILE || ".staging-deploy/pilot-acceptance.receipt.json", "utf8"));
 if (actor.ref !== config.ref || pilot.ref !== config.ref || actor.clinicId !== pilot.clinicId) throw new Error("Separate synthetic clinic required.");
 
 test("real reception upload appears only in the linked patient's portal and downloads the original PDF", async ({ page, context, browser }) => {
@@ -17,6 +17,7 @@ test("real reception upload appears only in the linked patient's portal and down
   const admin = createClient(config.env.NEXT_PUBLIC_SUPABASE_URL, config.env.SUPABASE_SERVICE_ROLE_KEY, options);
   const owner = createClient(config.env.NEXT_PUBLIC_SUPABASE_URL, config.publicKey, options);
   expect((await owner.auth.signInWithPassword({ email: actor.email, password: actor.password })).error).toBeNull();
+  expect((await owner.rpc("session_status", { activity: false })).data.allowed).toBe(true);
   const users: string[] = [];
   const contexts = [];
   const marker = Date.now();
@@ -112,6 +113,7 @@ test("real reception upload appears only in the linked patient's portal and down
     expect(rawBytes.equals(await download.body())).toBe(false);
     const foreign = createClient(config.env.NEXT_PUBLIC_SUPABASE_URL, config.publicKey, options);
     expect((await foreign.auth.signInWithPassword(outsider)).error).toBeNull();
+    expect((await foreign.rpc("session_status", { activity: false })).data.allowed).toBe(true);
     expect((await foreign.rpc("list_patient_result_uploads", { cid: actor.clinicId, pid: pilot.patientId })).error).toBeTruthy();
     expect((await foreign.rpc("authorize_document_download", { cid: actor.clinicId, document_id: document.id })).error).toBeTruthy();
     await portalPage.screenshot({ path: ".staging-deploy/results-portal-proof.png", fullPage: true });
