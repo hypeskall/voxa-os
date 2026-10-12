@@ -23,13 +23,18 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq clamav clamav-daemon
-          sudo systemctl stop clamav-freshclam clamav-daemon || true
+          sudo systemctl stop clamav-freshclam clamav-daemon clamav-daemon.socket || true
           sudo freshclam --quiet
           sudo mkdir -p /run/clamav /tmp/clamav
           sudo chown clamav:clamav /run/clamav /tmp/clamav
-          sudo clamd --config-file=services/medical-scanner/clamd.conf > /tmp/clamav-acceptance.log 2>&1 &
-          node services/medical-scanner/server.mjs > /tmp/scanner-acceptance.log 2>&1 &
+          sudo cp services/medical-scanner/clamd.conf /etc/clamav/voxa-acceptance.conf
+          sudo clamd --config-file=/etc/clamav/voxa-acceptance.conf > /tmp/clamav-acceptance.log 2>&1 &
+          sudo --preserve-env=MEDICAL_SCANNER_SECRET "$(command -v node)" services/medical-scanner/server.mjs > /tmp/scanner-acceptance.log 2>&1 &
           node scripts/scanner-acceptance.mjs
+      - name: Show synthetic daemon diagnostics on failure
+        if: failure()
+        run: |
+          cat /tmp/clamav-acceptance.log /tmp/scanner-acceptance.log || true
       - name: Remove ephemeral scanner processes
         if: always()
         run: |
