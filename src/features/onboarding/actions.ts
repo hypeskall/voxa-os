@@ -17,7 +17,10 @@ export async function persistSetup(oid: string, raw: unknown, step: number, revi
   if (!input.success || !z.number().int().min(1).max(8).safeParse(step).success || !z.number().int().nonnegative().safeParse(revision).success) return { error: "Verificați formularul." };
   if (previousStep !== undefined) {
     if (!z.number().int().min(1).max(8).safeParse(previousStep).success) return { error: "Pas invalid." };
-    if (step > previousStep) { const error = validateStep(input.data, previousStep); if (error) return { error }; }
+    if (step > previousStep) {
+      const error = validateStep(input.data, previousStep) ?? (previousStep === 1 ? validateStep(input.data, 2) : null);
+      if (error) return { error };
+    }
   }
   const { data, error } = await client.rpc("save_onboarding", { oid, draft: input.data, next_step: step, expected_revision: revision });
   if (error) return { error: error.code === "40001" ? "Configurarea a fost modificată în altă fereastră. Reîncărcați pagina." : "Configurarea nu a putut fi salvată. Reîncercați." };

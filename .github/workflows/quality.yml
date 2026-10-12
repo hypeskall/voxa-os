@@ -3,6 +3,9 @@ on: [push, pull_request]
 jobs:
   verify:
     runs-on: ubuntu-latest
+    env:
+      APP_ORIGIN: ${{ vars.VOXA_APP_ORIGIN || 'https://voxa-os.vercel.app' }}
+      VOXA_TEST_ENCRYPTION: "true"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

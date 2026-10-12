@@ -9,6 +9,7 @@ import { LiveRefresh } from "@/components/live-refresh";
 import { localDate, formatInTimeZone } from "@/lib/time";
 import { appointmentStatusLabels, formatRomanianDate } from "@/lib/locale/ro";
 import { WhatsappReminderButton } from "@/features/calendar/whatsapp-reminder-button";
+import { can } from "@/lib/permissions";
 
 const eventLabels: Record<string, string> = {
   CREATED: "Programare creată", UPDATED: "Programare actualizată",
@@ -23,7 +24,7 @@ export default async function Overview({
   params: Promise<{ clinicId: string }>;
 }) {
   const { clinicId } = await params;
-  const { clinic, client } = await requireClinic(clinicId);
+  const { clinic, client, permissions } = await requireClinic(clinicId);
   const { preferences } = await workspace();
   const { data: org, error } = await client
     .from("organizations")
@@ -47,6 +48,7 @@ export default async function Overview({
           </Button>
         }
       />
+      {can(permissions,"appointments.manage")&&<nav className="dashboard-quick-actions" aria-label="Acțiuni rapide"><Button asChild variant="outline"><Link href={`/clinics/${clinicId}/calendar`}><T>{"Programare nouă"}</T></Link></Button><Button asChild variant="outline"><Link href={`/clinics/${clinicId}/waitlist`}><T>{"Listă de așteptare"}</T></Link></Button><Button asChild variant="outline"><Link href={`/clinics/${clinicId}/tasks`}><T>{"Taskuri recepție"}</T></Link></Button>{can(permissions,"patients.manage")&&<Button asChild variant="outline"><Link href={`/clinics/${clinicId}/patients/import`}><T>{"Import pacienți"}</T></Link></Button>}</nav>}
       {!dashboard.can_view_schedule ? (
         <Section title={clinic.name} description={org.name}>
           <div className="empty-module"><CalendarDays size={22} /><h2><T>{"Acces operațional restricționat"}</T></h2><p className="muted"><T>{"Rolul curent nu include vizualizarea programărilor. Registrele permise rămân disponibile din meniu."}</T></p></div>

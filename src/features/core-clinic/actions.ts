@@ -40,6 +40,7 @@ export async function saveCoreAction(
     payload = parseCore(moduleKey, form, clinic.timezone);
   } catch (e) {
     return {
+      fieldErrors: e instanceof z.ZodError ? Object.fromEntries(e.issues.filter(issue => typeof issue.path[0] === "string").map(issue => [String(issue.path[0]), issue.message])) : undefined,
       error:
         e instanceof z.ZodError
           ? `Verificați formularul: ${e.issues[0]?.message ?? "date invalide"}`

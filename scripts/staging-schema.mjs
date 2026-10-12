@@ -1,9 +1,10 @@
 import fs from "node:fs";
 import { PGlite } from "@electric-sql/pglite";
+import { pgcrypto } from "@electric-sql/pglite/contrib/pgcrypto";
 import { stagingEnv } from "./staging-env.mjs";
 
-export async function expectedSchema(throughVersion) {
-  const db = new PGlite();
+export async function expectedSchema(throughVersion, encrypted = false) {
+  const db = new PGlite(encrypted ? { extensions: { pgcrypto } } : {});
   try {
     await db.exec(`create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls;
       create schema auth; create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz,raw_user_meta_data jsonb default '{}');
@@ -13,6 +14,11 @@ export async function expectedSchema(throughVersion) {
       create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text,name text);
       alter table storage.objects enable row level security;`);
     for (const file of fs.readdirSync("supabase/migrations").filter(f => f.endsWith(".sql") && (!throughVersion || f.split("_")[0] <= throughVersion)).sort()) await db.exec(fs.readFileSync(`supabase/migrations/${file}`, "utf8"));
+    if (encrypted) {
+      const ring = { active: "schema-test", keys: { "schema-test": "a1".repeat(32) }, index: "b2".repeat(32) };
+      await db.query("select set_config('request.headers',$1,false)", [JSON.stringify({ "x-voxa-patient-keyring": JSON.stringify(ring) })]);
+      await db.transaction(async tx => { await tx.exec("set local role service_role"); await tx.query("select public.activate_patient_encryption()"); });
+    }
     return (await db.query(fs.readFileSync("scripts/staging-schema.sql", "utf8"))).rows;
   } finally { await db.close(); }
 }
@@ -31,7 +37,7 @@ export function compareSchema(expected, actual) {
   for (const row of actual) {
     const key = `${row.kind}:${row.key}`;
     if (row.kind === "table" && !row.definition.rls) failures.push(`RLS disabled ${row.key}`);
-    if (row.kind === "policy" && !expectedKeys.has(key) && (row.key.startsWith("public.") || row.key.includes("voxa_"))) failures.push(`Unexpected ${key}`);
+    if (row.kind === "policy" && !expectedKeys.has(key) && (row.key.startsWith("public.") || row.key.startsWith("private.") || row.key.includes("voxa_"))) failures.push(`Unexpected ${key}`);
     if (row.kind === "function" && row.definition.security_definer && row.definition.anon_execute && !expectedKeys.has(key)) failures.push(`Unexpected anonymous security-definer ${row.key}`);
   }
   return failures;
@@ -47,8 +53,8 @@ export async function managementQuery(ref, token, query) {
 export async function verifyHostedSchema(config) {
   const token = config.env.SUPABASE_ACCESS_TOKEN || process.env.SUPABASE_ACCESS_TOKEN;
   if (!token) throw new Error("Schema inspection needs SUPABASE_ACCESS_TOKEN from Supabase Account > Access Tokens; keep it operator-only.");
-  const expected = await expectedSchema();
   const actual = await managementQuery(config.ref, token, fs.readFileSync("scripts/staging-schema.sql", "utf8"));
+  const expected = await expectedSchema(undefined, actual.some(row => row.kind === "view" && row.key === "public.patients"));
   const failures = compareSchema(expected, actual);
   const migrations = await managementQuery(config.ref, token, "select version from supabase_migrations.schema_migrations order by version");
   const versions = fs.readdirSync("supabase/migrations").filter(f => f.endsWith(".sql")).map(f => f.split("_")[0]).sort();

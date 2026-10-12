@@ -6,6 +6,8 @@ function embedAncestors() {
   return ["'self'",...new Set(configured)].join(" ");
 }
 function securityHeaders(framePolicy:string,includeFrameHeader=true) {
+  let localStorageOrigin="";
+  if(process.env.NODE_ENV==="development") { const url=new URL(process.env.NEXT_PUBLIC_SUPABASE_URL??"http://127.0.0.1:54321");if(url.protocol==="http:"&&["127.0.0.1","localhost"].includes(url.hostname))localStorageOrigin=` ${url.origin}`; }
   return [
     { key: "X-Content-Type-Options", value: "nosniff" },
     { key: "Referrer-Policy", value: "no-referrer" },
@@ -15,10 +17,11 @@ function securityHeaders(framePolicy:string,includeFrameHeader=true) {
     { key: "Content-Security-Policy", value:
       "default-src 'self'; script-src 'self' 'unsafe-inline'" +
       (process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : "") +
-      "; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' https:; font-src 'self'; connect-src 'self' https://*.supabase.co http://127.0.0.1:54321; object-src 'none'; frame-ancestors "+framePolicy+"; base-uri 'self'; form-action 'self' https://checkout.stripe.com https://billing.stripe.com" },
+      "; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' https:; font-src 'self'; connect-src 'self' https://*.supabase.co"+localStorageOrigin+"; object-src 'none'; frame-ancestors "+framePolicy+"; base-uri 'self'; form-action 'self' https://checkout.stripe.com https://billing.stripe.com" },
   ];
 }
 const config: NextConfig = {
+  distDir: process.env.VOXA_AUDIT_TEST === "true" ? ".next-audit" : ".next",
   experimental: { serverActions: { bodySizeLimit: "4mb" } },
   devIndicators: false,
   poweredByHeader: false,

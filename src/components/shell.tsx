@@ -47,6 +47,7 @@ export function Shell({
   const base = `/clinics/${clinic.id}`;
   const workspaceLinks = [
     { href: base, label: "Spațiu de lucru", icon: Building2 },
+    ...(can(permissions,"appointments.manage") ? [{href:`${base}/waitlist`,label:"Listă de așteptare",icon:Clock3},{href:`${base}/tasks`,label:"Taskuri recepție",icon:ClipboardList}] : []),
     ...(can(permissions, "appointments.read")
       ? [{ href: `${base}/calendar`, label: "Calendar", icon: CalendarDays }]
       : []),

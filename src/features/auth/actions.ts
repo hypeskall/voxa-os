@@ -4,8 +4,8 @@ import { db } from "@/lib/supabase/server";
 import { loginSchema } from "@/lib/validation";
 import { loginIdentityEmail } from "./login-identity";
 import { safeAuthDestination } from "./account-model";
-import { mfaRequired } from "./mfa";
-export type ActionState = { error?: string; success?: string; invitationUrl?: string };
+import { mfaRequired,mfaEnrollmentRequired } from "./mfa";
+export type ActionState = { error?: string; success?: string; invitationUrl?: string; fieldErrors?: Record<string, string> };
 export async function login(
   _: ActionState,
   form: FormData,
@@ -26,6 +26,7 @@ export async function login(
           : "Autentificarea nu a reușit. Verificați utilizatorul și parola.",
     };
   const destination = safeAuthDestination(String(form.get("next") ?? "/"));
+  if(await mfaEnrollmentRequired(client))redirect("/account/security?mfa=required");
   if (await mfaRequired(client))
     redirect(`/auth/mfa?next=${encodeURIComponent(destination === "/" ? "/dashboard" : destination)}`);
   const audit = await client.rpc("record_login");

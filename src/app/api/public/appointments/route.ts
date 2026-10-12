@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { publicServerDb } from "@/lib/supabase/public-server";
 import { requestFingerprint } from "@/lib/request-fingerprint";
 import { publicBookingSchema } from "@/features/public-booking/model";
-import { hasAdminConfig } from "@/lib/supabase/admin";
+import { adminDb, hasAdminConfig } from "@/lib/supabase/admin";
 import { issueSystemConfirmation } from "@/features/confirmations/service";
 
 function sameOrigin(request: Request) {
@@ -25,7 +24,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Verificați datele introduse." }, { status: 400 });
   const { clinic, consent: _consent, website: _website, started_at: _startedAt, ...payload } = input.data;
   void _consent; void _website; void _startedAt;
-  const { data, error } = await publicServerDb().rpc("create_public_booking", {
+  if (!hasAdminConfig()) return NextResponse.json({ error: "Programarea online este temporar indisponibilă." }, { status: 503 });
+  const { data, error } = await adminDb().rpc("create_public_booking", {
     slug: clinic,
     payload,
     request_key: requestFingerprint(request),

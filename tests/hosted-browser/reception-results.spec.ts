@@ -3,15 +3,17 @@ import { randomBytes } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import { test, expect } from "@playwright/test";
 import { stagingEnv } from "../../scripts/staging-env.mjs";
+import { patientEncryptionFetch } from "../../src/lib/patient-encryption-config";
 
 const config = stagingEnv();
+if (config.env.PATIENT_ENCRYPTION_KEYRING) process.env.PATIENT_ENCRYPTION_KEYRING = config.env.PATIENT_ENCRYPTION_KEYRING;
 const actor = JSON.parse(fs.readFileSync(".staging-deploy/pilot-actor.local.json", "utf8"));
 const pilot = JSON.parse(fs.readFileSync(".staging-deploy/pilot-acceptance.receipt.json", "utf8"));
 if (actor.ref !== config.ref || pilot.ref !== config.ref || actor.clinicId !== pilot.clinicId) throw new Error("Separate synthetic clinic required.");
 
 test("real reception upload appears only in the linked patient's portal and downloads the original PDF", async ({ page, context, browser }) => {
   test.setTimeout(180000);
-  const options = { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } };
+  const options = { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }, global: { fetch: patientEncryptionFetch(config.env.NEXT_PUBLIC_SUPABASE_URL) } };
   const admin = createClient(config.env.NEXT_PUBLIC_SUPABASE_URL, config.env.SUPABASE_SERVICE_ROLE_KEY, options);
   const owner = createClient(config.env.NEXT_PUBLIC_SUPABASE_URL, config.publicKey, options);
   expect((await owner.auth.signInWithPassword({ email: actor.email, password: actor.password })).error).toBeNull();
@@ -96,10 +98,16 @@ test("real reception upload appears only in the linked patient's portal and down
     await expect(portalPage.getByText(draftTitle, { exact: true })).toHaveCount(0);
     await expect(portalPage.locator("#documente").getByText(title, { exact: true })).toHaveCount(0);
     const download = await portalPage.request.get(`${config.origin}/api/clinics/${actor.clinicId}/documents/${document.id}/download`, { headers, maxRedirects: 0 });
-    expect(download.status()).toBe(307);
-    const original = await portalPage.request.get(download.headers().location);
-    expect(original.status()).toBe(200);
-    expect((await original.body()).equals(fs.readFileSync(".staging-deploy/fixtures/voxa-synthetic-b.pdf"))).toBe(true);
+    expect(download.status()).toBe(200);
+    expect(download.headers()["cache-control"]).toContain("no-store");
+    expect((await download.body()).equals(fs.readFileSync(".staging-deploy/fixtures/voxa-synthetic-b.pdf"))).toBe(true);
+    const stored = await owner.from("patient_documents").select("object_path").eq("id", document.id).single();
+    expect(stored.error).toBeNull(); expect(stored.data!.object_path).toMatch(/\.enc$/);
+    const raw = await admin.storage.from("voxa-medical").download(stored.data!.object_path);
+    expect(raw.error).toBeNull();
+    const rawBytes = Buffer.from(await raw.data!.arrayBuffer());
+    expect(rawBytes.subarray(0, 15).toString()).toBe("VOXA-MEDICAL-1\n");
+    expect(rawBytes.equals(await download.body())).toBe(false);
     const foreign = createClient(config.env.NEXT_PUBLIC_SUPABASE_URL, config.publicKey, options);
     expect((await foreign.auth.signInWithPassword(outsider)).error).toBeNull();
     expect((await foreign.rpc("list_patient_result_uploads", { cid: actor.clinicId, pid: pilot.patientId })).error).toBeTruthy();

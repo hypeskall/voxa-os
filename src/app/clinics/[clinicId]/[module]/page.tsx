@@ -106,6 +106,7 @@ export default async function CoreRegistry({
           ) : undefined
         }
       />
+      {moduleKey === "patients" && manage && <p className="mb-5"><Link className="text-link" href={`/clinics/${clinicId}/patients/import`}><T>{"Importă pacienți din CSV / Excel"}</T></Link></p>}
       {moduleKey === "services" && (
         <div className="mb-5">
           <Link className="text-link" href={`/clinics/${clinicId}/categories`}><T>{"Gestionează categoriile de servicii"}</T></Link>

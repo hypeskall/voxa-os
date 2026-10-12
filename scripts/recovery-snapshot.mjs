@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import { PGlite } from "@electric-sql/pglite";
+import { pgcrypto } from "@electric-sql/pglite/contrib/pgcrypto";
 import { readEnv, stagingEnv } from "./staging-env.mjs";
 import { managementQuery } from "./staging-schema.mjs";
 import { snapshotCodec, snapshotHash as hash } from "./snapshot-codec.mjs";
@@ -50,7 +51,7 @@ async function capture() {
 async function drill(snapshot) {
   phase="restore schema";
   if (envFile !== ".env.staging.local") throw new Error("Restore drills accept synthetic staging snapshots only, never production patient records.");
-  const db = new PGlite();
+  const db = new PGlite({ extensions: { pgcrypto } });
   try {
     await db.exec("set timezone='UTC'");
     await db.exec(`create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls;
@@ -61,10 +62,16 @@ async function drill(snapshot) {
       create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text,name text);
       alter table storage.objects enable row level security;`);
     for (const file of fs.readdirSync("supabase/migrations").filter(f => f.endsWith(".sql")).sort()) await db.exec(fs.readFileSync(`supabase/migrations/${file}`, "utf8"));
+    const encrypted = Boolean(snapshot.tables.find(t => t.name === "private.patient_encryption_config")?.rows[0]?.activated_at);
+    if (encrypted) {
+      if (!env.PATIENT_ENCRYPTION_KEYRING) throw new Error("Separately held staging patient keyring required for encrypted restore.");
+      await db.query("select set_config('request.headers',$1,false)", [JSON.stringify({ "x-voxa-patient-keyring": env.PATIENT_ENCRYPTION_KEYRING })]);
+      await db.transaction(async tx => { await tx.exec("set local role service_role"); await tx.query("select public.activate_patient_encryption()"); });
+    }
     await db.exec("set session_replication_role='replica'");
     const auth = snapshot.tables.find(t => t.name === "auth.users");
     for (const user of auth?.rows || []) await db.query("insert into auth.users(id,email,email_confirmed_at,raw_user_meta_data) values($1,$2,$3,$4)", [user.id,user.email,user.email_confirmed_at,user.raw_user_meta_data]);
-    const publicTables = snapshot.tables.filter(t => t.name.startsWith("public."));
+    const publicTables = snapshot.tables.filter(t => t.name.startsWith("public.") || t.name.startsWith("private."));
     await db.exec("truncate " + publicTables.map(t => t.name).join(",") + " cascade");
     for (const table of publicTables) {
       phase="restore "+table.name;
@@ -82,7 +89,12 @@ async function drill(snapshot) {
         throw new Error("Restored data mismatch.");
       }
     }
-    console.log(`PASS: isolated local restore of ${publicTables.length} staging application tables; records match exactly. ${snapshot.objects.length} encrypted Storage files verified. Hosted Auth/Storage restoration and PITR remain separate operational gates.`);
+    if (encrypted) {
+      for (const table of (await db.query("select table_name from private.patient_encryption_tables")).rows) {
+        await db.query(`select * from public.${table.table_name} limit 1`);
+      }
+    }
+    console.log(`PASS: isolated local restore of ${publicTables.length} staging application/private tables; records match exactly. ${snapshot.objects.length} archived Storage files verified. Hosted Auth/Storage restoration and PITR remain separate operational gates.`);
   } finally { await db.close(); }
 }
 try {

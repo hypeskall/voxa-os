@@ -4,11 +4,13 @@ import { cookies } from "next/headers";
 import type { Database } from "@/types/database";
 import { supabaseConfig, cookieOptions } from "./config";
 import { assertDeploymentTarget } from "@/lib/deployment-target";
+import { patientEncryptionFetch } from "@/lib/patient-encryption-config";
 export async function db() {
   assertDeploymentTarget(process.env.APP_ENVIRONMENT, process.env.STAGING_SUPABASE_PROJECT_REF, process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.APP_ORIGIN);
   const jar = await cookies();
   const { url, key } = supabaseConfig();
   return createServerClient<Database>(url, key, {
+    global: { fetch: patientEncryptionFetch(url) },
     cookieOptions,
     cookies: {
       getAll: () => jar.getAll(),

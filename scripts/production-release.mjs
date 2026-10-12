@@ -20,8 +20,23 @@ const pending = files.filter(f => f.split("_")[0] > "202609300021");
 async function verifyBaseline() {
   const applied = new Set((await versions()).map(x => x.version));
   const baseline = pending.map(f => f.split("_")[0]).filter(v => applied.has(v)).at(-1) ?? "202609300021";
-  const expected = await expectedSchema(baseline);
   const actual = await catalog();
+  const expected = await expectedSchema(baseline, actual.some(row => row.kind === "view" && row.key === "public.patients"));
+  // The inspected hosted baseline has Supabase default grants on this one
+  // read-only view. Migration 049 explicitly removes them. Accept only those
+  // exact grant differences before 049; never normalize SQL/RLS or other ACLs.
+  if (baseline < "202610120049") {
+    const view = actual.find(row => row.kind === "view" && row.key === "public.clinic_doctors");
+    const wanted = expected.find(row => row.kind === "view" && row.key === "public.clinic_doctors");
+    if (view && wanted && view.definition.anon_select === true
+      && ["authenticated_delete", "authenticated_insert", "authenticated_update"].every(key => view.definition[key] === true)
+      && view.definition.authenticated_select === wanted.definition.authenticated_select
+      && JSON.stringify(view.definition.options) === JSON.stringify(wanted.definition.options)
+      && view.definition.definition === wanted.definition.definition) {
+      for (const key of ["anon_select", "authenticated_delete", "authenticated_insert", "authenticated_update"]) view.definition[key] = wanted.definition[key];
+      console.log("Known clinic_doctors default grants inspected; migration 049 will revoke the extra permissions.");
+    }
+  }
   const differences = compareSchema(expected, actual);
   if (differences.length || actual.length !== expected.length)
     throw new Error("Production baseline differs. Refusing upgrade: " + differences.join("; "));
@@ -29,8 +44,8 @@ async function verifyBaseline() {
   return baseline;
 }
 async function verifyCurrent() {
-  const expected = await expectedSchema();
   const actual = await catalog();
+  const expected = await expectedSchema(undefined, actual.some(row => row.kind === "view" && row.key === "public.patients"));
   const differences = compareSchema(expected, actual);
   const history = new Set((await versions()).map(x => x.version));
   if (differences.length || pending.some(f => !history.has(f.split("_")[0])))

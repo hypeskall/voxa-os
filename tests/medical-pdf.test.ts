@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
-import { PDFDocument } from "pdf-lib";
+import { PDFDocument,PDFName,PDFDict } from "pdf-lib";
+import sharp from "sharp";
 import { resultPdf } from "../src/features/results/pdf";
 import type { ResultDetail } from "../src/features/results/model";
 
@@ -15,5 +16,12 @@ describe("medical PDF", () => {
     expect(loaded.getPageCount()).toBe(1);
     const { width, height } = loaded.getPage(0).getSize();
     expect(width).toBeCloseTo(595.28, 1); expect(height).toBeCloseTo(841.89, 1);
+    for(const format of ["png","jpeg","webp"] as const){
+      const image=await sharp({create:{width:80,height:30,channels:3,background:"#123456"}}).toFormat(format).toBuffer();
+      const withImage=await PDFDocument.load(await resultPdf(result,{bytes:new Uint8Array(image).buffer,mime:`image/${format}`}));
+      const resources=withImage.getPage(0).node.Resources()!.lookup(PDFName.of("XObject"),PDFDict);
+      expect(resources.keys()).toHaveLength(1);
+    }
+    await expect(resultPdf(result,{bytes:new Uint8Array([1,2,3]).buffer,mime:"image/webp"})).rejects.toThrow();
   });
 });

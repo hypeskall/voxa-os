@@ -26,18 +26,18 @@ export function isolatedRestoreConfiguration(env, repository) {
   };
 }
 
-function command(binary, args, input, timeout = 60000) {
+function command(binary, args, input, timeout = 60000, sensitive = false) {
   const result = spawnSync(binary, args, { input, encoding: "utf8", timeout, maxBuffer: 128 * 1024 * 1024 });
   if (result.error || result.status !== 0) {
     // Private diagnostics stay on the disposable runner, never in Actions logs/artifacts.
-    fs.writeFileSync(".backups/dr-command-diagnostic.local.txt", String(result.stderr || result.error || "Command failed"), { mode: 0o600 });
+    fs.writeFileSync(".backups/dr-command-diagnostic.local.txt", sensitive ? "Sensitive command diagnostics suppressed." : String(result.stderr || result.error || "Command failed"), { mode: 0o600 });
     throw new Error("Isolated command failed.");
   }
   return result.stdout;
 }
 const cli = args => command("npx", ["--yes", "supabase@2.119.0", ...args], undefined, 600000);
-const sql = query => {
-  const result = command("docker", ["exec", "-i", "supabase_db_voxa-dr", "psql", "-X", "-q", "-t", "-A", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres"], `set timezone='UTC';\n${query}`);
+const sql = (query, sensitive = false) => {
+  const result = command("docker", ["exec", "-i", "supabase_db_voxa-dr", "psql", "-X", "-q", "-t", "-A", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres"], `set timezone='UTC';\n${query}`, 60000, sensitive);
   return result.trim() ? JSON.parse(result.trim()) : null;
 };
 
@@ -84,6 +84,21 @@ async function run() {
     const runtime = JSON.parse(fs.readFileSync(".backups/dr-runtime.local.json", "utf8"));
     if (!/^http:\/\/(127\.0\.0\.1|localhost):54321$/.test(runtime.API_URL)) throw new Error("Refusing non-local restoration.");
     console.log(`PASS: staging archive decrypted in memory (${snapshot.tables.length} tables, ${snapshot.objects.length} private files).`);
+    const encrypted = Boolean(snapshot.tables.find(t => t.name === "private.patient_encryption_config")?.rows[0]?.activated_at);
+    let patientFetch, fileCrypto;
+    const recoveredFileHashes = new Map();
+    if (encrypted) {
+      // This optional staging-only secret requires separate destination approval.
+      // Production backups can copy ciphertext without receiving patient keys.
+      process.env.PATIENT_ENCRYPTION_KEYRING = process.env.STAGING_PATIENT_ENCRYPTION_KEYRING || "";
+      const encryption = await import("../src/lib/patient-encryption-config.ts");
+      const ring = encryption.patientKeyring();
+      patientFetch = encryption.patientEncryptionFetch(runtime.API_URL);
+      fileCrypto = await import("../src/lib/medical-file-crypto.ts");
+      phase = "isolated encrypted schema activation";
+      const headers = JSON.stringify({ "x-voxa-patient-keyring": JSON.stringify(ring) });
+      sql(`begin; set local role service_role; do $enc$ begin perform set_config('request.headers',${sqlLiteral(headers)},true); perform public.activate_patient_encryption(); end $enc$; commit;`, true);
+    }
     phase = "Auth schema compatibility and table restoration";
     // Pause Auth cleanup while proving byte-equivalent records and password hashes.
     command("docker", ["stop", "supabase_auth_voxa-dr"]);
@@ -102,7 +117,7 @@ async function run() {
     console.log(`PASS: ${restorable.length} Auth/application/private tables match the source fields and row counts; original password hashes included. Auth provider migration history retained for this runtime; ${plans.filter(p => p.absentEmpty).length} unavailable empty provider tables skipped.`);
     command("docker", ["start", "supabase_auth_voxa-dr"]);
     phase = "Storage bucket and object recovery";
-    const options = { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } };
+    const options = { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }, ...(patientFetch ? { global: { fetch: patientFetch } } : {}) };
     const admin = createClient(runtime.API_URL, runtime.SERVICE_ROLE_KEY, options);
     for (const bucket of snapshot.buckets) {
       if (bucket.public) throw new Error("Private fixture buckets required.");
@@ -116,6 +131,19 @@ async function run() {
       if (uploaded.error) throw new Error("Storage recovery failed.");
       const restored = await admin.storage.from(object.bucket).download(object.name);
       if (restored.error || snapshotHash(Buffer.from(await restored.data.arrayBuffer())) !== object.sha256) throw new Error("Restored file differs.");
+      if (encrypted && object.bucket === "voxa-medical") {
+        // Prove exact byte recovery above, then authenticate and rebind the file
+        // to the disposable project's URL, without writing plaintext to disk.
+        process.env.NEXT_PUBLIC_SUPABASE_URL = `https://${stagingRestoreRef}.supabase.co`;
+        process.env.PATIENT_ENCRYPTION_READ_LEGACY = "false";
+        const plaintext = fileCrypto.decryptMedicalBytes(Buffer.from(object.content, "base64"), object.name);
+        process.env.NEXT_PUBLIC_SUPABASE_URL = runtime.API_URL;
+        const rebound = fileCrypto.encryptMedicalBytes(plaintext, object.name);
+        const saved = await admin.storage.from(object.bucket).upload(object.name, rebound, { contentType: "application/octet-stream", upsert: true });
+        const read = await admin.storage.from(object.bucket).download(object.name);
+        if (saved.error || read.error || !read.data || snapshotHash(fileCrypto.decryptMedicalBytes(new Uint8Array(await read.data.arrayBuffer()), object.name)) !== snapshotHash(plaintext)) throw new Error("Restored encrypted file integrity failed.");
+        recoveredFileHashes.set(object.name, snapshotHash(rebound));
+      }
     }
     phase = "restored account password login and tenant isolation";
     const members = snapshot.tables.find(t => t.name === "public.clinic_memberships").rows;
@@ -138,13 +166,18 @@ async function run() {
       if (own.error || own.data.length !== 1) throw new Error("Restored own-clinic access failed.");
       const other = await client.from("clinics").select("id").eq("id", member === first ? second.clinic_id : first.clinic_id);
       if (other.error || other.data.length !== 0) throw new Error("Restored cross-tenant isolation failed.");
+      if (encrypted) {
+        const ownPatients = await client.from("patients").select("name").eq("clinic_id", member.clinic_id).limit(1);
+        const foreignPatients = await client.from("patients").select("name").eq("clinic_id", member === first ? second.clinic_id : first.clinic_id);
+        if (ownPatients.error || !ownPatients.data.length || foreignPatients.error || foreignPatients.data.length) throw new Error("Restored encrypted patient isolation failed.");
+      }
       clients.push(client);
     }
-    const document = snapshot.tables.find(t => t.name === "public.patient_documents").rows.find(d => d.clinic_id === first.clinic_id && !d.archived_at);
+    const document = snapshot.tables.find(t => t.name === (encrypted ? "private.patient_documents" : "public.patient_documents")).rows.find(d => d.clinic_id === first.clinic_id && !d.archived_at);
     const object = snapshot.objects.find(o => o.name === document?.object_path);
     if (!object) throw new Error("Restored private document fixture required.");
     const ownDownload = await clients[0].storage.from(object.bucket).download(object.name);
-    if (ownDownload.error || snapshotHash(Buffer.from(await ownDownload.data.arrayBuffer())) !== object.sha256) throw new Error("Restored owner download failed.");
+    if (ownDownload.error || snapshotHash(Buffer.from(await ownDownload.data.arrayBuffer())) !== (recoveredFileHashes.get(object.name) ?? object.sha256)) throw new Error("Restored owner download failed.");
     if (!(await clients[1].storage.from(object.bucket).download(object.name)).error) throw new Error("Foreign restored account downloaded a file.");
     const anonymous = createClient(runtime.API_URL, runtime.ANON_KEY, options);
     if (!(await anonymous.storage.from(object.bucket).download(object.name)).error) throw new Error("Anonymous restored account downloaded a file.");

@@ -41,6 +41,8 @@ export async function disableMfa(_: MfaState, form: FormData): Promise<MfaState>
   const factor = mfaFactorSchema.safeParse(form.get("factor_id"));
   if (!factor.success || form.get("confirm") !== "on") return { error: "Confirmați dezactivarea verificării în doi pași." };
   const { client } = await authenticatedUser();
+  const {data:policy,error:policyError}=await client.rpc("my_mfa_policy_required");
+  if(policyError||policy)return {error:"Organizația solicită verificarea în doi pași. Factorul nu poate fi dezactivat cât timp politica este activă."};
   if (await mfaRequired(client)) redirect("/auth/mfa?next=%2Faccount%2Fsecurity");
   const assurance = await client.auth.mfa.getAuthenticatorAssuranceLevel();
   if (assurance.error || assurance.data.currentLevel !== "aal2") return { error: "Confirmați mai întâi un cod din aplicația de autentificare." };

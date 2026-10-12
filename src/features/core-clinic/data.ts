@@ -49,7 +49,7 @@ export async function optionsFor(
   selected: string[] = [],
   query = "",
 ): Promise<Option[]> {
-  const { client } = await requireClinic(cid, "catalog.read");
+  const { client } = await requireClinic(cid, module === "patients" ? "patients.read" : "catalog.read");
   const { data, error } = await client.rpc("core_options", {
     cid,
     module,

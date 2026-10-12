@@ -3,6 +3,12 @@ import { NextResponse, type NextRequest } from "next/server";
 import { cookieOptions } from "@/lib/supabase/config";
 import { assertDeploymentTarget } from "@/lib/deployment-target";
 export async function proxy(request: NextRequest) {
+  if (process.env.PATIENT_ENCRYPTION_MAINTENANCE === "true") {
+    return new NextResponse("Actualizare de securitate în curs. Te rugăm să revii în câteva minute.", {
+      status: 503,
+      headers: { "Cache-Control": "private, no-store", "Retry-After": "120" },
+    });
+  }
   assertDeploymentTarget(process.env.APP_ENVIRONMENT, process.env.STAGING_SUPABASE_PROJECT_REF, process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.APP_ORIGIN);
   let response = NextResponse.next({ request });
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL,

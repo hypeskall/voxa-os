@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { PDFDocument, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
+import sharp from "sharp";
 import type { ResultDetail } from "./model";
 
 function wrap(text: string, font: PDFFont, size: number, width: number) {
@@ -38,7 +39,13 @@ export async function resultPdf(result: ResultDetail, signature?: { bytes: Array
   y = Math.max(90, y - 28);
   let x = 54;
   for (const image of [signature, stamp]) if (image) {
-    try { const embedded = image.mime === "image/png" ? await pdf.embedPng(image.bytes) : await pdf.embedJpg(image.bytes); const scale = Math.min(120/embedded.width, 55/embedded.height, 1); page.drawImage(embedded, { x, y: y-embedded.height*scale, width: embedded.width*scale, height: embedded.height*scale }); x += 150; } catch { /* PDF remains valid when an unsupported scan cannot be embedded. */ }
+    try {
+      const png = await sharp(Buffer.from(image.bytes), { limitInputPixels: 16_000_000 }).rotate().png().toBuffer();
+      const embedded = await pdf.embedPng(png);
+      const scale = Math.min(120 / embedded.width, 55 / embedded.height, 1);
+      page.drawImage(embedded, { x, y: y - embedded.height * scale, width: embedded.width * scale, height: embedded.height * scale });
+      x += 150;
+    } catch { throw new Error("Semnătura sau parafa configurată nu poate fi inclusă în PDF. Încărcați o imagine validă înainte de publicare."); }
   }
   page.drawText(`Document generat de Voxa · rezultat ${result.id} · versiunea ${result.version + 1}`, { x:54, y:32, size:7, font, color:gray });
   return pdf.save();

@@ -7,6 +7,7 @@ import { ActionForm } from "@/components/ui/action-form";
 import { portalAppointmentAction, portalLogout } from "@/features/patient-portal/actions";
 import { documentSchema } from "@/features/documents/model";
 import { appointmentStatusLabels } from "@/lib/locale/ro";
+import { getLocale } from "@/lib/locale/server";
 
 const appointment = z.object({ id:z.uuid(), start_at:z.string(), end_at:z.string(), status:z.string(), service_name:z.string(), doctor_name:z.string().nullable(), instructions:z.string(), required_documents:z.array(z.string()), exclusion_rules:z.array(z.string()) });
 const homeSchema = z.object({
@@ -33,7 +34,8 @@ export default async function PortalHome() {
   const now = new Date(home.generated_at).getTime();
   const upcoming = home.appointments.filter(a => new Date(a.start_at).getTime() >= now && !["CANCELLED","COMPLETED","NO_SHOW"].includes(a.status));
   const previous = home.appointments.filter(a => !upcoming.includes(a));
-  const date = (value:string) => new Intl.DateTimeFormat("ro-RO", { dateStyle:"long", timeStyle:"short", timeZone:home.patient.timezone }).format(new Date(value));
+  const locale = await getLocale();
+  const date = (value:string) => new Intl.DateTimeFormat(locale, { dateStyle:"long", timeStyle:"short", timeZone:home.patient.timezone }).format(new Date(value));
   return <main className="portal-main">
     <header className="portal-welcome"><div><p className="eyebrow">{home.patient.clinic_name}</p><h1><T>{"Bună ziua, "}</T>{home.patient.name}</h1><p className="muted"><T>{"Cod pacient "}</T>{home.patient.internal_id}</p></div><form action={portalLogout}><Button variant="outline"><T>{"Deconectare"}</T></Button></form></header>
     <nav className="portal-nav"><a href="#programari"><T>{"Programări"}</T></a><a href="#rezultate"><T>{"Rezultate"}</T></a><a href="#documente"><T>{"Documente"}</T></a><a href="#date"><T>{"Date personale"}</T></a></nav>

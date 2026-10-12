@@ -80,7 +80,7 @@ export async function GET(
   if (
     !moduleKey.success ||
     !input.success ||
-    ["patients", "availability", "exceptions"].includes(raw)
+    ["availability", "exceptions"].includes(raw)
   )
     return NextResponse.json({ error: "Cerere invalidă." }, { status: 400 });
   return NextResponse.json(

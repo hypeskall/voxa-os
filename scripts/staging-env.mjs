@@ -35,6 +35,7 @@ export function stagingEnv(file = process.env.STAGING_ENV_FILE || ".env.staging.
     if (claims.role !== "service_role" || (claims.ref && claims.ref !== ref)) throw new Error("Service-role key must belong to staging.");
   } else if (!env.SUPABASE_SERVICE_ROLE_KEY.startsWith("sb_secret_")) throw new Error("Expected a server secret or legacy service-role key.");
   if (publicKey === production.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || publicKey === production.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.SUPABASE_SERVICE_ROLE_KEY === production.SUPABASE_SERVICE_ROLE_KEY) throw new Error("Staging keys must differ from production keys.");
+  if (env.PATIENT_ENCRYPTION_KEYRING && env.PATIENT_ENCRYPTION_KEYRING === production.PATIENT_ENCRYPTION_KEYRING) throw new Error("Patient encryption keys must differ between staging and production.");
   for (const name of ["BOOKING_RATE_LIMIT_SALT", "CONFIRMATION_TOKEN_SECRET", "CRON_SECRET"]) {
     if (!env[name] || env[name].length < 32 || /replace|placeholder/i.test(env[name]) || env[name] === production[name]) throw new Error(`${name} needs a distinct random staging value of at least 32 characters.`);
   }

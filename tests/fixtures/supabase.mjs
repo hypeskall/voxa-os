@@ -6,12 +6,29 @@ import { readFileSync } from "node:fs";
 import { migratedDatabase, callerQuery } from "../support/database.ts";
 const database = await migratedDatabase();
 const authRequestCounts = { recover: 0, verify: 0 };
+const signedUploads = new Map();
+const storedUploads = new Map();
+const fixturePort=Number(process.env.VOXA_FIXTURE_PORT??54329);
+const fixtureAppOrigin=process.env.VOXA_FIXTURE_APP_ORIGIN??"http://localhost:3100";
+if(!Number.isInteger(fixturePort)||fixturePort<1024||fixturePort>65535)throw new Error("Invalid fixture port");
 await database.exec(readFileSync("supabase/seed-core.sql", "utf8"));
 const accounts = new Map([
   ["owner@voxa.test", { id: "10000000-0000-4000-8000-000000000001", password: "VoxaDev!2026", name: "Alexandra Ionescu" }],
   ["reception@voxa.test", { id: "10000000-0000-4000-8000-000000000003", password: "VoxaDev!2026", name: "Maria Pop" }],
 ]);
 const rpcArgs = {
+  authorize_document_download:["cid","document_id"],
+  authorize_result_download:["cid","result_id"],
+  save_patient_document:["cid","pid","aid","type_id","document_title","path","file_label","mime","bytes","patient_visible"],
+  notification_health: ["cid"],
+  my_mfa_enrollment_required: [],
+  my_mfa_policy_required: [],
+  set_organization_mfa_policy: ["cid","required"],
+  import_patients: ["cid","records","preview_only"],
+  reception_workspace: ["cid","work_kind","work_status"],
+  save_reception_work: ["cid","work_id","payload","expected_updated_at"],
+  offer_waitlist_slot: ["cid","work_id","slot_start","expected_updated_at"],
+  book_waitlist_slot: ["cid","work_id","expected_updated_at"],
   organization_access: ["oid"],
   activate_license: ["oid", "digest"],
   create_organization: ["org_name", "clinic_name"],
@@ -149,9 +166,13 @@ function token(id) {
 http
   .createServer(async (req, res) => {
     const url = new URL(req.url, "http://localhost");
-    let body = "";
-    for await (const chunk of req) body += chunk;
-    const input = body ? JSON.parse(body) : {};
+    res.setHeader("Access-Control-Allow-Origin", fixtureAppOrigin);
+    res.setHeader("Access-Control-Allow-Headers", "content-type,x-upsert");
+    res.setHeader("Access-Control-Allow-Methods", "POST,PUT,GET,OPTIONS");
+    if(req.method==="OPTIONS"){res.writeHead(204);res.end();return;}
+    const chunks=[];for await(const chunk of req)chunks.push(chunk);const rawBody=Buffer.concat(chunks);
+    const body=rawBody.toString();
+    const input = body && req.headers["content-type"]?.includes("application/json") ? JSON.parse(body) : {};
     let resultCount = 2;
     const send = (data, status = 200) => {
       res.writeHead(status, {
@@ -162,6 +183,7 @@ http
     };
     if (url.pathname === "/health") return send({ ok: true });
     if (url.pathname === "/test/auth-request-counts") return send(authRequestCounts);
+    if (url.pathname === "/test/storage-integrity") return send({ objects: [...storedUploads.values()].map(file => ({ encrypted: file.bytes.subarray(0,15).toString() === "VOXA-MEDICAL-1\n", mime: file.type, sha256: createHash("sha256").update(file.bytes).digest("hex") })) });
     if (url.pathname === "/test/product-demo" && req.method === "POST") {
       const cid="30000000-0000-4000-8000-000000000001",oid="20000000-0000-4000-8000-000000000001";
       await database.query("update public.organizations set name='Clinica Meridian · Demo' where id=$1",[oid]);
@@ -210,6 +232,17 @@ http
     } catch {
       uid = null;
     }
+    if(url.pathname.startsWith("/storage/v1/object/upload/sign/")){
+      const path=decodeURIComponent(url.pathname.replace("/storage/v1/object/upload/sign/",""));
+      if(req.method==="POST"&&uid){const token=randomUUID();signedUploads.set(token,{path,uid});return send({url:`/object/upload/sign/${path}?token=${token}`});}
+      const token=url.searchParams.get("token");const receipt=signedUploads.get(token);
+      if(req.method!=="PUT"||!receipt||receipt.path!==path||storedUploads.has(path))return send({message:"Invalid or consumed upload token"},403);
+      const form=await new Request(`http://localhost${url.pathname}`,{method:"PUT",headers:{"content-type":req.headers["content-type"]},body:rawBody}).formData();const file=form.get("");if(!(file instanceof File))return send({message:"Missing file"},400);
+      storedUploads.set(path,{uid:receipt.uid,bytes:Buffer.from(await file.arrayBuffer()),type:file.type});signedUploads.delete(token);return send({Key:path});
+    }
+    if(url.pathname.startsWith("/storage/v1/object/")){
+      const path=decodeURIComponent(url.pathname.replace("/storage/v1/object/",""));const stored=storedUploads.get(path);if(!uid||!stored||stored.uid!==uid)return send({message:"Object not available"},404);res.writeHead(200,{"Content-Type":stored.type});res.end(stored.bytes);return;
+    }
     if (url.pathname === "/auth/v1/token") {
       const account = accounts.get(input.email);
       if (!account || input.password !== account.password)
@@ -245,7 +278,9 @@ http
       const keys = publicRpcArgs[rpc].filter((key) => Object.hasOwn(input, key));
       try {
         const result = await database.transaction(async (tx) => {
-          await tx.exec("set local role anon");
+          const serviceBooking = rpc === "create_public_booking" && req.headers.authorization === "Bearer test-only-service-key";
+          await tx.exec(serviceBooking ? "set local role service_role" : "set local role anon");
+          if (serviceBooking) await tx.query("select set_config('request.jwt.claims',$1,true)", [JSON.stringify({role:"service_role"})]);
           return tx.query(
             `select public.${rpc}(${keys.map((key, index) => `${key} => $${index + 1}`).join(",")}) as result`,
             keys.map((key) => input[key]),
@@ -308,9 +343,9 @@ http
         "select doctor_location_id,service_id from public.doctor_services where clinic_id=$1", [eq("clinic_id")]);
       return rows(result.rows);
     }
-    if (["organizations","organization_members","onboarding_drafts","organization_invites","patient_notes","privacy_requests","organization_settings","organization_subscriptions","subscription_events","license_keys","document_types","patient_identities","appointments","manual_patient_communications","communication_logs","clinic_notification_settings","communication_templates"].includes(table)) {
+    if (["organizations","organization_members","onboarding_drafts","organization_invites","patient_notes","privacy_requests","organization_settings","organization_subscriptions","subscription_events","license_keys","document_types","patient_documents","patient_identities","appointments","manual_patient_communications","communication_logs","clinic_notification_settings","communication_templates"].includes(table)) {
       const values=[];let sql=`select ${table==="organization_invites"?"id,organization_id,clinic_id,email,role,expires_at,accepted_at,revoked_at,invited_by,created_at":table==="license_keys"?"id,organization_id,code_hint,status,plan,expires_at,activated_at,created_at,updated_at":"*"} from public.${table} where true`;
-      for(const key of ["id","organization_id","user_id","clinic_id","patient_id","code","active"])if(eq(key)){values.push(eq(key));sql+=` and ${key}=$${values.length}`;}
+      for(const key of ["id","organization_id","user_id","clinic_id","patient_id","code","active","object_path"])if(eq(key)){values.push(eq(key));sql+=` and ${key}=$${values.length}`;}
       if(table==="patient_identities"&&url.searchParams.get("revoked_at")==="is.null")sql+=" and revoked_at is null";
       return rows((await callerQuery(database,uid,sql,values)).rows);
     }
@@ -364,4 +399,4 @@ http
       ]);
     return send({ message: "Unsupported UI fixture operation" }, 400);
   })
-  .listen(54329, "127.0.0.1");
+  .listen(fixturePort, "127.0.0.1");

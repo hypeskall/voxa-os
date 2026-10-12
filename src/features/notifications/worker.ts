@@ -16,7 +16,9 @@ export async function processNotifications(origin: string) {
   const { error: enqueueError } = await client.rpc("enqueue_due_reminders", { reference_time: new Date().toISOString() });
   if (enqueueError) throw new Error("Notificările datorate nu au putut fi pregătite.");
   // Parallel deliveries preserve batch capacity within the provider's 15s timeout.
-  const { data, error } = await client.rpc("claim_notification_jobs", { batch_size: process.env.NOTIFICATION_PROVIDER === "smtp" ? 5 : 25 });
+  const configuredBatch = Number(process.env.NOTIFICATION_BATCH_SIZE ?? (process.env.NOTIFICATION_PROVIDER === "smtp" ? 10 : 25));
+  if (!Number.isInteger(configuredBatch) || configuredBatch < 1 || configuredBatch > 25) throw new Error("NOTIFICATION_BATCH_SIZE trebuie să fie între 1 și 25.");
+  const { data, error } = await client.rpc("claim_notification_jobs", { batch_size: configuredBatch });
   if (error) throw new Error("Notificările nu au putut fi preluate.");
   const jobs = z.array(jobSchema).parse(data);
   let sent = 0;

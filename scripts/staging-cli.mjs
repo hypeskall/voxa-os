@@ -29,9 +29,10 @@ try {
     const project = config.env.STAGING_VERCEL_PROJECT || "voxa-os-staging";
     if (!/^[a-z0-9-]{3,64}$/.test(project) || ["voxa-os", "denta-os"].includes(project)) throw new Error("Use a dedicated staging Vercel project name.");
     const keys = ["APP_ENVIRONMENT", "STAGING_SUPABASE_PROJECT_REF", "NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", "NEXT_PUBLIC_SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY", "APP_ORIGIN", "BOOKING_RATE_LIMIT_SALT", "CONFIRMATION_TOKEN_SECRET", "CRON_SECRET", "NOTIFICATION_PROVIDER", "STAFF_INVITATION_PROVIDER", "STAFF_INVITATION_PROVIDER_URL", "STAFF_INVITATION_PROVIDER_TOKEN", "BOOKING_EMBED_ORIGINS"];
+    keys.push("PATIENT_ENCRYPTION_KEYRING", "PATIENT_ENCRYPTION_READ_LEGACY");
     // Supabase account tokens/database passwords are deliberately excluded.
     for (const key of keys.filter(key => config.env[key])) {
-      const secret = /SERVICE_ROLE|SECRET|SALT|_TOKEN$/.test(key);
+      const secret = /SERVICE_ROLE|SECRET|SALT|_TOKEN$|ENCRYPTION_KEYRING/.test(key);
       cli("vercel@62.2.0", ["env", "add", key, "preview", "--project", project, "--scope", "voxa6", secret ? "--sensitive" : "--no-sensitive", "--yes"], childEnv, config.env[key]);
       console.log(`Configured ${key} for staging Preview only.`);
     }

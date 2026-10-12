@@ -12,7 +12,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 type Timestamps = { created_at: string; updated_at: string };
-type Organization = { id: string; name: string; legal_name: string; cui: string; email: string; phone: string; website: string; logo_path: string | null; specialty: string; timezone: string; currency: string; country: string; onboarding_completed: boolean; plan: string; subscription_status: string; trial_started_at: string; trial_ends_at: string } & Timestamps;
+type Organization = { privileged_mfa_required: boolean; id: string; name: string; legal_name: string; cui: string; email: string; phone: string; website: string; logo_path: string | null; specialty: string; timezone: string; currency: string; country: string; onboarding_completed: boolean; plan: string; subscription_status: string; trial_started_at: string; trial_ends_at: string } & Timestamps;
 type Clinic = {
   id: string;
   organization_id: string;
@@ -194,6 +194,15 @@ export type Database = {
     };
     Views: Record<string, never>;
     Functions: {
+      notification_health: { Args: {cid:string}; Returns: Json };
+      my_mfa_enrollment_required: { Args: Record<string,never>; Returns: boolean };
+      my_mfa_policy_required: { Args: Record<string,never>; Returns: boolean };
+      set_organization_mfa_policy: { Args: { cid:string; required:boolean }; Returns: undefined };
+      import_patients: { Args: { cid: string; records: Json; preview_only?: boolean }; Returns: Json };
+      reception_workspace: { Args: { cid: string; work_kind: string; work_status?: string }; Returns: Json };
+      save_reception_work: { Args: { cid: string; work_id: string | null; payload: Json; expected_updated_at?: string | null }; Returns: string };
+      offer_waitlist_slot: { Args: { cid: string; work_id: string; slot_start: string; expected_updated_at: string }; Returns: Json };
+      book_waitlist_slot: { Args: { cid: string; work_id: string; expected_updated_at: string }; Returns: Json };
       stripe_billing_lock: { Args: { oid: string }; Returns: Json };
       stripe_billing_save: { Args: { oid: string; token: string; payload: Json }; Returns: undefined };
       stripe_billing_apply: { Args: { oid: string; token: string; eid: string; kind: string; snapshot: Json }; Returns: boolean };

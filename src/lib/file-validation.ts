@@ -1,4 +1,6 @@
 import "server-only";
+import sharp from "sharp";
+import { PDFDocument, PDFName } from "pdf-lib";
 
 export type MedicalMime = "application/pdf" | "image/png" | "image/jpeg" | "image/webp";
 
@@ -14,5 +16,15 @@ export async function validateMedicalFile(file: File, allowed: readonly MedicalM
   if (file.size<1||file.size>maxBytes||!allowed.includes(file.type as MedicalMime)) return null;
   const header=new Uint8Array(await file.slice(0,16).arrayBuffer());
   const detected=detectedMime(header);
-  return detected===file.type&&allowed.includes(detected)?detected:null;
+  if (detected !== file.type || !allowed.includes(detected)) return null;
+  try {
+    const bytes = Buffer.from(await file.arrayBuffer());
+    if (detected === "application/pdf") {
+      const pdf = await PDFDocument.load(bytes, { updateMetadata: false });
+      if (!pdf.getPageCount() || pdf.catalog.has(PDFName.of("OpenAction")) || pdf.catalog.has(PDFName.of("AA"))) return null;
+    } else {
+      await sharp(bytes, { limitInputPixels: 16_000_000, failOn: "warning" }).rotate().png().toBuffer();
+    }
+    return detected;
+  } catch { return null; }
 }

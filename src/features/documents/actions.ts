@@ -6,6 +6,7 @@ import { requireClinic } from "@/features/auth/access";
 import { validateMedicalFile, type MedicalMime } from "@/lib/file-validation";
 import { MAX_UPLOAD_BYTES } from "@/lib/medical-storage";
 import { cleanupUploads } from "@/lib/storage-cleanup";
+import { encryptMedicalBytes } from "@/lib/medical-file-crypto";
 
 const allowed: MedicalMime[] = ["application/pdf", "image/png", "image/jpeg", "image/webp"];
 export async function uploadPatientDocument(cid: string, pid: string, _: ActionState, form: FormData): Promise<ActionState> {
@@ -15,9 +16,11 @@ export async function uploadPatientDocument(cid: string, pid: string, _: ActionS
   if (!parsed.success || !(file instanceof File)) return { error: "Selectați un PDF sau o imagine de cel mult 3 MB și completați datele." };
   const mime=await validateMedicalFile(file,allowed,MAX_UPLOAD_BYTES);
   if(!mime)return {error:"Conținutul fișierului nu corespunde unui PDF, PNG, JPEG sau WebP valid de cel mult 3 MB."};
-  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-120);
-  const path = `${cid}/${pid}/documents/${crypto.randomUUID()}-${safeName}`;
-  const { error: uploadError } = await client.storage.from("voxa-medical").upload(path, file, { contentType: mime, upsert: false });
+  const path = `${cid}/${pid}/documents/${crypto.randomUUID()}.enc`;
+  let encrypted: Uint8Array;
+  try { encrypted = encryptMedicalBytes(new Uint8Array(await file.arrayBuffer()), path); }
+  catch { return { error: "Criptarea documentului nu este disponibilă. Contactați administratorul." }; }
+  const { error: uploadError } = await client.storage.from("voxa-medical").upload(path, encrypted, { contentType: "application/octet-stream", upsert: false });
   if (uploadError) { const cleanup = await cleanupUploads(client, "voxa-medical", [path]); return { error: "Fișierul nu a putut fi încărcat." + cleanup }; }
   const { error } = await client.rpc("save_patient_document", { cid, pid, aid: parsed.data.appointment_id || null, type_id: parsed.data.document_type_id, document_title: parsed.data.title, path, file_label: file.name, mime, bytes: file.size, patient_visible: form.get("visible_to_patient") === "on" });
   if (error) { const cleanup = await cleanupUploads(client, "voxa-medical", [path]); return { error: "Documentul nu a putut fi înregistrat." + cleanup }; }

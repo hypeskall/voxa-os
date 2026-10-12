@@ -1,5 +1,11 @@
 import "server-only";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
+import type { Database } from "@/types/database";
+export async function mfaEnrollmentRequired(client: SupabaseClient<Database>) {
+  const { data,error } = await client.rpc("my_mfa_enrollment_required");
+  if(error)throw new Error("Politica de securitate a contului nu a putut fi verificată.");
+  return data===true;
+}
 
 export async function mfaRequired(client: SupabaseClient, verifiedUser?: User) {
   const session = await client.auth.getSession();

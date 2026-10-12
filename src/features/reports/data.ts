@@ -31,7 +31,8 @@ export async function loadReport(clinicId: string, filters: z.infer<typeof repor
 }
 
 function csvCell(value: string | number | null) {
-  const text = value == null ? "" : String(value);
+  let text = value == null ? "" : String(value);
+  if (typeof value === "string" && /^(?:[\s\u0000-\u001f]*[=+\-@]|[\t\r\n])/.test(text)) text = "'" + text;
   return `"${text.replaceAll('"', '""')}"`;
 }
 

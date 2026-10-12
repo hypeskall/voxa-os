@@ -8,7 +8,7 @@ import { PasswordField } from "./password-input";
 export function AccountPage({ mode, next = "/" }: { mode: "register" | "forgot" | "reset"; next?: string }) {
   const title = mode === "register" ? "Creează contul" : mode === "forgot" ? "Recuperare parolă" : "Alege o parolă nouă";
   return <main className="auth-page"><div className="auth-main"><div className="auth-box">
-    <p className="eyebrow"><T>{"VOXA · ADMINISTRARE MEDICALĂ"}</T></p><h1>{title}</h1>
+    <p className="eyebrow"><T>{"VOXA · ADMINISTRARE MEDICALĂ"}</T></p><h1><T>{title}</T></h1>
     <p className="muted"><T>{mode === "register" ? "30 de zile gratuit pentru echipa clinicii. Fără plată inițială. Configurare ghidată, pas cu pas." : "Accesul la cont este verificat în siguranță."}</T></p>
     {mode === "forgot" ? <ForgotPasswordForm/> : <ActionForm action={mode === "register" ? registerAccount : resetPassword} submit={mode === "register" ? "Creează contul" : "Actualizează parola"}>
       <input type="hidden" name="next" value={next}/>

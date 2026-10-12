@@ -1,4 +1,5 @@
 import { PGlite } from "@electric-sql/pglite";
+import { pgcrypto } from "@electric-sql/pglite/contrib/pgcrypto";
 import { readFileSync, readdirSync } from "node:fs";
 export const ids = {
   owner: "10000000-0000-4000-8000-000000000001",
@@ -12,8 +13,9 @@ export const ids = {
   b: "30000000-0000-4000-8000-000000000002",
   c: "30000000-0000-4000-8000-000000000003",
 };
-export async function migratedDatabase(withStorage = false, throughMigration?: string) {
-  const db = new PGlite();
+export const encryptionTestKeyring = { active: "test-v1", keys: { "test-v1": "a1".repeat(32) }, index: "b2".repeat(32) };
+export async function migratedDatabase(withStorage = false, throughMigration?: string, encrypt: boolean | "prepare" = process.env.VOXA_TEST_ENCRYPTION === "true") {
+  const db = new PGlite(encrypt ? { extensions: { pgcrypto } } : {});
   await db.exec(`create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls; create schema auth;
     create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz default now(),raw_user_meta_data jsonb default '{}');
     create table auth.mfa_factors(id uuid primary key default gen_random_uuid(),user_id uuid references auth.users(id),status text not null);
@@ -57,6 +59,13 @@ export async function migratedDatabase(withStorage = false, throughMigration?: s
     "insert into public.clinic_memberships(user_id,organization_id,clinic_id,role) values($1,$2,$3,'OWNER'),($4,$5,$6,'OWNER')",
     [ids.owner, ids.org, ids.b, ids.outsider, ids.otherOrg, ids.c],
   );
+  if (encrypt === true && (!throughMigration || throughMigration >= "202610120049_patient_encryption.sql")) {
+    await db.query("select set_config('request.headers',$1,false)", [JSON.stringify({ "x-voxa-patient-keyring": JSON.stringify(encryptionTestKeyring) })]);
+    await db.transaction(async tx => {
+      await tx.exec("set local role service_role");
+      await tx.query("select public.activate_patient_encryption()");
+    });
+  }
   return db;
 }
 // Every call commits or rolls back atomically and uses the actual authenticated

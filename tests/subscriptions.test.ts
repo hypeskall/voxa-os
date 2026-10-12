@@ -343,9 +343,11 @@ describe("organization subscription database enforcement", () => {
       db.query("select public.public_booking_catalog('subscription-test')"),
     ).rejects.toThrow("Booking unavailable");
     await expect(
-      db.query(
-        "select public.create_public_booking('subscription-test','{}','')",
-      ),
+      db.transaction(async tx => {
+        await tx.exec("set local role service_role");
+        await tx.query("select set_config('request.jwt.claims',$1,true)",[JSON.stringify({role:"service_role"})]);
+        return tx.query("select public.create_public_booking('subscription-test','{}','')");
+      }),
     ).rejects.toThrow("Booking unavailable");
     expect(await activate((await issue()).digest)).toBe(true);
     expect(

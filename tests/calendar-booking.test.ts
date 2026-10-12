@@ -25,10 +25,14 @@ async function publicSlots(day = "2027-02-01", doctor: string | null = null) {
   return rows[0].result.map((slot) => new Date(slot.start_at).toISOString());
 }
 async function publicBook(index: number, start: string, key = requestKey) {
-  const { rows } = await asAnon<{ result: { ok: boolean; appointment_id?: string; code?: string } }>(
+  const { rows } = await db.transaction(async (tx) => {
+    await tx.exec("set local role service_role");
+    await tx.query("select set_config('request.jwt.claims',$1,true)", [JSON.stringify({ role: "service_role" })]);
+    return tx.query<{ result: { ok: boolean; appointment_id?: string; code?: string } }>(
     "select public.create_public_booking('clinic-a',$1,$2) result",
     [{ service_id: fixture.service, doctor_id: fixture.doctor, start_at: start, name: `Web Patient ${index}`, email: `web${index}@example.test`, phone: "" }, key],
-  );
+    );
+  });
   return rows[0].result;
 }
 
@@ -62,6 +66,9 @@ beforeAll(async () => {
 afterAll(async () => db.close());
 
 describe("Calendar and public booking share the scheduling engine", () => {
+  it("rejects direct anonymous bookings with caller-supplied rate limit keys", async () => {
+    await expect(asAnon("select public.create_public_booking('clinic-a','{}',$1)", [requestKey])).rejects.toThrow(/permission denied/);
+  });
   it("reception creates an appointment that appears in the bounded calendar query", async () => {
     const created = await internalCreate(fixture.patient1, "2027-02-01T09:00:00Z");
     expect(created.ok).toBe(true);
