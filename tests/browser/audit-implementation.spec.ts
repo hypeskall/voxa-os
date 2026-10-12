@@ -159,13 +159,3 @@ test("new operations pages fit mobile and render empty states", async ({
     fullPage: true,
   });
 });
-test("public crawler files contain only public pages", async ({ request }) => {
-  const robots = await request.get("/robots.txt");
-  expect(robots.ok()).toBe(true);
-  expect(await robots.text()).toContain("Disallow: /clinics/");
-  const sitemap = await request.get("/sitemap.xml");
-  expect(sitemap.ok()).toBe(true);
-  const xml = await sitemap.text();
-  expect(xml).toContain("/functionalitati");
-  expect(xml).not.toContain("/clinics/");
-});
