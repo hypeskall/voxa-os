@@ -13,9 +13,16 @@ function client() {
   return createClient(config.env.NEXT_PUBLIC_SUPABASE_URL, config.publicKey, { auth: { persistSession: false, autoRefreshToken: false }, global: { fetch: patientEncryptionFetch(config.env.NEXT_PUBLIC_SUPABASE_URL) } });
 }
 async function query(sql: string) { return managementQuery(config.ref, config.env.SUPABASE_ACCESS_TOKEN, sql); }
+async function mutateSyntheticSession(sql: string) {
+  const response = await fetch(`https://api.supabase.com/v1/projects/${config.ref}/database/query`, {
+    method: "POST", headers: { Authorization: `Bearer ${config.env.SUPABASE_ACCESS_TOKEN}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ query: sql, read_only: false }), signal: AbortSignal.timeout(30000),
+  });
+  if (!response.ok) throw new Error(`Synthetic session fixture failed (HTTP ${response.status}); diagnostics suppressed`);
+}
 async function age(sid: string, minutes: number, startedMinutes = 0) {
   if (!/^[a-f0-9-]{36}$/.test(sid) || ![0, 6, 11, 481].includes(minutes) || ![0, 6, 481].includes(startedMinutes)) throw new Error("Unsafe synthetic session fixture");
-  await query(`update private.session_activity set last_activity_at=now()-interval '${minutes} minutes',started_at=now()-interval '${startedMinutes} minutes' where session_id='${sid}' and user_id='${actor.userId}'`);
+  await mutateSyntheticSession(`update private.session_activity set last_activity_at=now()-interval '${minutes} minutes',started_at=now()-interval '${startedMinutes} minutes' where session_id='${sid}' and user_id='${actor.userId}'`);
 }
 test("hosted idle, absolute and revoked sessions deny direct database access", async () => {
   for (const kind of ["idle", "absolute", "revoked"] as const) {
@@ -25,11 +32,12 @@ test("hosted idle, absolute and revoked sessions deny direct database access", a
       expect(Boolean(login.error)).toBe(false);
       expect(login.data.user?.id === actor.userId).toBe(true);
       const sid = JSON.parse(Buffer.from(login.data.session!.access_token.split(".")[1], "base64url").toString()).session_id;
+      if (!/^[a-f0-9-]{36}$/.test(sid)) throw new Error("Invalid synthetic session ID");
       const status = await owner.rpc("session_status", { activity: false });
       expect(status.error).toBeNull(); expect(status.data.allowed).toBe(true);
       expect((await owner.from("clinics").select("id").eq("id", actor.clinicId)).data?.length).toBe(1);
       if (kind === "revoked") {
-        await query(`delete from auth.sessions where id='${sid}' and user_id='${actor.userId}'`);
+        await mutateSyntheticSession(`delete from auth.sessions where id='${sid}' and user_id='${actor.userId}'`);
       } else await age(sid, kind === "idle" ? 11 : 0, kind === "absolute" ? 481 : 0);
       expect((await owner.from("clinics").select("id").eq("id", actor.clinicId)).data).toEqual([]);
       expect((await owner.rpc("session_status", { activity: true })).data.allowed).toBe(false);
@@ -63,7 +71,7 @@ test("hosted export requires password confirmation and expired pages lock", asyn
     await expect(page.getByRole("heading", { name: "Confirmă accesul" })).toBeVisible();
     await page.getByLabel("Parolă", { exact: true }).fill("incorrect-synthetic-password");
     await page.getByRole("button", { name: "Confirmă parola", exact: true }).click();
-    await expect(page.getByRole("alert")).toContainText("Parola nu a putut fi confirmată");
+    await expect(page.getByRole("alert").filter({ hasText: "Parola nu a putut fi confirmată" })).toBeVisible();
     await page.getByLabel("Parolă", { exact: true }).fill(actor.password);
     const downloaded = page.waitForEvent("download");
     await page.getByRole("button", { name: "Confirmă parola", exact: true }).click();

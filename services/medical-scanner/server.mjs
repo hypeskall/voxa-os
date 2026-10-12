@@ -4,7 +4,7 @@ import {createHash,createHmac,timingSafeEqual} from 'node:crypto';
 import {pathToFileURL} from 'node:url';
 import path from 'node:path';
 const limit=20*1024*1024;
-export function clamdCommand(command,bytes, socketPath=process.env.CLAMD_SOCKET||'/run/clamav/clamd.sock') {
+export function clamdCommand(command,bytes, socketPath=process.env.CLAMD_SOCKET||'/run/clamav/clamd.ctl') {
  return new Promise((resolve,reject)=>{
   const socket=net.createConnection(socketPath);let response='';let settled=false;
   const finish=(error,value)=>{if(settled)return;settled=true;socket.destroy();if(error)reject(error);else resolve(value);};
