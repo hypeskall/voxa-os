@@ -99,7 +99,7 @@ staging acceptance passed MFA, encrypted patient fields and public booking,
 reception upload/portal download, idle/absolute/revoked-session denial, export
 password confirmation, and expired-page locking. Production was reopened on
 13 October 2026 at https://voxa-gw2qwdilg-voxa6.vercel.app; both application
-origins must return their normal login page before release completion. Production
+origins were verified to return normal login pages with HTTP 200 and `no-store`. Production
 patient-field access and both encrypted medical objects were verified again.
 
 Monthly isolated recovery is installed in the existing private runner. Its first
@@ -120,3 +120,5 @@ The owner selected an existing password manager. Four recovery entries have been
 prepared locally with Windows owner/SYSTEM file access only, but vault import and
 independent-device verification are pending. The temporary plaintext import must
 be removed after that verification. No off-device key recovery is claimed yet.
+Future exports restrict an empty Windows file before writing key bytes; a synthetic
+Windows check verified the ACL and refusal to overwrite an existing recovery copy.
