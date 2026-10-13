@@ -44,7 +44,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
       const receipt = await configureBackupRetention(settings);
       fs.mkdirSync(".backups", { recursive: true });
       fs.writeFileSync(".backups/retention.receipt.json", JSON.stringify(receipt));
-      console.log("PASS: existing and future backup objects protected against deletion/overwrite for at least 30 days; existing rules preserved. No automatic deletion enabled.");
+      console.log("PASS: backup objects have verified deletion/overwrite protection until 30 days after creation; existing stricter rules preserved. No automatic deletion enabled.");
     } else if (process.argv[2] === "check") {
       await assertBackupRetention(settings, "voxa/");
       console.log("PASS: backup deletion protection verified.");

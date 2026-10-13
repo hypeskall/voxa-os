@@ -60,8 +60,9 @@ Production uploads must retain their existing behavior until service acceptance.
 
 ## Backup protection and key recovery
 
-`backup-retention.mjs configure` adds a thirty-day R2 hold under `voxa/`, preserving
-all existing/stricter holds and verifying readback. It never enables automatic
+`backup-retention.mjs configure` adds a thirty-day R2 hold from each object's creation
+under `voxa/`, preserving all existing/stricter holds and verifying readback. Objects
+already older than thirty days are not protected by that age rule. It never enables automatic
 deletion. Cloudflare account administrators can remove these rules; keep the
 scheduled backup credential unable to change account retention configuration.
 This is protection from object deletion/overwrite under the configured hold,
@@ -89,9 +90,33 @@ them. No vault import or independent-device recovery is claimed by this script.
 ## Current evidence
 
 Code checks: the complete encrypted database/unit suite passed 316 tests; all 77
-browser checks, TypeScript, lint and the optimized build passed. Hosted
-scanner activation and retention changes are pending account access. The existing
-Cloudflare management credential returned HTTP 403 for retention configuration
-and scanner hosting. No failed retention write is represented as an active hold.
-The password-manager selection/import is also pending. Deployment and subsequent
-host acceptance must be recorded separately.
+browser checks, TypeScript, lint and the optimized build passed. The final pushed
+application quality run passed, as did real ClamAV clean-file/EICAR/unauthorized
+acceptance: https://github.com/hypeskall/voxa-os/actions/runs/38280310147.
+
+Staging and production migrations 051–053 match 1,827 catalog checks. Hosted
+staging acceptance passed MFA, encrypted patient fields and public booking,
+reception upload/portal download, idle/absolute/revoked-session denial, export
+password confirmation, and expired-page locking. Production was reopened on
+13 October 2026 at https://voxa-gw2qwdilg-voxa6.vercel.app; both application
+origins must return their normal login page before release completion. Production
+patient-field access and both encrypted medical objects were verified again.
+
+Monthly isolated recovery is installed in the existing private runner. Its first
+run passed recovered password login, encrypted fields, private files, tenant
+isolation and the live session gate:
+https://github.com/hypeskall/voxa-backup-runner/actions/runs/38280317635.
+The existing daily backup job remains on its previously reviewed source until
+retention activation; its latest run also passed.
+
+Scanner hosting/activation and retention changes are pending account access. The
+existing Cloudflare management credential returned HTTP 403 for retention writes
+and scanner hosting; readback on 13 October confirmed no active hold. No failed
+write is represented as protection. Production explicitly retains
+`MEDICAL_SCANNER_ENABLED=false` and the SQL scan gate remains disabled until the
+private host and existing objects pass acceptance.
+
+The owner selected an existing password manager. Four recovery entries have been
+prepared locally with Windows owner/SYSTEM file access only, but vault import and
+independent-device verification are pending. The temporary plaintext import must
+be removed after that verification. No off-device key recovery is claimed yet.
