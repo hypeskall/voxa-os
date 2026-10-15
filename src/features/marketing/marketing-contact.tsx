@@ -76,50 +76,44 @@ export function MarketingContact() {
         </div>
         <div className="contact-details" data-reveal>
           <h3>
-            <T>{"Echipa Suport & Vânzări"}</T>
+            <T>{"Contact Voxa-OS"}</T>
           </h3>
           <p>
-            <T>{"Asistență dedicată clinicilor medicale."}</T>
+            <T>{"Întrebări despre testare și produs."}</T>
           </p>
           <dl>
             <div className="contact-detail">
-              <Phone size={20} strokeWidth={1.5} aria-hidden="true" />
-              <div>
-                <dt>
-                  <T>{"Telefon"}</T>
-                </dt>
-                <dd>
-                  <a href="tel:+40770541817">
-                    +40 770 541 817
-                    <ArrowUpRight size={16} aria-hidden="true" />
-                  </a>
-                </dd>
-              </div>
+              <dt>
+                <Phone size={20} strokeWidth={1.5} aria-hidden="true" />
+                <T>{"Telefon"}</T>
+              </dt>
+              <dd>
+                <a href="tel:+40770541817">
+                  +40 770 541 817
+                  <ArrowUpRight size={16} aria-hidden="true" />
+                </a>
+              </dd>
             </div>
             <div className="contact-detail">
-              <Mail size={20} strokeWidth={1.5} aria-hidden="true" />
-              <div>
-                <dt>
-                  <T>{"Email"}</T>
-                </dt>
-                <dd>
-                  <a href="mailto:contact@voxatech.ro">
-                    contact@voxatech.ro
-                    <ArrowUpRight size={16} aria-hidden="true" />
-                  </a>
-                </dd>
-              </div>
+              <dt>
+                <Mail size={20} strokeWidth={1.5} aria-hidden="true" />
+                <T>{"Email"}</T>
+              </dt>
+              <dd>
+                <a href="mailto:contact@voxatech.ro">
+                  contact@voxatech.ro
+                  <ArrowUpRight size={16} aria-hidden="true" />
+                </a>
+              </dd>
             </div>
             <div className="contact-detail">
-              <MapPin size={20} strokeWidth={1.5} aria-hidden="true" />
-              <div>
-                <dt>
-                  <T>{"Sediu"}</T>
-                </dt>
-                <dd>
-                  <T>{"Oradea, România"}</T>
-                </dd>
-              </div>
+              <dt>
+                <MapPin size={20} strokeWidth={1.5} aria-hidden="true" />
+                <T>{"Localitate"}</T>
+              </dt>
+              <dd>
+                <T>{"Oradea, România"}</T>
+              </dd>
             </div>
           </dl>
         </div>

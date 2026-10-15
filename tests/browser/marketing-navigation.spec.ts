@@ -8,6 +8,7 @@ test("Romanian default, separate destinations, home logo and remembered cookie n
   await expect(page.locator("#pret, #functionalitati, #platforma, #intrebari")).toHaveCount(4);
   const notice = page.locator(".cookie-notice");
   await expect(notice).toBeVisible();
+  await expect(notice).toHaveCSS("position", "static");
   const box = await notice.boundingBox();
   expect(box!.width).toBeLessThanOrEqual(320);
   await notice.getByRole("link").click();
@@ -56,6 +57,8 @@ test("compact cookie notice fits mobile and preserves an explicit language choic
   await page.getByRole("combobox", { name: "Language", exact: true }).click();
   await page.getByRole("option", { name: "English", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator("#hero-title")).toContainText("Software for medical clinics.");
+  await expect(page.locator(".premium-hero-copy .hero-description")).toContainText("Medical appointments, patient records");
   await page.goto("/pret");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
 });

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
 import { T } from "@/components/locale-provider";
+import { PrelaunchNotice } from "./prelaunch-notice";
 import { MONTHLY_PRICE, ANNUAL_PRICE } from "@/features/subscriptions/model";
 
 export function MarketingPrice({ authenticated }: { authenticated: boolean }) {
@@ -30,6 +31,7 @@ export function MarketingPrice({ authenticated }: { authenticated: boolean }) {
             </T>
           </p>
         </div>
+        <PrelaunchNotice />
         <div className="premium-price-panel" data-reveal>
           <div className="premium-price-inclusions">
             <span className="price-brand">

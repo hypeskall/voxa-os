@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -15,7 +14,6 @@ import {
   Play,
   Check,
   FileText,
-  CircleCheck,
   Workflow,
   ArrowDown,
   LockKeyhole,
@@ -24,13 +22,15 @@ import { T } from "@/components/locale-provider";
 import { MarketingHeader } from "./marketing-header";
 import { MarketingFooter } from "./marketing-footer";
 import { MarketingMotion } from "./marketing-motion";
-import { HeroPreview } from "./hero-preview";
-import { ProductShowcase } from "./product-showcase";
+import { ProductCinema } from "./product-cinema";
 import { MarketingROI } from "./marketing-roi";
 import { MarketingPrice } from "./marketing-price";
 import { MarketingContact } from "./marketing-contact";
 import { marketingFaqs } from "./marketing-content";
-import { productMedia } from "./product-media";
+import { WorkflowStory } from "./workflow-story";
+import { IntegrationStrip } from "./integrations";
+import { PrelaunchNotice } from "./prelaunch-notice";
+import { ProductEvidence } from "./product-evidence";
 
 const modules = [
   {
@@ -38,42 +38,47 @@ const modules = [
     title: "Programări fără suprapuneri",
     body: "Calendar comun, disponibilitate și resurse. Fiecare programare își găsește locul.",
     detail: "Calendar & disponibilitate",
+    href: "/functionalitati#functionalitati",
   },
   {
     icon: ContactRound,
     title: "Pacienți, cu tot contextul",
     body: "Date de contact, istoricul programărilor, documente și rezultate, în același profil.",
     detail: "Registru & profil pacient",
+    href: "/migrare",
   },
   {
     icon: Stethoscope,
     title: "Echipa, în același ritm",
     body: "Medici, specialități și program de lucru. Recepția și medicul au un context comun.",
     detail: "Medici & servicii",
+    href: "/cum-functioneaza",
   },
   {
     icon: MessageSquare,
     title: "Comunicare la îndemână",
-    body: "Confirmări, acces la WhatsApp și evidența comunicărilor. Mai puține informații pierdute.",
+    body: "Mesaje WhatsApp pregătite pentru trimitere manuală și evidența comunicărilor. Recepția verifică și trimite fiecare mesaj.",
     detail: "Confirmări & comunicări",
+    href: "/integrari#whatsapp",
   },
   {
     icon: FileText,
     title: "Documente bine organizate",
     body: "Documente private și rezultate versionate. Informațiile sunt disponibile colegilor autorizați.",
     detail: "Documente & rezultate",
+    href: "/securitate",
   },
   {
     icon: Building2,
     title: "Locații conectate",
     body: "Gestionezi locațiile, cabinetele și resursele în cadrul aceleiași organizații.",
     detail: "Organizație & acces",
+    href: "/securitate",
   },
 ];
 
 export function MarketingHome({
   authenticated,
-  videoSrc,
   supportEmail,
 }: {
   authenticated: boolean;
@@ -88,24 +93,36 @@ export function MarketingHome({
         <T>{"Sari la conținut"}</T>
       </a>
       <MarketingHeader authenticated={authenticated} />
-      <MarketingMotion>
+      <MarketingMotion cinematic>
         <main id="marketing-main">
           <section
             className="premium-hero marketing-container"
+            data-scroll-scene
             aria-labelledby="hero-title"
           >
+            <div className="luxury-hero-atmosphere" aria-hidden="true">
+              <i />
+              <i />
+              <span />
+            </div>
             <div className="premium-hero-copy">
+              <div className="luxury-hero-kicker hero-enter">
+                <span /> VOXA-OS{" "}
+                <span className="luxury-kicker-divider">/</span>
+                <T>{"Spațiul clinicii tale"}</T>
+              </div>
               <h1 id="hero-title" className="hero-enter">
-                <T>{"Mai puțină administrare."}</T>
-                <br />
-                <span>
+                <span className="luxury-title-line">
+                  <T>{"Software pentru clinici medicale."}</T>
+                </span>
+                <span className="luxury-title-emphasis">
                   <T>{"Mai mult timp pentru pacienți."}</T>
                 </span>
               </h1>
               <p className="hero-description hero-enter">
                 <T>
                   {
-                    "Voxa-OS aduce programările, pacienții și echipa într-un singur spațiu de lucru. Claritate pentru recepție. Context pentru medici. Control pentru clinică."
+                    "Programări medicale, registrul pacienților, documente și echipă, în același loc. Un calendar pentru recepție și un portal pentru pacient."
                   }
                 </T>
               </p>
@@ -133,8 +150,13 @@ export function MarketingHome({
                 <span>·</span>
                 <T>{"19,99 EUR / lună după testare"}</T>
               </p>
+              <PrelaunchNotice />
             </div>
-            <HeroPreview />
+            <div className="cinema-hero-scroll-cue">
+              <ArrowDown size={16} />
+              <T>{"Derulează pentru a explora"}</T>
+            </div>
+            <ProductCinema />
             <div className="premium-audience">
               <span>
                 <T>{"UN MOD DE LUCRU COMUN PENTRU"}</T>
@@ -156,8 +178,11 @@ export function MarketingHome({
             </div>
           </section>
 
+          <IntegrationStrip />
+
           <section
             className="premium-problem marketing-section"
+            data-scroll-scene
             aria-labelledby="problem-title"
           >
             <div className="marketing-container">
@@ -267,6 +292,27 @@ export function MarketingHome({
             </ol>
           </section>
 
+          <div
+            className="luxury-type-ribbon"
+            data-scroll-scene
+            aria-hidden="true"
+          >
+            <div className="luxury-type-track">
+              {[0, 1].map((copy) => (
+                <span key={copy}>
+                  {["Programări", "Pacienți", "Echipă", "Documente"].map(
+                    (label) => (
+                      <span key={label}>
+                        <T>{label}</T>
+                        <i />
+                      </span>
+                    ),
+                  )}
+                </span>
+              ))}
+            </div>
+          </div>
+
           <section
             id="functionalitati"
             className="marketing-container marketing-section premium-modules"
@@ -278,9 +324,9 @@ export function MarketingHome({
                   <T>{"O SINGURĂ PLATFORMĂ"}</T>
                 </span>
                 <h2 id="modules-title">
-                  <T>{"Tot ce ține clinica"}</T>
+                  <T>{"Programări, documente și echipă."}</T>
                   <br />
-                  <T>{"în mișcare."}</T>
+                  <T>{"Într-un singur software."}</T>
                 </h2>
               </div>
               <div className="modules-heading-detail">
@@ -298,8 +344,8 @@ export function MarketingHome({
               </div>
             </div>
             <div className="premium-module-grid" data-stagger>
-              {modules.map(({ icon: Icon, title, body, detail }) => (
-                <article key={title} data-reveal>
+              {modules.map(({ icon: Icon, title, body, detail, href }) => (
+                <article key={title} data-reveal="scale">
                   <span className="module-icon">
                     <Icon size={22} strokeWidth={1.5} />
                   </span>
@@ -309,125 +355,18 @@ export function MarketingHome({
                   <p>
                     <T>{body}</T>
                   </p>
-                  <span className="module-detail">
+                  <Link href={href} className="module-detail">
                     <T>{detail}</T>
                     <ArrowUpRight size={13} />
-                  </span>
+                  </Link>
                 </article>
               ))}
             </div>
           </section>
 
-          <section
-            id="platforma"
-            className="marketing-demo-section premium-showcase"
-            aria-labelledby="showcase-title"
-          >
-            <div className="marketing-container">
-              <div className="marketing-section-heading" data-reveal>
-                <div>
-                  <span className="marketing-eyebrow">
-                    <span className="live-dot" />
-                    <T>{"PRODUS REAL. CONTEXT REAL."}</T>
-                  </span>
-                  <h2 id="showcase-title">
-                    <T>{"O imagine clară."}</T>
-                    <br />
-                    <T>{"De la prima oră."}</T>
-                  </h2>
-                </div>
-                <p>
-                  <T>
-                    {
-                      "Programările zilei, statusurile și situațiile care cer atenție. Explorează interfața reală, de la dashboard la profilul pacientului."
-                    }
-                  </T>
-                </p>
-              </div>
-              <div data-reveal>
-                <ProductShowcase videoSrc={videoSrc} />
-              </div>
-            </div>
-          </section>
+          <WorkflowStory />
 
-          <section
-            id="cum-functioneaza"
-            className="marketing-container marketing-section premium-workflow"
-            aria-labelledby="home-workflow-title"
-          >
-            <div className="workflow-copy" data-reveal>
-              <span className="marketing-eyebrow">
-                <T>{"DE LA PROGRAMARE LA PACIENT"}</T>
-              </span>
-              <h2 id="home-workflow-title">
-                <T>{"Un flux firesc."}</T>
-                <br />
-                <T>{"Pentru întreaga echipă."}</T>
-              </h2>
-              <p>
-                <T>
-                  {
-                    "Fiecare pas are locul lui. Informația însoțește pacientul, iar echipa știe unde să o găsească."
-                  }
-                </T>
-              </p>
-              <ol className="premium-workflow-steps" data-stagger>
-                {[
-                  [
-                    "Alegi un interval disponibil",
-                    "Calendarul ține cont de medic, serviciu și resursele necesare.",
-                  ],
-                  [
-                    "Recepția coordonează programarea",
-                    "Detaliile, confirmarea și reprogramarea rămân în același context.",
-                  ],
-                  [
-                    "Medicul are istoricul la îndemână",
-                    "Profilul pacientului reunește programări, documente și rezultate.",
-                  ],
-                ].map(([title, body], index) => (
-                  <li key={title} data-reveal>
-                    <span>0{index + 1}</span>
-                    <div>
-                      <h3>
-                        <T>{title}</T>
-                      </h3>
-                      <p>
-                        <T>{body}</T>
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
-              <Link className="marketing-text-link" href="/cum-functioneaza">
-                <T>{"Vezi cum începi"}</T>
-                <ArrowUpRight size={16} />
-              </Link>
-            </div>
-            <figure className="premium-patient-visual" data-reveal>
-              <div className="patient-visual-label">
-                <ContactRound size={16} />
-                <T>{"PACIENTUL, ÎN CENTRUL FLUXULUI"}</T>
-              </div>
-              <div
-                className="patient-screen"
-                tabIndex={0}
-                role="region"
-                aria-label="Profil pacient — captură reală, derulare orizontală pentru detalii"
-              >
-                <Image
-                  src={productMedia["patient-profile"]}
-                  alt="Profilul real al unui pacient demonstrativ în Voxa-OS, cu istoricul programărilor"
-                  sizes="(max-width: 760px) 800px, 720px"
-                />
-              </div>
-              <figcaption>
-                <CircleCheck size={15} />
-                <T>{"Același context pentru colegii autorizați."}</T>
-              </figcaption>
-            </figure>
-          </section>
-
+          <ProductEvidence cinematic />
           <MarketingROI />
 
           <section
@@ -545,6 +484,7 @@ export function MarketingHome({
 
           <section
             className="marketing-final-section premium-final"
+            data-scroll-scene
             aria-labelledby="final-title"
           >
             <div className="marketing-container" data-reveal>

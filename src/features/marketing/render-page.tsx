@@ -4,6 +4,8 @@ import { LandingPage } from "./landing-page";
 import type { MarketingPage } from "./navigation";
 import "@/app/marketing.css";
 import "@/app/marketing-premium.css";
+import "@/app/marketing-luxury.css";
+import "@/app/marketing-cinema.css";
 
 export async function marketingContext() {
   let authenticated = false;

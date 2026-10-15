@@ -1,7 +1,9 @@
 "use client";
 import { T, LocalizedElement } from "@/components/locale-provider";
+import { CookieNotice } from "@/components/cookie-notice";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, X, ArrowUpRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -21,8 +23,8 @@ export function Brand() {
       className="marketing-brand"
       aria-label="Voxa-OS — pagina principală"
     >
-      <span className="marketing-brand-mark">
-        <T>{"V"}</T>
+      <span className="marketing-brand-mark" aria-hidden="true">
+        <Image src="/icon.svg" alt="" width={32} height={32} loading="eager" />
       </span>
       <span>
         <T>{"VOXA"}</T>
@@ -184,6 +186,7 @@ export function MarketingHeader({
           </p>
         </dialog>
       </header>
+      <CookieNotice inline />
     </>
   );
 }

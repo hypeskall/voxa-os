@@ -14,11 +14,6 @@ export function MarketingROI() {
   useEffect(() => {
     const element = counter.current;
     if (!element) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      element.textContent = String(hours);
-      previous.current = hours;
-      return;
-    }
     const from = previous.current;
     const started = performance.now();
     let frame = 0;

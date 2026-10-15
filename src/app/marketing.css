@@ -2051,22 +2051,22 @@ body:has(.marketing-page dialog[open]) {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .marketing-page *,
-  .marketing-page *::before,
-  .marketing-page *::after,
-  .marketing-page details::details-content {
+  .marketing-page:not(.premium-home) *,
+  .marketing-page:not(.premium-home) *::before,
+  .marketing-page:not(.premium-home) *::after,
+  .marketing-page:not(.premium-home) details::details-content {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
   }
-  .marketing-page [data-visible="false"] {
+  .marketing-page:not(.premium-home) [data-visible="false"] {
     opacity: 1;
     transform: none;
   }
-  .marketing-page .hero-screen-frame {
+  .marketing-page:not(.premium-home) .hero-screen-frame {
     transform: none;
   }
-  .marketing-page .chapter-track .is-current {
+  .marketing-page:not(.premium-home) .chapter-track .is-current {
     transform: scaleX(1);
   }
 }

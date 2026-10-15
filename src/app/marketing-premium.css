@@ -1575,15 +1575,14 @@ html:has(.marketing-page) {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  html:has(.marketing-page) {
+  html:has(.marketing-page):not(:has(.premium-home)) {
     scroll-behavior: auto;
   }
-  .marketing-page [data-reveal] {
+  .marketing-page:not(.premium-home) [data-reveal] {
     opacity: 1 !important;
     transform: none !important;
   }
-  .marketing-page .marketing-button:hover,
-  .premium-home .premium-module-grid article:hover .module-icon {
+  .marketing-page:not(.premium-home) .marketing-button:hover {
     transform: none;
   }
 }
@@ -1596,4 +1595,83 @@ html:has(.marketing-page) {
     aspect-ratio: auto;
     overflow: visible;
   }
+}
+
+/* Public product evidence and provider identities. Keep official logo colors. */
+.marketing-page .marketing-prelaunch {
+  max-width: 720px;
+  margin: 22px 0;
+  padding: 12px 16px;
+  border-left: 2px solid #7591a9;
+  background: #f2f6fa;
+  color: #40556e;
+  font-size: 12px;
+  line-height: 1.7;
+  letter-spacing: normal;
+}
+.marketing-page .marketing-prelaunch a { color: #213d60; text-decoration: underline; text-underline-offset: 3px; }
+.premium-pricing .marketing-prelaunch { margin: 0 auto 28px; }
+.premium-hero-copy .marketing-prelaunch { margin-inline: auto; }
+.premium-home .preview-browser-bar { color: #52645a; }
+.premium-home .contact-detail { display: block; }
+.premium-home .contact-detail dt { display: flex; align-items: center; gap: 18px; }
+.premium-home .contact-detail dd { margin-left: 38px; }
+.marketing-integrations { padding-block: 36px 56px; }
+.integration-heading { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 24px; }
+.marketing-page .integration-heading h2 { margin: 0; font-size: 18px; letter-spacing: -.3px; }
+.integration-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.integration-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; min-height: 132px; padding: 24px; border: 1px solid #e1e7ee; border-radius: 12px; background: #fff; color: #40556e; font-size: 12px; text-align: center; transition: border-color .2s; }
+.integration-card:hover { border-color: #7591a9; }
+.integration-logo { width: 100%; min-width: 0; height: 40px; display: flex; align-items: center; justify-content: center; }
+.integration-logo img, .resource-card > img { width: auto; max-width: 152px; height: auto; max-height: 36px; }
+.integration-logo img { max-width: 100%; }
+.marketing-page .integration-caption { margin: 16px 0 0; color: #62758a; font-size: 11px; line-height: 1.6; }
+.marketing-page .marketing-resource-links { display: flex; flex-wrap: wrap; gap: 16px 28px; margin-block: 28px; font-size: 13px; line-height: 1.7; }
+.marketing-page .marketing-resource-links a { color: #314f70; text-decoration: underline; text-underline-offset: 4px; }
+.evidence-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+.evidence-steps { padding-left: 24px; margin: 0 0 24px; }
+.evidence-steps li { padding-left: 8px; margin-bottom: 22px; color: #40556e; }
+.marketing-page .evidence-steps h3, .marketing-page .evidence-decisions h3 { margin: 0 0 10px; color: #172d4c; font-size: 18px; line-height: 1.4; }
+.marketing-page .evidence-steps p, .marketing-page .evidence-decisions p { color: #52657c; font-size: 14px; line-height: 1.8; margin: 0; }
+.evidence-layout figure { min-width: 0; margin: 0; padding: 12px; border: 1px solid #e1e7ee; border-radius: 12px; background: #f7f9fc; }
+.evidence-layout figure img { display: block; width: 100%; height: auto; border-radius: 6px; }
+.evidence-layout figcaption { margin: 12px 4px 4px; color: #5c6c80; font-size: 11px; line-height: 1.7; }
+.evidence-decisions { margin-top: 36px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+.evidence-decisions article { padding: 24px; border-top: 1px solid #dce4ed; }
+.marketing-resource { padding-bottom: 64px; }
+.marketing-page .resource-lead { max-width: 800px; font-size: 18px; line-height: 1.8; color: #52657c; margin: 0 0 40px; }
+.resource-integration-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.resource-card { padding: 32px; border: 1px solid #dce4ed; border-radius: 12px; scroll-margin-top: 110px; }
+.resource-card > img { display: block; margin-bottom: 28px; }
+.marketing-page .resource-card h2, .marketing-page .resource-section h2, .marketing-page .resource-next h2 { margin: 0 0 20px; font-size: 26px; line-height: 1.4; letter-spacing: -.6px; }
+.marketing-page .resource-card p, .marketing-page .resource-section p, .marketing-page .resource-next p { color: #52657c; font-size: 15px; line-height: 1.85; max-width: 800px; }
+.resource-card a, .resource-section > a { color: #314f70; text-decoration: underline; text-underline-offset: 4px; font-size: 14px; }
+.resource-section { padding-top: 44px; margin-top: 24px; border-top: 1px solid #dce4ed; }
+.resource-table-wrap { max-width: 100%; overflow-x: auto; margin-block: 24px; }
+.resource-table-wrap table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; color: #40556e; }
+.resource-table-wrap caption { text-align: left; font-size: 16px; font-weight: 600; padding-bottom: 16px; }
+.resource-table-wrap :is(th, td) { padding: 14px; border-bottom: 1px solid #dce4ed; vertical-align: top; }
+.resource-table-wrap th { background: #f2f6fa; }
+.resource-next { margin-top: 48px; padding: 32px; background: #f2f6fa; border-radius: 12px; }
+html:has(.marketing-page) .cookie-notice { padding: 12px 14px; }
+html:has(.marketing-page) .cookie-notice h2 { font-size: 13px; margin-bottom: 3px; }
+html:has(.marketing-page) .cookie-notice-actions { margin-top: 8px; }
+html:has(.marketing-page) .cookie-notice-inline {
+  position: static;
+  margin: 12px auto 0;
+  box-shadow: none;
+}
+@media (max-width: 800px) {
+  .evidence-layout, .evidence-decisions { grid-template-columns: 1fr; gap: 24px; }
+  .integration-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .integration-heading { align-items: start; flex-direction: column; gap: 12px; }
+  .resource-integration-grid { grid-template-columns: 1fr; }
+  .resource-card, .resource-next { padding: 24px; }
+  .marketing-page .resource-lead { font-size: 16px; }
+  .marketing-page .resource-card h2, .marketing-page .resource-section h2, .marketing-page .resource-next h2 { font-size: 23px; }
+}
+@media (max-width: 360px) {
+  .integration-card { padding: 18px 12px; }
+  .integration-logo img { max-width: 110px; }
+  .marketing-page .marketing-prelaunch { padding: 10px 12px; font-size: 11px; }
 }

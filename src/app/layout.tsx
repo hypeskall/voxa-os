@@ -5,7 +5,8 @@ import "@fontsource/noto-sans/600.css";
 import "@fontsource/noto-sans/700.css";
 import "./globals.css";
 import { LocaleProvider } from "@/components/locale-provider";
-import { CookieNotice } from "@/components/cookie-notice";
+import { CookieNotice, CookieNoticeProvider } from "@/components/cookie-notice";
+import { cookies } from "next/headers";
 import { getLocale, getDictionary } from "@/lib/locale/server";
 import { translateText } from "@/lib/locale/config";
 import { SessionLock } from "@/features/auth/session-lock";
@@ -26,9 +27,10 @@ export default async function RootLayout({
 }) {
   const locale = await getLocale();
   const dictionary = await getDictionary(locale);
+  const noticeDismissed = (await cookies()).get("voxa-cookie-notice")?.value === "dismissed";
   return (
-    <html lang={locale}>
-      <body><LocaleProvider locale={locale} dictionary={dictionary}>{children}<CookieNotice /><SessionLock /></LocaleProvider></body>
+    <html lang={locale} data-scroll-behavior="smooth">
+      <body><LocaleProvider locale={locale} dictionary={dictionary}><CookieNoticeProvider dismissed={noticeDismissed}>{children}<CookieNotice /></CookieNoticeProvider><SessionLock /></LocaleProvider></body>
     </html>
   );
 }

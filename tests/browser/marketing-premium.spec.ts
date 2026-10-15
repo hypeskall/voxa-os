@@ -8,30 +8,10 @@ test("public product preview, pricing, ROI and FAQ have working keyboard control
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
   await page.getByRole("button", { name: "Am înțeles", exact: true }).click();
-  const preview = page.getByRole("tablist", {
-    name: "Explorează interfața Voxa-OS",
-  });
-  await preview.getByRole("tab", { name: "Dashboard", exact: true }).click();
-  await expect(page.locator("#hero-preview-panel img")).toHaveAttribute(
-    "alt",
-    /Dashboard/,
+  await expect(page.locator("#platforma")).toBeAttached();
+  await expect(page.locator("#platforma button, #platforma input")).toHaveCount(
+    0,
   );
-  await page.keyboard.press("ArrowRight");
-  await expect(
-    preview.getByRole("tab", { name: "Pacient", exact: true }),
-  ).toBeFocused();
-  await expect(page.locator("#hero-preview-panel img")).toHaveAttribute(
-    "alt",
-    /Pacient/,
-  );
-  const expand = page.getByRole("button", { name: "Mărește previzualizarea" });
-  await expand.click();
-  await expect(
-    page.getByRole("dialog", { name: "Pacient / Voxa-OS" }),
-  ).toBeVisible();
-  await page.keyboard.press("Escape");
-  await expect(expand).toBeFocused();
-  await expect(page.getByRole("dialog")).not.toBeVisible();
 
   await page.locator("#pret").scrollIntoViewIfNeeded();
   await expect(page.locator(".premium-price-amount")).toContainText(
@@ -128,7 +108,10 @@ test("every public page fits desktop, laptop, tablet and small phones", async ({
         await expect(page.locator(".marketing-header")).not.toHaveClass(
           /is-scrolled/,
         );
-        await expect(page.locator(".hero-product")).toHaveCSS("opacity", "1");
+        await expect(page.locator(".premium-hero-copy")).toHaveCSS(
+          "opacity",
+          "1",
+        );
         await page.screenshot({
           path: `test-results/marketing/premium/home-${width}.png`,
           fullPage: true,
@@ -154,7 +137,7 @@ test("every public page fits desktop, laptop, tablet and small phones", async ({
   expect(errors).toEqual([]);
 });
 
-test("mobile menu, hover feedback, navbar and reduced motion remain accessible", async ({
+test("mobile menu, hover feedback, navbar and the full home animation treatment work", async ({
   page,
 }) => {
   await page.goto("/");
@@ -184,11 +167,15 @@ test("mobile menu, hover feedback, navbar and reduced motion remain accessible",
   await expect(page.getByRole("dialog")).not.toBeVisible();
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
-  await expect(page.locator("h1")).toHaveCSS("animation-name", "none");
-  for (const section of await page.locator("[data-reveal]").all()) {
-    await expect(section).toHaveCSS("opacity", "1");
-    await expect(section).toHaveCSS("transform", "none");
-  }
+  await expect(page.locator("h1")).toHaveCSS(
+    "animation-name",
+    "cinema-hero-enter",
+  );
+  const featureCard = page.locator(".premium-module-grid article").first();
+  await expect(featureCard).toHaveAttribute("data-visible", "false");
+  await featureCard.scrollIntoViewIfNeeded();
+  await expect(featureCard).toHaveAttribute("data-visible", "true");
+  await expect(featureCard).toHaveCSS("opacity", "1");
   await page.getByLabel("Programări pe zi", { exact: true }).fill("30");
   await expect(page.locator(".roi-result strong")).toHaveText("55h");
 });

@@ -1453,9 +1453,10 @@ tbody tr:hover {
   .slot-picker,.public-slot-grid { grid-template-columns: repeat(3,1fr); }
 }
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  html:not(:has(.premium-home)),
+  html:not(:has(.premium-home)) *,
+  html:not(:has(.premium-home)) *::before,
+  html:not(:has(.premium-home)) *::after {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;

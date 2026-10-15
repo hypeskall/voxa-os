@@ -1,6 +1,4 @@
-import { test, expect as baseExpect, type Page } from "@playwright/test";
-// PGlite's WebAssembly cryptography is slower on the larger screenshot fixture.
-const expect = baseExpect.configure({ timeout: 20000 });
+import { test, expect, type Page } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 const clinic = "30000000-0000-4000-8000-000000000001";
 const organization = "20000000-0000-4000-8000-000000000001";
@@ -24,7 +22,9 @@ test("public homepage, pricing, functional walkthrough and mobile layout", async
     )
     .toBeGreaterThan(0);
   await expect(
-    page.getByRole("heading", { name: "Mai puțină administrare. Mai mult timp pentru pacienți." }),
+    page.getByRole("heading", {
+      name: "Software pentru clinici medicale. Mai mult timp pentru pacienți.",
+    }),
   ).toBeVisible();
   await expect(
     page
@@ -64,7 +64,7 @@ test("public homepage, pricing, functional walkthrough and mobile layout", async
   for (const width of [1920, 1440, 1024, 768, 390]) {
     await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
     await page.goto("/");
-    await expect(page.locator(".hero-product")).toHaveCSS("opacity", "1");
+    await expect(page.locator(".premium-hero-copy")).toHaveCSS("opacity", "1");
     await page.screenshot({ path: `test-results/marketing/hero-${width}.png` });
     for (const section of await page.locator("[data-reveal]").all()) {
       await section.scrollIntoViewIfNeeded();
@@ -83,11 +83,9 @@ test("public homepage, pricing, functional walkthrough and mobile layout", async
           path: `test-results/marketing/calendar-story-${width}.png`,
         });
       await page.goto("/prezentare");
-      await page
-        .locator("#prezentare")
-        .screenshot({
-          path: `test-results/marketing/walkthrough-${width}.png`,
-        });
+      await page.locator("#prezentare").screenshot({
+        path: `test-results/marketing/walkthrough-${width}.png`,
+      });
     }
     await page.goto("/pret");
     await page.locator("#pret").scrollIntoViewIfNeeded();
@@ -133,10 +131,19 @@ test("mobile navigation, keyboard product controls, dialogs and reduced motion",
     "alt",
     /Servicii/,
   );
-  await page.getByRole("link", { name: "Confidențialitate", exact: true }).click();
+  await page
+    .getByRole("link", { name: "Confidențialitate", exact: true })
+    .click();
   await expect(page).toHaveURL(/\/legal\/privacy$/);
-  await expect(page.getByRole("heading", { name: "Politica de confidențialitate", exact: true })).toBeVisible();
-  await expect(page.getByLabel("Statutul documentelor")).toContainText("Proiect pentru revizuire");
+  await expect(
+    page.getByRole("heading", {
+      name: "Politica de confidențialitate",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(page.getByLabel("Statutul documentelor")).toContainText(
+    "Proiect pentru revizuire",
+  );
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   await expect(page.locator("h1")).toHaveCSS("animation-name", "none");

@@ -23,7 +23,6 @@ export function MarketingFooter({
             <Link href="/produs">
               <T>{"Produs"}</T>
             </Link>
-            <Link href="/solutii-custom">Soluții custom</Link>
             <Link href="/pret">
               <T>{"Preț"}</T>
             </Link>
@@ -36,6 +35,14 @@ export function MarketingFooter({
             </Link>
           </LocalizedElement>
         </div>
+        <nav className="marketing-resource-links" aria-label="Ghiduri Voxa-OS">
+          <Link href="/solutii-custom">Soluții personalizate pentru clinici</Link>
+          <Link href="/ghid/alegere-software-clinica"><T>{"Cum alegi un software pentru clinică"}</T></Link>
+          <Link href="/migrare"><T>{"Import pacienți din Excel și CSV"}</T></Link>
+          <Link href="/integrari"><T>{"Integrări și servicii"}</T></Link>
+          <Link href="/securitate"><T>{"Acces și protecția datelor"}</T></Link>
+          <Link href="/prezentare"><T>{"Demonstrație cu date fictive"}</T></Link>
+        </nav>
         <div className="marketing-footer-bottom">
           <span>
             © {new Date().getFullYear()}
